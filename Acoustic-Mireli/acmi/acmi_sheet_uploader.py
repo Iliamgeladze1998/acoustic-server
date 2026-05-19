@@ -1,9 +1,10 @@
+import time
 import pandas as pd
 import json
 import requests
 import gspread
 from google.oauth2 import service_account
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import sys
 import urllib.parse
@@ -12,10 +13,10 @@ from gspread_formatting import CellFormat, Color, TextFormat, format_cell_range,
 # Telegram Configuration
 TELEGRAM_TOKEN = "8835894573:AAGkC2YHR8DnSvmII-bA3fvtO1GaW5CcHFA"
 CHAT_ID = "-5276225529"
-PRICE_COLUMNS = ['price_ac', 'price_mi']
+PRICE_COLUMNS = ['Price_AC', 'Price_MIR']
 STORE_NAMES = {
-    'price_ac': 'Acoustic',
-    'price_mi': 'Mireli',
+    'Price_AC': 'Acoustic',
+    'Price_MIR': 'Mireli',
 }
 
 def load_blacklist(blacklist_file):
@@ -146,147 +147,92 @@ def column_letter(index):
         result = chr(65 + remainder) + result
     return result
 
-def apply_standard_sheet_formatting(worksheet, headers, row_count):
-    print("   Applying standardized sheet formatting...")
-    if not headers or row_count < 1:
-        return
-    end_col = column_letter(len(headers))
-    full_range = f'A1:{end_col}{row_count}'
-    data_range = f'A2:{end_col}{max(row_count, 2)}'
-    header_range = f'A1:{end_col}1'
-    soft_border = Border('SOLID', Color(0.85, 0.85, 0.85))
+def update_timestamp(sheet, row_count, col_letter):
+    """Write the current timestamp into every data row of the Last_Updated column."""
+    now = (datetime.utcnow() + timedelta(hours=4)).strftime('%Y-%m-%d %H:%M:%S')
+    print(f"DEBUG: Current timestamp is {now}")
+    values = [[now]] * row_count
+    sheet.update(values=values, range_name=f'{col_letter}2:{col_letter}{row_count + 1}')
+    print(f"   Timestamp written to {row_count} rows in column {col_letter}.")
 
-    format_cell_range(worksheet, full_range, CellFormat(
-        backgroundColor=Color(1, 1, 1),
-        textFormat=TextFormat(foregroundColor=Color(0, 0, 0), fontSize=10),
-        horizontalAlignment='LEFT',
-        borders=Borders(top=soft_border, bottom=soft_border, left=soft_border, right=soft_border)
-    ))
-    format_cell_range(worksheet, header_range, CellFormat(
-        backgroundColor=Color(0.122, 0.306, 0.471),
-        textFormat=TextFormat(foregroundColor=Color(1, 1, 1), bold=True, fontSize=10),
-        horizontalAlignment='CENTER',
-        borders=Borders(top=soft_border, bottom=soft_border, left=soft_border, right=soft_border)
-    ))
-
-    for idx, header in enumerate(headers, start=1):
-        col = column_letter(idx)
-        if header in ['Price_AC', 'Price_MS', 'Price_MIR', 'Price_MR', 'Price_Diff']:
-            format_cell_range(worksheet, f'{col}2:{col}{row_count}', CellFormat(horizontalAlignment='RIGHT'))
-        elif 'Product_Name' in header or 'Link_' in header:
-            format_cell_range(worksheet, f'{col}2:{col}{row_count}', CellFormat(horizontalAlignment='LEFT'))
-
-    target_range = GridRange.from_a1_range(data_range, worksheet)
-    id_rule = conditionalFormatRule(
-        ranges=[target_range],
-        booleanRule=BooleanRule(
-            condition=BooleanCondition('CUSTOM_FORMULA', values=[{'userEnteredValue': '=$A2="ID"'}]),
-            format=CellFormat(backgroundColor=Color(1.0, 0.949, 0.8))
-        )
-    )
-    model_rule = conditionalFormatRule(
-        ranges=[target_range],
-        booleanRule=BooleanRule(
-            condition=BooleanCondition('CUSTOM_FORMULA', values=[{'userEnteredValue': '=OR($A2="Model",$A2="Fuzzy")'}]),
-            format=CellFormat(backgroundColor=Color(0.851, 0.918, 0.827))
-        )
-    )
-    rules = get_conditional_format_rules(worksheet)
-    rules.clear()
-    rules.append(id_rule)
-    rules.append(model_rule)
-    rules.save()
-    worksheet.freeze(rows=1)
-    print("   Standardized formatting applied.")
 
 def upload_to_sheet(df, sheet, sh):
-    """Upload data to Google Sheets with formatting."""
-    print("Step 3: Uploading filtered data to sheet...")
-    
-    # Clear existing data
-    sheet.clear()
-    
+    """Upload data to Google Sheets."""
     # Remove Match_Score column
     if 'Match_Score' in df.columns:
         df = df.drop(columns=['Match_Score'])
-    
+
     # Encode links for Google Sheets compatibility
     df = encode_links_in_df(df)
-    
-    # Add empty Feedback column
+
+    # Add Last_Updated and Feedback columns
+    now = (datetime.utcnow() + timedelta(hours=4)).strftime('%Y-%m-%d %H:%M:%S')
+    print(f"DEBUG: Current timestamp is {now}")
+    df['Last_Updated'] = now
     df['Feedback'] = ''
-    
-    # Convert to list of lists (including header)
-    data = [df.columns.tolist()] + df.values.tolist()
-    
-    # Upload data
-    sheet.update(data, value_input_option='USER_ENTERED')
-    
-    # Format header row (bold)
-    sheet.format('1:1', {
-        'textFormat': {'bold': True},
-        'backgroundColor': {'red': 0.9, 'green': 0.9, 'blue': 0.9}
-    })
-    
-    # Set background color of entire data range to Light Yellow 3 (#FFF2CC)
-    data_range = f'A1:{chr(64 + len(df.columns))}{len(df) + 1}'
-    sheet.format(data_range, {
-        'backgroundColor': {'red': 1.0, 'green': 0.95, 'blue': 0.8}
-    })
-    
-    # Re-format header row to override yellow
-    sheet.format('1:1', {
-        'textFormat': {'bold': True},
-        'backgroundColor': {'red': 0.9, 'green': 0.9, 'blue': 0.9}
-    })
-    
-    # Freeze first row
+
+    # Force-clear the sheet before writing
+    print("   Clearing sheet...")
+    sheet.clear()
+    print("   Sheet cleared.")
+
+    # Build upload payload: headers + all rows
+    headers = df.columns.tolist()
+    values = df.values.tolist()
+    data = [headers] + values
+    print(f"Step 3: Uploading {len(values)} rows to sheet starting at A1...")
+    sheet.update(values=data, range_name='A1')
+
+    # Freeze header row
     sheet.freeze(1)
-    
-    # Add data validation for Feedback column
-    feedback_col_index = df.columns.get_loc('Feedback') + 1  # 1-based index
-    feedback_col_letter = chr(64 + feedback_col_index)
-    feedback_range = f'{feedback_col_letter}2:{feedback_col_letter}{len(df) + 1}'
-    
-    # Use batch_update to set data validation
+
+    # Add data validation dropdown for Feedback column
+    feedback_col_index = df.columns.get_loc('Feedback') + 1
     body = {
-        'requests': [
-            {
-                'setDataValidation': {
-                    'range': {
-                        'sheetId': sheet.id,
-                        'startRowIndex': 1,
-                        'endRowIndex': len(df) + 1,
-                        'startColumnIndex': feedback_col_index - 1,
-                        'endColumnIndex': feedback_col_index
+        'requests': [{
+            'setDataValidation': {
+                'range': {
+                    'sheetId': sheet.id,
+                    'startRowIndex': 1,
+                    'endRowIndex': len(df) + 1,
+                    'startColumnIndex': feedback_col_index - 1,
+                    'endColumnIndex': feedback_col_index
+                },
+                'rule': {
+                    'condition': {
+                        'type': 'ONE_OF_LIST',
+                        'values': [
+                            {'userEnteredValue': 'Correct'},
+                            {'userEnteredValue': 'Needs Review'},
+                            {'userEnteredValue': 'Wrong'}
+                        ]
                     },
-                    'rule': {
-                        'condition': {
-                            'type': 'ONE_OF_LIST',
-                            'values': [
-                                {'userEnteredValue': 'Correct'},
-                                {'userEnteredValue': 'Needs Review'},
-                                {'userEnteredValue': 'Wrong'}
-                            ]
-                        },
-                        'showCustomUi': True,
-                        'strict': True
-                    }
+                    'showCustomUi': True,
+                    'strict': True
                 }
             }
-        ]
+        }]
     }
-    
-    sh.batch_update(body)
-    apply_standard_sheet_formatting(sheet, df.columns.tolist(), len(df) + 1)
-    
+    try:
+        sh.batch_update(body)
+        print("   Data validation dropdown added to Feedback column.")
+    except Exception as e:
+        print(f"   Warning: Could not apply data validation: {e}")
+
     print(f"Successfully uploaded {len(df)} rows to sheet.")
-    print("Data validation dropdown added to Feedback column.")
 
 def escape_md(text):
     """Escape special characters for Telegram MarkdownV2."""
     special_chars = r'\_*[]()~`>#+-=|{}.!'
     return ''.join(f'\\{c}' if c in special_chars else c for c in str(text))
+
+
+def parse_price(val):
+    """Normalize any price value to float. Returns 0.0 for empty, N/A, nan, or invalid."""
+    try:
+        return float(str(val).strip().replace(',', '').replace(' ', ''))
+    except (ValueError, TypeError):
+        return 0.0
 
 
 def send_telegram_message(token, chat_id, message):
@@ -298,10 +244,23 @@ def send_telegram_message(token, chat_id, message):
         "parse_mode": "MarkdownV2",
         "disable_web_page_preview": False,
     }
+    time.sleep(1.5)
     try:
         response = requests.post(url, json=payload, timeout=10)
         response.raise_for_status()
         print("   ✅ Telegram message sent successfully")
+    except requests.exceptions.HTTPError as e:
+        if e.response is not None and e.response.status_code == 429:
+            print("   ⚠️  Rate limit hit, pausing...")
+            time.sleep(10)
+            try:
+                response = requests.post(url, json=payload, timeout=10)
+                response.raise_for_status()
+                print("   ✅ Telegram message sent successfully (after retry)")
+            except requests.exceptions.RequestException as retry_err:
+                print(f"   ⚠️  Failed after retry: {retry_err}")
+        else:
+            print(f"   ⚠️  Failed to send Telegram message: {e}")
     except requests.exceptions.RequestException as e:
         print(f"   ⚠️  Failed to send Telegram message: {e}")
 
@@ -321,88 +280,122 @@ def fetch_sheet_as_dataframe(worksheet):
 
 
 def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
-    """Compare old and new DataFrames by product ID and send Telegram alerts for price changes."""
-    id_col = 'product_name_ac'
+    """Compare old and new DataFrames by Product_Name_AC and send Telegram alerts for price changes."""
+    print(f"\n📊 Comparison baseline: df_old={len(df_old)} rows, df_new={len(df_new)} rows")
+
+    if len(df_old) == 0 or len(df_new) == 0:
+        print("⚠️  Comparison skipped: one of the DataFrames is empty")
+        return
+    row_diff_pct = abs(len(df_old) - len(df_new)) / max(len(df_new), 1)
+    if row_diff_pct > 0.10:
+        print(f"⚠️  Comparison skipped due to data mismatch: df_old={len(df_old)} vs df_new={len(df_new)} ({row_diff_pct:.1%} difference — threshold 10%)")
+        return
+
+    id_col = 'Product_Name_AC'
     if id_col not in df_old.columns or id_col not in df_new.columns:
         print(f"⚠️  '{id_col}' column not found in sheet data, skipping alerts")
         return
 
-    name_col = None
-    for col in df_new.columns:
-        if 'product_name' in col.lower():
-            name_col = col
-            break
+    # Normalise identifier to stripped string
+    df_old[id_col] = df_old[id_col].astype(str).str.strip()
+    df_new[id_col] = df_new[id_col].astype(str).str.strip()
+
+    # Force numeric conversion for all tracked price columns
+    for pc in PRICE_COLUMNS:
+        if pc in df_old.columns:
+            df_old[pc] = pd.to_numeric(df_old[pc], errors='coerce').fillna(0)
+        if pc in df_new.columns:
+            df_new[pc] = pd.to_numeric(df_new[pc], errors='coerce').fillna(0)
+
+    # Deduplicate on Product_Name_AC (keeps last occurrence if duplicates exist)
+    df_old = df_old.drop_duplicates(subset=[id_col], keep='last')
+    df_new = df_new.drop_duplicates(subset=[id_col], keep='last')
+
+    print(f"DEBUG: Comparing {len(df_new)} products by name.")
 
     link_cols = [col for col in df_new.columns if 'link' in col.lower()]
-    price_cols = [c for c in PRICE_COLUMNS if c in df_old.columns and c in df_new.columns]
+    pending_alerts = []
 
-    if not price_cols:
-        print("⚠️  No price columns found for comparison, skipping alerts")
-        return
+    # Build price lookup dicts from df_old keyed by product name
+    old_price_maps = {}
+    for pc in PRICE_COLUMNS:
+        if pc in df_old.columns:
+            old_price_maps[pc] = dict(zip(df_old[id_col], df_old[pc]))
 
-    df_old_indexed = df_old.set_index(id_col)
-    changes_found = 0
+    old_names = set(df_old[id_col])
+    new_names = set(df_new[id_col])
 
-    for _, new_row in df_new.iterrows():
-        product_id = str(new_row.get(id_col, '')).strip()
-        if not product_id or product_id not in df_old_indexed.index:
+    for _, row in df_new.iterrows():
+        name = row[id_col]
+        if not name or name == 'nan':
             continue
 
-        old_row = df_old_indexed.loc[product_id]
-        if isinstance(old_row, pd.DataFrame):
-            old_row = old_row.iloc[0]
+        for price_col in PRICE_COLUMNS:
+            if price_col not in df_new.columns:
+                continue
+            new_price = round(float(row.get(price_col, 0) or 0), 2)
+            old_price = round(float(old_price_maps.get(price_col, {}).get(name, 0) or 0), 2)
 
-        for price_col in price_cols:
-            old_val = str(old_row.get(price_col, '')).strip()
-            new_val = str(new_row.get(price_col, '')).strip()
+            print(f"DEBUG: Comparing {name} | col={price_col} | Old: {old_price} | New: {new_price}")
 
-            old_val = '' if old_val in ('', 'nan', 'None', '-', 'N/A') else old_val
-            new_val = '' if new_val in ('', 'nan', 'None', '-', 'N/A') else new_val
-
-            if old_val == new_val:
+            if new_price == 0.0:
+                print(f"  → Skip (out-of-stock)")
+                continue
+            if abs(old_price - new_price) < 0.01:
+                print(f"  → Skip (same price)")
                 continue
 
-            product_name = str(new_row.get(name_col, product_id)) if name_col else product_id
+            print(f"  → ALERT: price changed {old_price} → {new_price}")
+
             store_name = STORE_NAMES.get(price_col, price_col)
-            old_display = old_val if old_val else 'N/A'
-            new_display = new_val if new_val else 'N/A'
+            old_display = f"{old_price:.2f}" if old_price != 0.0 else 'N/A'
+            new_display = f"{new_price:.2f}"
 
             links_lines = ''
             for lc in link_cols:
-                link_val = str(new_row.get(lc, '')).strip()
+                link_val = str(row.get(lc, '')).strip()
                 if link_val and link_val not in ('nan', 'None', ''):
                     links_lines += f'\n  \\- {escape_md(lc)}: {escape_md(link_val)}'
             if not links_lines:
                 links_lines = '\n  \\- N/A'
 
-            message = (
+            pending_alerts.append((
                 "🚨 *ფასის ცვლილება დეტექტირებულია\\!* 🚨\n"
-                f"📦 *პროდუქტი:* {escape_md(product_name)}\n"
+                f"📦 *პროდუქტი:* {escape_md(name)}\n"
                 f"🏦 *მაღაზია:* {escape_md(store_name)}\n"
                 f"💰 *ცვლილება:* {escape_md(old_display)} ₾ ➡️ {escape_md(new_display)} ₾\n"
                 f"🔗 *ბმულები:*{links_lines}"
-            )
+            ))
 
-            send_telegram_message(token, chat_id, message)
-            changes_found += 1
-
-    if changes_found == 0:
+    # Safety cap: > 5 pending alerts → send one consolidated message instead
+    alert_count = len(pending_alerts)
+    if alert_count == 0:
         print("✅ No price changes detected")
+    elif alert_count > 5:
+        print(f"⚠️  {alert_count} alerts queued — exceeds safety cap of 5, sending single consolidated notification")
+        consolidated = (
+            "🚨 *ფასის ცვლილება დეტექტირებულია\\!* 🚨\n"
+            f"📦 სულ {escape_md(str(alert_count))} პროდუქტის ფასი შეიცვალა\\.\n"
+            "📢 *გთხოვთ, ფასების სხვაობა გუგლ შითში გადაამოწმოთ\\.*"
+        )
+        send_telegram_message(token, chat_id, consolidated)
+        print(f"📨 Sent 1 consolidated alert covering {alert_count} price changes")
     else:
-        print(f"📨 Sent {changes_found} Telegram alert(s) for price changes")
+        for msg in pending_alerts:
+            send_telegram_message(token, chat_id, msg)
+        print(f"📨 Sent {alert_count} Telegram alert(s) for price changes")
 
     # Detect new products: in df_new but absent from df_old
-    old_ids = set(df_old_indexed.index.astype(str).str.strip())
-    new_ids = set(df_new[id_col].astype(str).str.strip())
-    new_products = new_ids - old_ids
+    new_products = new_names - old_names
     new_products.discard('')
+    new_products.discard('nan')
     new_count = len(new_products)
 
     if new_count > 0:
         print(f"🆕 {new_count} new product(s) detected, sending consolidated alert...")
         message = (
             "✨ *ბაზაში დაემატა ახალი პროდუქცია\\!* ✨\n"
-            f"📦 სულ დაემატა: {new_count} ახალი პროდუქტი\\.\n"
+            f"📦 სულ დაემატა: {new_count} ახალი პროდუქცია\\.\n"
             "📢 *გთხოვთ, ფასების სხვაობა და დეტალები გუგლ შითში გადაამოწმოთ\\.*"
         )
         send_telegram_message(token, chat_id, message)
