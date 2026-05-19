@@ -12,7 +12,7 @@ from gspread_formatting import CellFormat, Color, TextFormat, format_cell_range,
 
 # Telegram Configuration
 TELEGRAM_TOKEN = "REDACTED"
-CHAT_ID = "-5276225529"
+CHAT_ID = "-1003712689651"
 PRICE_COLUMNS = ['Price_AC', 'Price_MIR']
 STORE_NAMES = {
     'Price_AC': 'Acoustic',
