@@ -10,6 +10,7 @@ import json
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import pandas as pd
+import requests
 import gspread
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
@@ -19,6 +20,15 @@ from gspread_formatting import CellFormat, Color, TextFormat, format_cell_range,
 SPREADSHEET_ID = "1tDKgxcxPF8Jq151nMb6Wu_ziyOxkFATKSOquFKZrg94"
 TAB_NAME = "Musicroom"
 FEEDBACK_OPTIONS = ['Correct', 'Needs Review', 'Wrong']
+
+# Telegram Configuration
+TELEGRAM_TOKEN = "8835894573:AAGkC2YHR8DnSvmII-bA3fvtO1GaW5CcHFA"
+CHAT_ID = "-5276225529"
+PRICE_COLUMNS = ['price_ac', 'price_mr']
+STORE_NAMES = {
+    'price_ac': 'Acoustic',
+    'price_mr': 'Musicroom',
+}
 
 def load_blacklist(blacklist_path):
     """Load blacklist.json and return set of UNIQUE_IDs"""
@@ -275,6 +285,133 @@ def apply_formatting(worksheet, df, row_count, creds):
     except Exception as e:
         print(f"⚠️  Error applying formatting: {e}")
 
+def escape_md(text):
+    """Escape special characters for Telegram MarkdownV2."""
+    special_chars = r'\_*[]()~`>#+-=|{}.!'
+    return ''.join(f'\\{c}' if c in special_chars else c for c in str(text))
+
+
+def send_telegram_message(token, chat_id, message):
+    """Send a formatted message via Telegram Bot API using MarkdownV2."""
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": message,
+        "parse_mode": "MarkdownV2",
+        "disable_web_page_preview": False,
+    }
+    try:
+        response = requests.post(url, json=payload, timeout=10)
+        response.raise_for_status()
+        print("   \u2705 Telegram message sent successfully")
+    except requests.exceptions.RequestException as e:
+        print(f"   \u26a0\ufe0f  Failed to send Telegram message: {e}")
+
+
+def fetch_sheet_as_dataframe(worksheet):
+    """Fetch current Google Sheet data into a pandas DataFrame. Returns None if empty."""
+    try:
+        all_values = worksheet.get_all_values()
+        if len(all_values) < 2:
+            return None
+        headers = all_values[0]
+        rows = all_values[1:]
+        return pd.DataFrame(rows, columns=headers)
+    except Exception as e:
+        print(f"\u26a0\ufe0f  Could not fetch sheet data for comparison: {e}")
+        return None
+
+
+def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
+    """Compare old and new DataFrames by product ID and send Telegram alerts for price changes."""
+    id_col = 'product_name_ac'
+    if id_col not in df_old.columns or id_col not in df_new.columns:
+        print(f"⚠️  '{id_col}' column not found in sheet data, skipping alerts")
+        return
+
+    name_col = None
+    for col in df_new.columns:
+        if 'product_name' in col.lower():
+            name_col = col
+            break
+
+    link_cols = [col for col in df_new.columns if 'link' in col.lower()]
+    price_cols = [c for c in PRICE_COLUMNS if c in df_old.columns and c in df_new.columns]
+
+    if not price_cols:
+        print("\u26a0\ufe0f  No price columns found for comparison, skipping alerts")
+        return
+
+    df_old_indexed = df_old.set_index(id_col)
+    changes_found = 0
+
+    for _, new_row in df_new.iterrows():
+        product_id = str(new_row.get(id_col, '')).strip()
+        if not product_id or product_id not in df_old_indexed.index:
+            continue
+
+        old_row = df_old_indexed.loc[product_id]
+        if isinstance(old_row, pd.DataFrame):
+            old_row = old_row.iloc[0]
+
+        for price_col in price_cols:
+            old_val = str(old_row.get(price_col, '')).strip()
+            new_val = str(new_row.get(price_col, '')).strip()
+
+            old_val = '' if old_val in ('', 'nan', 'None', '-', 'N/A') else old_val
+            new_val = '' if new_val in ('', 'nan', 'None', '-', 'N/A') else new_val
+
+            if old_val == new_val:
+                continue
+
+            product_name = str(new_row.get(name_col, product_id)) if name_col else product_id
+            store_name = STORE_NAMES.get(price_col, price_col)
+            old_display = old_val if old_val else 'N/A'
+            new_display = new_val if new_val else 'N/A'
+
+            links_lines = ''
+            for lc in link_cols:
+                link_val = str(new_row.get(lc, '')).strip()
+                if link_val and link_val not in ('nan', 'None', ''):
+                    links_lines += f'\n  \\- {escape_md(lc)}: {escape_md(link_val)}'
+            if not links_lines:
+                links_lines = '\n  \\- N/A'
+
+            message = (
+                "🚨 *ფასის ცვლილება დეტექტირებულია\\!* 🚨\n"
+                f"📦 *პროდუქტი:* {escape_md(product_name)}\n"
+                f"🏪 *მაღაზია:* {escape_md(store_name)}\n"
+                f"💰 *ცვლილება:* {escape_md(old_display)} ₾ ➡️ {escape_md(new_display)} ₾\n"
+                f"🔗 *ბმულები:*{links_lines}"
+            )
+
+            send_telegram_message(token, chat_id, message)
+            changes_found += 1
+
+    if changes_found == 0:
+        print("✅ No price changes detected")
+    else:
+        print(f"📨 Sent {changes_found} Telegram alert(s) for price changes")
+
+    # Detect new products: in df_new but absent from df_old
+    old_ids = set(df_old_indexed.index.astype(str).str.strip())
+    new_ids = set(df_new[id_col].astype(str).str.strip())
+    new_products = new_ids - old_ids
+    new_products.discard('')
+    new_count = len(new_products)
+
+    if new_count > 0:
+        print(f"🆕 {new_count} new product(s) detected, sending consolidated alert...")
+        message = (
+            "✨ *ბაზაში დაემატა ახალი პროდუქცია\\!* ✨\n"
+            f"📦 სულ დაემატა: {new_count} ახალი პროდუქტი\\.\n"
+            "📢 *გთხოვთ, ფასების სხვაობა და დეტალები გუგლ შითში გადაამოწმოთ\\.*"
+        )
+        send_telegram_message(token, chat_id, message)
+    else:
+        print("✅ No new products detected")
+
+
 def main():
     print("="*60)
     print("ACMR SHEET UPLOADER")
@@ -347,11 +484,18 @@ def main():
     df = add_timestamp_and_feedback(df)
     
     # STEP 7: Clear and upload
+    df_old = None
     try:
         if worksheet is None:
             worksheet = spreadsheet.add_worksheet(title=TAB_NAME, rows="1000", cols="20")
             print(f"✅ Created new tab '{TAB_NAME}'")
-        
+        else:
+            # Fetch baseline before clearing for price change comparison
+            print("📊 Fetching baseline data for price change comparison...")
+            df_old = fetch_sheet_as_dataframe(worksheet)
+            if df_old is None:
+                print("ℹ️  Sheet is empty — skipping price comparison for this run.")
+
         # Clear the worksheet
         worksheet.clear()
         
@@ -372,6 +516,12 @@ def main():
         return False
     
     print("\n🎉 Upload completed successfully!")
+
+    # STEP 8: Telegram price change alerts
+    if df_old is not None:
+        print("\n📊 Checking for price changes...")
+        detect_and_alert_price_changes(df_old, df, TELEGRAM_TOKEN, CHAT_ID)
+
     return True
 
 if __name__ == "__main__":
