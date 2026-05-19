@@ -1,0 +1,73 @@
+# Virtual environments
+.venv/
+venv/
+*/venv/
+*/*/venv/
+env/
+.env/
+
+# Playwright / browser caches & binaries
+.playwright/
+*/.playwright/
+pw-browsers/
+*/pw-browsers/
+*/*/pw-browsers/
+
+# Windsurf / Editor caches
+.codeium/
+.windsurf-server/
+.windsurf/
+
+# System / Logs
+*.log
+nohup.out
+output.txt
+full_logs.txt
+scrapers_output.log
+
+# Python cache
+__pycache__/
+*/__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# System dotfiles (not project code)
+.bash_history
+.bashrc
+.gitconfig
+.lesshst
+.profile
+.selected_editor
+.cloud-locale-test.skip
+.config/
+.local/
+.pki/
+.ssh/
+
+# Cache
+.cache/
+*.cache
+
+# Credentials / secrets
+credentials.json
+*/credentials.json
+*/*/credentials.json
+
+# Large data files
+*.xlsx
+*.xls
+!requirements.txt

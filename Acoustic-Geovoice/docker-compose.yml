@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  acgv-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: acgv-bot
+    volumes:
+      # Persist blacklist.json
+      - ./acgv/data:/app/acgv/data
+      # Persist generated Excel reports
+      - ./reports:/app/reports
+      # Read-only credentials for Google Sheets
+      - ./credentials.json:/app/credentials.json:ro
+    environment:
+      - HEADLESS=true
+    command: python acgv/acgv_main.py
+    restart: "no"

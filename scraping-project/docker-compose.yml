@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  acms:
+    build: .
+    restart: "no"
+    environment:
+      - PYTHONIOENCODING=utf-8
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - .:/app
+      - ./acms/data:/app/acms/data
+      - /root/scraping-project/acms/reports:/app/reports
+      - ./credentials.json:/app/credentials.json:ro

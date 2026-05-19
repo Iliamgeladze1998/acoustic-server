@@ -1,0 +1,21 @@
+name: Run Scraper
+
+on:
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create credentials.json from secret
+        run: echo "${{ secrets.G_CREDENTIALS }}" > credentials.json
+
+      - name: Build Docker image
+        run: docker build -t scraper .
+
+      - name: Run Docker container
+        run: docker run --rm scraper

@@ -1,0 +1,85 @@
+import subprocess
+import sys
+import os
+import asyncio
+
+def run_script(script_name):
+    """Run a Python script in the same directory"""
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    script_path = os.path.join(script_dir, script_name)
+    
+    print(f"[DEBUG] --- Running script: {script_name} ---", flush=True)
+    print(f"[DEBUG] Script directory: {script_dir}", flush=True)
+    print(f"[DEBUG] Full script path: {script_path}", flush=True)
+    
+    try:
+        print(f"[DEBUG] Executing subprocess...", flush=True)
+        result = subprocess.run([sys.executable, script_path], 
+                                cwd=script_dir)
+        
+        print(f"[DEBUG] Subprocess completed with exit code: {result.returncode}", flush=True)
+        
+        if result.returncode == 0:
+            print(f"[DEBUG] SUCCESS: {script_name} completed", flush=True)
+            return True
+        else:
+            print(f"[DEBUG] ERROR: {script_name} failed with exit code {result.returncode}", flush=True)
+            return False
+            
+    except Exception as e:
+        print(f"[DEBUG] ERROR: Could not run {script_name}: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        return False
+
+def run_acoustic_master():
+    """Master controller for acoustic scraping process"""
+    
+    print("[DEBUG] --- Starting Acoustic Scraping Master Controller ---", flush=True)
+    print("="*60, flush=True)
+    print("ACOUSTIC SCRAPING MASTER CONTROLLER", flush=True)
+    print("="*60, flush=True)
+    
+    # Step 1: Update links
+    print("\n[DEBUG] Step 1: Updating links...", flush=True)
+    print("-" * 40, flush=True)
+    
+    if not run_script("acoustic_get_links.py"):
+        print("[DEBUG] Failed to update links. Aborting process.", flush=True)
+        return False
+    
+    print("[DEBUG] Links updated successfully", flush=True)
+    
+    print("\n[DEBUG] Step 2: Starting full scrape...", flush=True)
+    print("-" * 40, flush=True)
+    
+    # Step 2: Run full scraper
+    if not run_script("acoustic_full_scraper.py"):
+        print("[DEBUG] Full scrape failed.", flush=True)
+        return False
+    
+    print("[DEBUG] Full scrape completed successfully", flush=True)
+    
+    print("\n[DEBUG] Step 3: Running data transformation...", flush=True)
+    print("-" * 40, flush=True)
+    
+    # Step 3: Run transformation
+    if not run_script("transform.py"):
+        print("[DEBUG] Data transformation failed.", flush=True)
+        return False
+    
+    print("[DEBUG] Data transformation completed successfully", flush=True)
+    
+    print("\n" + "="*60, flush=True)
+    print("ENTIRE PROCESS COMPLETED SUCCESSFULLY!", flush=True)
+    print("="*60, flush=True)
+    print("[DEBUG] Acoustic scraping master controller finished", flush=True)
+    return True
+
+if __name__ == "__main__":
+    success = run_acoustic_master()
+    if not success:
+        print("\nProcess failed. Check the error messages above.", flush=True)
+        sys.exit(1)
+    else:
+        print("\nProcess completed successfully!", flush=True)

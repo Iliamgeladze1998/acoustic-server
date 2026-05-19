@@ -1,0 +1,73 @@
+import time
+import os
+from playwright.sync_api import sync_playwright
+
+def get_all_subcategory_links():
+    with sync_playwright() as p:
+        headless_mode = os.getenv('HEADLESS', 'true').lower() == 'true'
+        browser = p.chromium.launch(headless=headless_mode, args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'])
+        context = browser.new_context(
+            user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            viewport={'width': 1920, 'height': 1080}
+        )
+        page = context.new_page()
+        
+        print("Navigating to site...", flush=True)
+        page.goto("https://acoustic.ge", wait_until="networkidle")
+        
+        # Locate all main categories using the menu item selector
+        main_categories = page.query_selector_all(".ty-menu__item-link")
+        
+        all_links = []
+        processed_titles = set()
+        
+        print(f"Found {len(main_categories)} menu items. Starting filtration...", flush=True)
+
+        for category in main_categories:
+            # 1. Check if the category is visible
+            if not category.is_visible():
+                continue
+                
+            cat_name = category.inner_text().strip()
+            
+            # 2. Check name validity and avoid duplicates
+            if not cat_name or cat_name in processed_titles:
+                continue
+                
+            processed_titles.add(cat_name)
+            print(f"Processing category: {cat_name}", flush=True)
+
+            try:
+                # Hover over the category to trigger the dropdown menu
+                category.hover()
+                time.sleep(1.5) # Allow time for the submenu to appear
+                
+                # Extract sub-links that become visible upon hover
+                sub_links = page.query_selector_all(".ty-menu__submenu-link")
+                
+                current_cat_links = 0
+                for link_el in sub_links:
+                    if link_el.is_visible():
+                        href = link_el.get_attribute("href")
+                        if href and href not in all_links:
+                            all_links.append(href)
+                            current_cat_links += 1
+                
+                print(f"   -- Added {current_cat_links} subcategories", flush=True)
+                
+            except Exception as e:
+                print(f"   -- Error processing {cat_name}: {e}", flush=True)
+
+        # Save all unique links to a text file
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(script_dir, "subcategory_links.txt"), "w", encoding="utf-8") as f:
+            for link in all_links:
+                f.write(link + "\n")
+                
+        print(f"\nSuccess! Total of {len(all_links)} links collected.", flush=True)
+        print("Check the file: subcategory_links.txt", flush=True)
+        
+        browser.close()
+
+if __name__ == "__main__":
+    get_all_subcategory_links()

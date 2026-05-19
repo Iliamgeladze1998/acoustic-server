@@ -1,0 +1,94 @@
+import sys
+import io
+import pandas as pd
+import json
+import requests
+from bs4 import BeautifulSoup
+import time
+import os
+from pathlib import Path
+
+# Force UTF-8 encoding for stdout to handle Georgian characters
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
+# Use absolute paths based on script location
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+INPUT_FILE = os.path.join(SCRIPT_DIR, "all_product_links.txt")
+OUTPUT_FILE = os.path.join(SCRIPT_DIR, "musicroom_results.xlsx")
+
+all_data = []
+
+def scrape_musicroom(url):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+    
+    try:
+        response = requests.get(url, headers=headers)
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        # Find Schema.org JSON data (SKU, Name, Price are in there)
+        schema_data = soup.find('script', type='application/ld+json', class_='rank-math-schema')
+        
+        if schema_data:
+            data_json = json.loads(schema_data.string)
+            # Find Product part in the graph
+            product_info = next(item for item in data_json['@graph'] if item['@type'] == 'Product')
+            
+            # Extract data
+            name = product_info.get('name')
+            sku = product_info.get('sku')  # This is UNIQUE_ID
+            price = product_info.get('offers', {}).get('price')
+            
+            # Format price as integer (remove trailing zeros and decimals)
+            if price:
+                try:
+                    price = int(float(price))
+                except (ValueError, TypeError):
+                    price = 0
+            
+            # Extract status from Meta tag (more reliable)
+            availability_meta = soup.find('meta', property='product:availability')
+            status = availability_meta['content'] if availability_meta else "unknown"
+
+            return {
+                "UNIQUE_ID": sku,
+                "NAME": name,
+                "PRICE": price,
+                "STATUS": status,
+                "LINK": url
+            }
+    except Exception as e:
+        print(f"Error scraping {url}: {e}")
+        return None
+
+# Read all product links
+input_path = Path(INPUT_FILE)
+try:
+    with open(input_path, "r", encoding="utf-8") as f:
+        product_links = [line.strip() for line in f if line.strip()]
+except FileNotFoundError:
+    print(f" Input file not found: {INPUT_FILE}")
+    exit(1)
+
+print(f" Found {len(product_links)} product links to process")
+
+# Main loop - process all links
+for i, link in enumerate(product_links, 1):
+    print(f"Processing {i}/{len(product_links)}: {link}")
+    data = scrape_musicroom(link)
+    if data:
+        all_data.append(data)
+        # Real-time logging for each product
+        print(f" Scraped: {data['NAME']} - Price: {data['PRICE']} - ID: {data['UNIQUE_ID']}")
+    time.sleep(1)  # Delay to avoid server blocking
+
+# Create XLSX file in same folder as script
+if all_data:
+    df = pd.DataFrame(all_data)
+    # Save to the output path
+    output_path = Path(OUTPUT_FILE)
+    df.to_excel(output_path, index=False)
+    print(f"\n Complete. {len(all_data)} products saved to {output_path}")
+else:
+    print(" No data collected. File not created.")

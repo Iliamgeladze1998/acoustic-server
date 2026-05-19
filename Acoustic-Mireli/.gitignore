@@ -1,0 +1,39 @@
+# Excel files
+*.xlsx
+~$*.xlsx
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+credentials.json
+venv/
+__pycache__/
+*.xlsx
+
+
+# Environment
+.env
+
+# Docker
+.docker/
