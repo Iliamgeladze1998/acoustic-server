@@ -23,7 +23,7 @@ FEEDBACK_OPTIONS = ['Correct', 'Needs Review', 'Wrong']
 
 # Telegram Configuration
 TELEGRAM_TOKEN = "8835894573:AAGkC2YHR8DnSvmII-bA3fvtO1GaW5CcHFA"
-CHAT_ID = "-5276225529"
+CHAT_ID = "-1003712689651"
 PRICE_COLUMNS = ['price_ac', 'price_mr']
 STORE_NAMES = {
     'price_ac': 'Acoustic',

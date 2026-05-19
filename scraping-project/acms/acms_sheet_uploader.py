@@ -21,7 +21,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # Telegram Configuration
 TELEGRAM_TOKEN = "8835894573:AAGkC2YHR8DnSvmII-bA3fvtO1GaW5CcHFA"
-CHAT_ID = "-5276225529"
+CHAT_ID = "-1003712689651"
 PRICE_COLUMNS = ['Price_AC', 'Price_MS']
 STORE_NAMES = {
     'Price_AC': 'Acoustic',
