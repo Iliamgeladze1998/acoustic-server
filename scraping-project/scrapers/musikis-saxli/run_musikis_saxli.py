@@ -101,33 +101,38 @@ def main():
         ("transform.py", "Clean and transform scraped data")
     ]
     
-    # Run pipeline sequentially
+    # Run pipeline sequentially. Fail-fast: stop on the first failed stage so
+    # we never overwrite good output with partial data from a later stage.
     success_count = 0
     total_stages = len(scripts)
-    
+    failed_script = None
+
     for i, (script_name, description) in enumerate(scripts, 1):
         print(f"\n📍 PIPELINE STAGE {i}/{total_stages}", flush=True)
-        
+
         if run_script(script_name, description):
             success_count += 1
         else:
-            print(f"\n⚠️  STAGE FAILED: {script_name} - continuing to next stage...", flush=True)
-    
+            failed_script = script_name
+            print(f"\n❌ STAGE FAILED: {script_name} - aborting pipeline.", flush=True)
+            break
+
     # Final summary
     print(f"\n{'='*80}", flush=True)
     print(f"🏁 PIPELINE COMPLETE - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", flush=True)
     print(f"✅ Stages completed: {success_count}/{total_stages}", flush=True)
-    
-    if success_count == total_stages:
+
+    if failed_script is None and success_count == total_stages:
         print("All stages successful!", flush=True)
         print("Check music_store_final_stock.xlsx for scraped data", flush=True)
         print("Check final_stock_cleaned.xlsx for transformed data", flush=True)
     else:
-        print("⚠️  Some stages failed - check logs above", flush=True)
-    
+        print(f"⚠️  Pipeline failed at: {failed_script}", flush=True)
+
     print(f"{'='*80}", flush=True)
-    return success_count == total_stages
+    return failed_script is None and success_count == total_stages
 
 if __name__ == "__main__":
-    main()
-    sys.exit(0)  # Always exit 0 - crash-proof
+    # Propagate the real exit code so parent orchestrators can detect failure.
+    ok = main()
+    sys.exit(0 if ok else 1)
