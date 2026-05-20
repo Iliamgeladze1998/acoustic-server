@@ -67,6 +67,11 @@ async def extract_product_links(page, url, max_retries=3):
 
 
 async def main():
+    output_path = Path(OUTPUT_FILE)
+    if output_path.exists():
+        output_path.unlink()
+        print(f"🗑️ Cleared existing {output_path.name}")
+
     # Read category page URLs
     input_path = Path(INPUT_FILE)
     try:
@@ -74,15 +79,9 @@ async def main():
             page_urls = [line.strip() for line in f if line.strip()]
     except FileNotFoundError:
         print(f"❌ Input file not found: {INPUT_FILE}")
-        return
+        raise SystemExit(1)
     
     print(f"📂 Found {len(page_urls)} pages to process")
-    
-    # Clear existing output file before starting
-    output_path = Path(OUTPUT_FILE)
-    if output_path.exists():
-        output_path.unlink()
-        print(f"🗑️ Cleared existing {output_path.name}")
     
     # Initialize browser
     playwright = await async_playwright().start()
@@ -124,7 +123,7 @@ async def main():
     # Save results
     if not all_product_links:
         print("❌ No product links found. File not written.")
-        return
+        raise SystemExit(1)
     
     output_path = Path(__file__).parent / "all_product_links.txt"
     output_path.parent.mkdir(parents=True, exist_ok=True)

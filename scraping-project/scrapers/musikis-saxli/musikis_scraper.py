@@ -155,10 +155,13 @@ async def scrape_single_product(semaphore, context, url, index, total):
 async def main():
     if not os.path.exists(INPUT_FILE):
         print(f"Error: {INPUT_FILE} not found!", flush=True)
-        return
+        return False
 
     with open(INPUT_FILE, "r", encoding="utf-8") as f:
         urls = [line.strip() for line in f if line.strip()]
+    if not urls:
+        print(f"Error: {INPUT_FILE} contains no product URLs!", flush=True)
+        return False
 
     print(f"Starting Music-Store scrape for {len(urls)} products...", flush=True)
 
@@ -239,12 +242,16 @@ async def main():
                 print(f"DONE! Total Unique Products: {len(final_df)}", flush=True)
                 print(f"File saved: {OUTPUT_FILE}", flush=True)
                 print(f"{'='*60}", flush=True)
+                return True
             except Exception as final_err:
                 print(f"[ERROR] Final Excel save failed: {final_err}", flush=True)
+                return False
         except Exception as e:
             print(f"[ERROR] Could not save final file: {e}", flush=True)
+            return False
     else:
         print("No products extracted.", flush=True)
+        return False
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    sys.exit(0 if asyncio.run(main()) else 1)

@@ -13,25 +13,20 @@ async def load_source_links() -> list[str]:
     with open(INPUT_FILE, "r", encoding="utf-8") as f:
         return [line.strip() for line in f if line.strip()]
 
-async def save_product_links(links: list[str]) -> None:
-    """Save product links to the output file, avoiding duplicates."""
-    existing_links = set()
-    if os.path.exists(OUTPUT_FILE):
-        with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
-            existing_links = set(line.strip() for line in f if line.strip())
-
-    new_links = set(links) - existing_links
-
-    if new_links:
-        with open(OUTPUT_FILE, "a", encoding="utf-8") as f:
-            for link in sorted(new_links):
-                f.write(link + "\n")
-        print(f"[INFO] Added {len(new_links)} new products to {os.path.basename(OUTPUT_FILE)}", flush=True)
+async def save_product_links(links: set[str]) -> None:
+    """Save product links to the output file, overwriting any previous run."""
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        for link in sorted(links):
+            f.write(link + "\n")
+    print(f"[INFO] Saved {len(links)} fresh products to {os.path.basename(OUTPUT_FILE)}", flush=True)
 
 async def get_product_links() -> None:
+    if os.path.exists(OUTPUT_FILE):
+        os.remove(OUTPUT_FILE)
+
     source_urls = await load_source_links()
     if not source_urls:
-        return
+        raise SystemExit(1)
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'])
@@ -39,6 +34,7 @@ async def get_product_links() -> None:
         page = await context.new_page()
 
         print(f"[START] Processing {len(source_urls)} pages...", flush=True)
+        all_product_links: set[str] = set()
 
         for index, url in enumerate(source_urls, 1):
             print(f"[{index}/{len(source_urls)}] Processing: {url}", flush=True)
@@ -53,7 +49,12 @@ async def get_product_links() -> None:
                 }""")
 
                 if product_links:
-                    await save_product_links(product_links)
+                    all_product_links.update(product_links)
+                    print(
+                        f"[INFO] Found {len(product_links)} links on page "
+                        f"(total unique: {len(all_product_links)})",
+                        flush=True
+                    )
                 else:
                     print(f"[WARN] No products found on page: {url}", flush=True)
 
@@ -62,6 +63,10 @@ async def get_product_links() -> None:
                 continue
 
         await browser.close()
+        if not all_product_links:
+            print("[ERROR] No product links collected. Aborting.", flush=True)
+            raise SystemExit(1)
+        await save_product_links(all_product_links)
         print(f"[DONE] All product links are saved in: {OUTPUT_FILE}", flush=True)
 
 def main() -> None:

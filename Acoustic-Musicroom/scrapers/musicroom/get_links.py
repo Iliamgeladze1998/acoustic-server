@@ -90,15 +90,17 @@ async def fetch_category_links():
 
 
 async def main():
+    # Clear previous run's output before fetching so stale links cannot survive.
+    output_file = Path(__file__).parent / "get_main_category_links.txt"
+    if output_file.exists():
+        output_file.unlink()
+
     urls = await fetch_category_links()
     
     # Check for empty list before opening file
     if not urls:
         print("❌ No category links found. File not written.")
-        return
-    
-    # Use strict pathing relative to script location
-    output_file = Path(__file__).parent / "get_main_category_links.txt"
+        raise SystemExit(1)
     
     with open(output_file, "w", encoding="utf-8") as f:
         for url in urls:

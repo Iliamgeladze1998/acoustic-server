@@ -64,6 +64,19 @@ def merge_store_data():
     print("\n0. Loading blacklist...")
     blacklist = load_blacklist()
     print(f"   Loaded {len(blacklist)} blacklisted pairs")
+
+    # Remove the previous merged report at the start so a failed merge cannot
+    # leave a stale file for the uploader's 24-hour guard.
+    output_dir = os.path.join(os.path.dirname(__file__), 'reports')
+    os.makedirs(output_dir, exist_ok=True)
+    output_file = os.path.join(output_dir, 'price_comparison_final.xlsx')
+    if os.path.exists(output_file):
+        try:
+            os.remove(output_file)
+            print(f"   Removed previous merged report: {output_file}")
+        except Exception as e:
+            print(f"   Could not remove previous merged report: {e}")
+            return False
     
     # Load cleaned data from both stores
     print("\n1. Loading cleaned data...")
@@ -251,10 +264,6 @@ def merge_store_data():
         print(f"   Model matches: {len(df_final[df_final['Matching_Style'] == 'Model'])}")
         
         # Save to acms/reports directory
-        output_dir = os.path.join(os.path.dirname(__file__), 'reports')
-        os.makedirs(output_dir, exist_ok=True)
-        
-        output_file = os.path.join(output_dir, 'price_comparison_final.xlsx')
         df_final.to_excel(output_file, index=False)
         print(f"\n6. Results saved to: {output_file}")
         
@@ -277,3 +286,4 @@ if __name__ == "__main__":
         print(f"\n=== MERGER COMPLETED SUCCESSFULLY ===")
     else:
         print(f"\n=== MERGER FAILED ===")
+    sys.exit(0 if success else 1)

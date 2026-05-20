@@ -18,6 +18,43 @@ STORE_NAMES = {
     'Price_AC': 'Acoustic',
     'Price_MIR': 'Mireli',
 }
+MERGED_FILE_MAX_AGE_SECONDS = 24 * 60 * 60
+
+
+def _abort_critical(message):
+    """Log a CRITICAL pipeline error and abort the process immediately."""
+    banner = "=" * 60
+    print(banner, flush=True)
+    print(f"CRITICAL: {message}", flush=True)
+    print("ABORTING pipeline - uploader will NOT proceed with stale or missing merged data.", flush=True)
+    print(banner, flush=True)
+    sys.exit(1)
+
+
+def _ensure_recent_merged_file(merged_file):
+    """Require the merged Excel file to exist and be less than 24 hours old."""
+    if not os.path.exists(merged_file):
+        _abort_critical(
+            f"Merged Excel file not found: {merged_file}. "
+            "Run the merger before starting the uploader."
+        )
+
+    file_mtime = os.path.getmtime(merged_file)
+    age_seconds = datetime.now().timestamp() - file_mtime
+    if age_seconds > MERGED_FILE_MAX_AGE_SECONDS:
+        modified_at = datetime.fromtimestamp(file_mtime).strftime("%Y-%m-%d %H:%M:%S")
+        age_hours = age_seconds / 3600
+        _abort_critical(
+            f"Merged Excel file is older than 24 hours: {merged_file} "
+            f"(modified {modified_at}, age {age_hours:.2f} hours)."
+        )
+
+    modified_at = datetime.fromtimestamp(file_mtime).strftime("%Y-%m-%d %H:%M:%S")
+    age_hours = max(age_seconds, 0) / 3600
+    print(
+        f"✅ Freshness check passed: merged Excel modified at {modified_at} "
+        f"({age_hours:.2f} hours old)."
+    )
 
 def load_blacklist(blacklist_file):
     """Load blacklist from JSON file."""
@@ -249,6 +286,7 @@ def send_telegram_message(token, chat_id, message):
         response = requests.post(url, json=payload, timeout=10)
         response.raise_for_status()
         print("   ✅ Telegram message sent successfully")
+        return True
     except requests.exceptions.HTTPError as e:
         if e.response is not None and e.response.status_code == 429:
             print("   ⚠️  Rate limit hit, pausing...")
@@ -257,12 +295,16 @@ def send_telegram_message(token, chat_id, message):
                 response = requests.post(url, json=payload, timeout=10)
                 response.raise_for_status()
                 print("   ✅ Telegram message sent successfully (after retry)")
+                return True
             except requests.exceptions.RequestException as retry_err:
                 print(f"   ⚠️  Failed after retry: {retry_err}")
+                return False
         else:
             print(f"   ⚠️  Failed to send Telegram message: {e}")
+            return False
     except requests.exceptions.RequestException as e:
         print(f"   ⚠️  Failed to send Telegram message: {e}")
+        return False
 
 
 def fetch_sheet_as_dataframe(worksheet):
@@ -283,18 +325,21 @@ def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
     """Compare old and new DataFrames by Product_Name_AC and send Telegram alerts for price changes."""
     print(f"\n📊 Comparison baseline: df_old={len(df_old)} rows, df_new={len(df_new)} rows")
 
-    if len(df_old) == 0 or len(df_new) == 0:
-        print("⚠️  Comparison skipped: one of the DataFrames is empty")
-        return
+    if len(df_new) == 0:
+        print("⚠️  Comparison failed: df_new is empty")
+        return False
+    if len(df_old) == 0:
+        print("ℹ️  Comparison skipped: sheet baseline is empty")
+        return True
     row_diff_pct = abs(len(df_old) - len(df_new)) / max(len(df_new), 1)
     if row_diff_pct > 0.10:
         print(f"⚠️  Comparison skipped due to data mismatch: df_old={len(df_old)} vs df_new={len(df_new)} ({row_diff_pct:.1%} difference — threshold 10%)")
-        return
+        return False
 
     id_col = 'Product_Name_AC'
     if id_col not in df_old.columns or id_col not in df_new.columns:
         print(f"⚠️  '{id_col}' column not found in sheet data, skipping alerts")
-        return
+        return False
 
     # Normalise identifier to stripped string
     df_old[id_col] = df_old[id_col].astype(str).str.strip()
@@ -378,11 +423,13 @@ def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
             f"📦 სულ {escape_md(str(alert_count))} პროდუქტის ფასი შეიცვალა\\.\n"
             "📢 *გთხოვთ, ფასების სხვაობა გუგლ შითში გადაამოწმოთ\\.*"
         )
-        send_telegram_message(token, chat_id, consolidated)
+        if not send_telegram_message(token, chat_id, consolidated):
+            return False
         print(f"📨 Sent 1 consolidated alert covering {alert_count} price changes")
     else:
         for msg in pending_alerts:
-            send_telegram_message(token, chat_id, msg)
+            if not send_telegram_message(token, chat_id, msg):
+                return False
         print(f"📨 Sent {alert_count} Telegram alert(s) for price changes")
 
     # Detect new products: in df_new but absent from df_old
@@ -398,9 +445,12 @@ def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
             f"📦 სულ დაემატა: {new_count} ახალი პროდუქცია\\.\n"
             "📢 *გთხოვთ, ფასების სხვაობა და დეტალები გუგლ შითში გადაამოწმოთ\\.*"
         )
-        send_telegram_message(token, chat_id, message)
+        if not send_telegram_message(token, chat_id, message):
+            return False
     else:
         print("✅ No new products detected")
+
+    return True
 
 
 def main():
@@ -414,6 +464,8 @@ def main():
     credentials_file = os.path.join(BASE_DIR, 'credentials.json')
     spreadsheet_id = '1tDKgxcxPF8Jq151nMb6Wu_ziyOxkFATKSOquFKZrg94'
     tab_name = 'Mireli'
+
+    _ensure_recent_merged_file(source_file)
     
     try:
         # Authenticate with Google Sheets
@@ -470,29 +522,34 @@ def main():
         
         if len(filtered_df) == 0:
             print("No data to upload after filtering.")
-            return
+            return False
         
-        # Step 3: Upload to sheet
-        upload_to_sheet(filtered_df, worksheet, sh)
-
-        # Telegram price change alerts
+        # Telegram price change alerts must run before the sheet is overwritten.
         if df_old is not None:
-            print("\n📊 Checking for price changes...")
-            detect_and_alert_price_changes(df_old, filtered_df, TELEGRAM_TOKEN, CHAT_ID)
+            print("\n📊 Checking for price changes before updating Google Sheets...")
+            if not detect_and_alert_price_changes(df_old, filtered_df, TELEGRAM_TOKEN, CHAT_ID):
+                print("❌ Comparison/alert checkpoint failed. Aborting before Google Sheet update.")
+                return False
+
+        # Step 3: Upload to sheet only after alerts are sent
+        upload_to_sheet(filtered_df, worksheet, sh)
 
         print("\n" + "=" * 80)
         print("SYNC COMPLETED SUCCESSFULLY")
         print("=" * 80)
         print(f"Blacklist entries: {len(blacklist)}")
         print(f"Rows uploaded: {len(filtered_df)}")
+        return True
         
     except FileNotFoundError as e:
         print(f"Error: {e}")
         print("Please ensure the source file and credentials exist.")
+        return False
     except Exception as e:
         print(f"An error occurred: {e}")
         import traceback
         traceback.print_exc()
+        return False
 
 if __name__ == "__main__":
-    main()
+    sys.exit(0 if main() else 1)

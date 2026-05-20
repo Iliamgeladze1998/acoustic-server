@@ -60,10 +60,10 @@ def scrape_acoustic_full():
     try:
         products_data = fetch_products()
         if products_data is None:
-            return
+            return False
     except requests.exceptions.RequestException as e:
         print(f"Error fetching from API: {e}", flush=True)
-        return
+        return False
     
     # Handle different JSON structures
     if isinstance(products_data, list):
@@ -79,7 +79,7 @@ def scrape_acoustic_full():
             products_list = [products_data]
     else:
         print(f"Unexpected JSON structure: {type(products_data)}", flush=True)
-        return
+        return False
     
     print(f"Found {len(products_list)} products in JSON response", flush=True)
     
@@ -154,12 +154,14 @@ def scrape_acoustic_full():
         print(f"   Unique products (after dedup): {len(df)}", flush=True)
         print(f"   Output file: {output_file}", flush=True)
         print(f"{'='*60}", flush=True)
+        return True
     else:
         print("\nNo products found in JSON response!", flush=True)
         print("Possible issues:", flush=True)
         print("- JSON structure may not match expected format", flush=True)
         print("- API endpoint may have returned empty data", flush=True)
         print("- Field names in JSON may differ from expected", flush=True)
+        return False
 
 if __name__ == "__main__":
-    scrape_acoustic_full()
+    sys.exit(0 if scrape_acoustic_full() else 1)

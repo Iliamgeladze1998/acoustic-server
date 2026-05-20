@@ -22,13 +22,6 @@ CATEGORIES: list[str] = [
 
 FILE_NAME: str = os.path.join(os.path.dirname(__file__), "music-store-all-links.txt")
 
-async def load_existing_links() -> set[str]:
-    """Load existing links from the file to avoid duplicates."""
-    if not os.path.exists(FILE_NAME):
-        return set()
-    with open(FILE_NAME, "r", encoding="utf-8") as f:
-        return set(line.strip() for line in f if line.strip())
-
 async def save_links_to_file(links: set[str]) -> None:
     """Save a set of links to the file, overwriting it."""
     with open(FILE_NAME, "w", encoding="utf-8") as f:
@@ -37,9 +30,11 @@ async def save_links_to_file(links: set[str]) -> None:
     print(f"[INFO] Saved {len(links)} unique links to {os.path.basename(FILE_NAME)}", flush=True)
 
 async def scrape_music_store() -> None:
-    """Main scraping function for all categories, avoiding duplicate links."""
-    all_links = await load_existing_links()
-    print(f"[INIT] Loaded {len(all_links)} existing links from {os.path.basename(FILE_NAME)}", flush=True)
+    """Main scraping function for all categories, starting from a clean slate."""
+    all_links: set[str] = set()
+    if os.path.exists(FILE_NAME):
+        os.remove(FILE_NAME)
+    print(f"[INIT] Starting fresh page-link collection for {os.path.basename(FILE_NAME)}", flush=True)
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'])
@@ -88,6 +83,9 @@ async def scrape_music_store() -> None:
                     break
 
         await browser.close()
+        if not all_links:
+            print("[ERROR] No category page links collected. Aborting.", flush=True)
+            raise SystemExit(1)
         await save_links_to_file(all_links)
         print(f"[DONE] All links have been updated in: {FILE_NAME}", flush=True)
 

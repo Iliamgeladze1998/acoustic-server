@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 import os
+import sys
 
 def clean_georgian_text(text):
     """Remove Georgian characters and clean up the text."""
@@ -41,11 +42,14 @@ def main():
         print("\nExample cleaned names:")
         for idx, name in enumerate(df['NAME'].head(5), 1):
             print(f"{idx}. {name}")
+        return True
             
     except FileNotFoundError:
         print(f"Error: {input_file} not found. Please run mireli_full_scraper.py first.")
+        return False
     except Exception as e:
         print(f"An error occurred: {e}")
+        return False
 
 if __name__ == "__main__":
-    main()
+    sys.exit(0 if main() else 1)

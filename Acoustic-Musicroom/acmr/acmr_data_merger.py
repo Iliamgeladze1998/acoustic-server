@@ -97,6 +97,13 @@ def merge_datasets(fuzzy_limit=None, batch_size=100):
         os.makedirs(reports_dir)
     
     output_file = os.path.join(reports_dir, "acmr_merged_report.xlsx")
+    if os.path.exists(output_file):
+        try:
+            os.remove(output_file)
+            print(f"🗑️ Removed previous merged report: {output_file}")
+        except Exception as e:
+            print(f"❌ Could not remove previous merged report: {e}")
+            return False
     
     print("="*60)
     print("ACMR DATA MERGER")
@@ -350,3 +357,4 @@ if __name__ == "__main__":
         print("\n🎉 ACMR data merger completed successfully!")
     else:
         print("\n❌ ACMR data merger failed!")
+    sys.exit(0 if success else 1)

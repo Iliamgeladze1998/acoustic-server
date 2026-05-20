@@ -91,7 +91,7 @@ def run_scraper(scraper_path):
             except Exception:
                 continue
         
-        process.wait(timeout=3600)
+        process.wait()
         print("-" * 70, flush=True)
         
         if process.returncode != 0:
@@ -100,9 +100,6 @@ def run_scraper(scraper_path):
         
         print(f"✓ {scraper_path} completed successfully", flush=True)
         return True
-    except subprocess.TimeoutExpired:
-        print(f"[ERROR] Scraper timed out", flush=True)
-        return False
     except Exception as e:
         print(f"[ERROR] Failed to run {scraper_path}: {e}", flush=True)
         return False
@@ -142,11 +139,14 @@ def main():
             if os.path.exists(acoustic_file):
                 print("✓ Acoustic data file exists", flush=True)
             else:
-                print("[WARNING] Acoustic data file not found, continuing anyway", flush=True)
+                print("[ERROR] Acoustic data file not found. Stopping pipeline.", flush=True)
+                return False
         else:
-            print("[WARNING] Acoustic scraping had issues, continuing anyway", flush=True)
+            print("[ERROR] Acoustic scraping failed. Stopping pipeline.", flush=True)
+            return False
     except Exception as e:
-        print(f"[WARNING] Acoustic scraping failed: {e}", flush=True)
+        print(f"[ERROR] Acoustic scraping failed: {e}", flush=True)
+        return False
     print(flush=True)
     print("="*70, flush=True)
     print(flush=True)
@@ -161,37 +161,44 @@ def main():
             if os.path.exists(musikis_file):
                 print("✓ Musikis-saxli data file exists", flush=True)
             else:
-                print("[WARNING] Musikis-saxli data file not found, continuing anyway", flush=True)
+                print("[ERROR] Musikis-saxli data file not found. Stopping pipeline.", flush=True)
+                return False
         else:
-            print("[WARNING] Musikis-saxli scraping had issues, continuing anyway", flush=True)
+            print("[ERROR] Musikis-saxli scraping failed. Stopping pipeline.", flush=True)
+            return False
     except Exception as e:
-        print(f"[WARNING] Musikis-saxli scraping failed: {e}", flush=True)
+        print(f"[ERROR] Musikis-saxli scraping failed: {e}", flush=True)
+        return False
     print(flush=True)
     print("="*70, flush=True)
     print(flush=True)
 
-    # Step 3: Merge data (ALWAYS TRY)
+    # Step 3: Merge data
     try:
         print("STEP 3: DATA MERGING", flush=True)
         print("-" * 70, flush=True)
         merger_success = merge_store_data()
         if not merger_success:
-            print("[WARNING] Data merging returned no results, continuing anyway", flush=True)
+            print("[ERROR] Data merging failed. Stopping pipeline.", flush=True)
+            return False
     except Exception as e:
-        print(f"[WARNING] Data merging failed: {e}", flush=True)
+        print(f"[ERROR] Data merging failed: {e}", flush=True)
+        return False
     print(flush=True)
     print("="*70, flush=True)
     print(flush=True)
     
-    # Step 4: Upload to Google Sheets (ALWAYS TRY)
+    # Step 4: Upload to Google Sheets
     try:
         print("STEP 4: UPLOAD TO GOOGLE SHEETS", flush=True)
         print("-" * 70, flush=True)
         upload_success = upload_to_google_sheets()
         if not upload_success:
-            print("[WARNING] Upload returned no results, continuing anyway", flush=True)
+            print("[ERROR] Upload failed. Stopping pipeline.", flush=True)
+            return False
     except Exception as e:
-        print(f"[WARNING] Upload failed: {e}", flush=True)
+        print(f"[ERROR] Upload failed: {e}", flush=True)
+        return False
     
     print(flush=True)
     print("="*70, flush=True)
@@ -216,7 +223,7 @@ def main():
 
 if __name__ == "__main__":
     try:
-        main()
+        sys.exit(0 if main() else 1)
     except Exception as e:
         print(f"[CRITICAL] Pipeline crashed: {e}", flush=True)
-    sys.exit(0)  # Always exit 0 - crash-proof
+        sys.exit(1)
