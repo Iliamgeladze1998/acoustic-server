@@ -32,6 +32,35 @@ PIPELINE_LOG="$LOG_DIR/pipeline.log"
 COOLDOWN_SECONDS=60
 CYCLE_REST_SECONDS=600
 
+# Per-project Playwright browser caches. Each project keeps its OWN local
+# chromium so the three venvs cannot collide on a shared cache directory
+# and so a missing system-wide install can't break us. These dirs are
+# exported as PLAYWRIGHT_BROWSERS_PATH for each stage that uses Playwright.
+MUSICROOM_PW_BROWSERS="$HOME/Acoustic-Musicroom/pw-browsers"
+MIRELI_PW_BROWSERS="$HOME/Acoustic-Mireli/pw-browsers"
+MUSIC_HOUSE_PW_BROWSERS="$HOME/scraping-project/pw-browsers"
+
+# Bootstrap controls. Bootstrap installs Python deps + Playwright chromium
+# into each project's venv exactly once per script start. It is idempotent
+# (a no-op on subsequent invocations because pip and `playwright install`
+# both skip already-satisfied work). Pass --skip-bootstrap to suppress it.
+DO_BOOTSTRAP=1
+for arg in "$@"; do
+    case "$arg" in
+        --skip-bootstrap) DO_BOOTSTRAP=0 ;;
+        --bootstrap-only) DO_BOOTSTRAP=2 ;;   # bootstrap then exit
+        -h|--help)
+            cat <<EOF
+Usage: $0 [--skip-bootstrap | --bootstrap-only]
+  (default)         Run bootstrap once, then enter the cycle loop.
+  --skip-bootstrap  Skip dependency / browser install. Use after the first run.
+  --bootstrap-only  Run bootstrap only, then exit (useful for CI / setup).
+EOF
+            exit 0
+            ;;
+    esac
+done
+
 # Gatekeeper state. Initialized to 0 so the very first stage is allowed.
 # After each stage runs, this is set to that stage's real exit code.
 # `gate_check` refuses to proceed unless this is exactly 0.
@@ -188,6 +217,91 @@ run_stage() {
     fi
 }
 
+# ---------- bootstrap ----------
+
+# bootstrap_project: install/repair a single project's Python deps and
+# Playwright chromium into the project-local browser path. Idempotent.
+# Fails the whole script if any step exits non-zero so we never enter
+# the main loop with a broken environment (which is what bit us before).
+#
+# $1 = human label   (e.g. "Musicroom")
+# $2 = project dir   (contains venv/)
+# $3 = pw-browsers path to use as PLAYWRIGHT_BROWSERS_PATH
+# $4 = (optional) extra pip packages, space-separated. Empty means just
+#      `pip install -r requirements.txt` if requirements.txt exists.
+# $5 = log file to append bootstrap output to
+bootstrap_project() {
+    local label="$1"
+    local dir="$2"
+    local pw_path="$3"
+    local extra_pkgs="${4:-}"
+    local logfile="$5"
+
+    log "Bootstrap: $label  (dir=$dir, pw=$pw_path)"
+
+    mkdir -p "$pw_path" || { log "Bootstrap FAIL: cannot mkdir $pw_path"; exit 10; }
+
+    (
+        set -u
+        cd "$dir" || exit 10
+        # shellcheck disable=SC1091
+        source venv/bin/activate || exit 11
+        export PLAYWRIGHT_BROWSERS_PATH="$pw_path"
+
+        echo "[bootstrap=$label] python : $(which python) ($(python --version 2>&1))"
+        echo "[bootstrap=$label] pw_path: $PLAYWRIGHT_BROWSERS_PATH"
+
+        python -m pip install --upgrade pip --quiet || exit 12
+
+        if [ -f requirements.txt ]; then
+            echo "[bootstrap=$label] installing requirements.txt"
+            python -m pip install -r requirements.txt --quiet || exit 13
+        fi
+        if [ -n "$extra_pkgs" ]; then
+            echo "[bootstrap=$label] installing extra packages: $extra_pkgs"
+            # shellcheck disable=SC2086
+            python -m pip install --quiet $extra_pkgs || exit 14
+        fi
+
+        # Ensure Playwright Python is present (some projects don't list it
+        # in requirements.txt). Cheap no-op if already installed.
+        python -m pip install playwright --quiet || exit 15
+
+        # Install / verify Chromium into the project-local browsers dir.
+        # `playwright install` is idempotent: it skips if the binary
+        # already exists at the target path.
+        echo "[bootstrap=$label] running: playwright install chromium"
+        python -m playwright install chromium || exit 16
+
+        # Verify by actually trying to resolve the executable.
+        python - <<'PY' || exit 17
+import sys
+from playwright.sync_api import sync_playwright
+try:
+    with sync_playwright() as p:
+        path = p.chromium.executable_path
+        print(f"[bootstrap] chromium executable_path = {path}")
+        import os
+        if not os.path.exists(path):
+            print(f"[bootstrap] FAIL: executable does not exist at {path}", file=sys.stderr)
+            sys.exit(1)
+        print("[bootstrap] verified chromium binary present.")
+except Exception as e:
+    print(f"[bootstrap] verification failed: {e}", file=sys.stderr)
+    sys.exit(1)
+PY
+        deactivate >/dev/null 2>&1 || true
+        exit 0
+    ) >> "$logfile" 2>&1
+
+    local rc=$?
+    if [ "$rc" -ne 0 ]; then
+        log "Bootstrap FAILED for $label (rc=$rc). See $logfile for details."
+        exit "$rc"
+    fi
+    log "Bootstrap OK: $label"
+}
+
 # ---------- main loop ----------
 
 log "##########################################################"
@@ -195,6 +309,25 @@ log "Pipeline starting. Logs directory: $LOG_DIR"
 log "Cool-down between stages: ${COOLDOWN_SECONDS}s"
 log "Rest between cycles    : ${CYCLE_REST_SECONDS}s"
 log "##########################################################"
+
+# ----- one-time bootstrap (deps + Playwright chromium per project) -----
+# Runs before entering the cycle loop. Idempotent: rerunning costs ~seconds
+# once everything is already installed. Skipped if --skip-bootstrap given.
+if [ "$DO_BOOTSTRAP" -ne 0 ]; then
+    log "Bootstrapping project environments (use --skip-bootstrap to skip)..."
+    bootstrap_project "Musicroom"  "$HOME/Acoustic-Musicroom" "$MUSICROOM_PW_BROWSERS"  ""        "$MUSICROOM_LOG"
+    bootstrap_project "Mireli"     "$HOME/Acoustic-Mireli"    "$MIRELI_PW_BROWSERS"     ""        "$MIRELI_LOG"
+    # MusicHouse: its requirements.txt does not include playwright, but the
+    # musikis-saxli scraper imports it, so we add it as an extra package.
+    bootstrap_project "MusicHouse" "$HOME/scraping-project"   "$MUSIC_HOUSE_PW_BROWSERS" "playwright" "$MUSIC_HOUSE_LOG"
+    log "Bootstrap complete for all three projects."
+    if [ "$DO_BOOTSTRAP" -eq 2 ]; then
+        log "--bootstrap-only specified; exiting."
+        exit 0
+    fi
+else
+    log "Bootstrap SKIPPED (--skip-bootstrap)."
+fi
 
 while true; do
     # Reset gatekeeper at the top of each cycle so a successful prior
@@ -210,7 +343,8 @@ while true; do
     run_stage "Musicroom" \
         "$HOME/Acoustic-Musicroom" \
         "acmr/acmr_main.py" \
-        "$MUSICROOM_LOG"
+        "$MUSICROOM_LOG" \
+        "export PLAYWRIGHT_BROWSERS_PATH=$MUSICROOM_PW_BROWSERS"
     cooldown
 
     # Stage 2: Mireli (scrape + sheet update inside acmi_main.py)
@@ -218,14 +352,15 @@ while true; do
         "$HOME/Acoustic-Mireli" \
         "acmi/acmi_main.py" \
         "$MIRELI_LOG" \
-        'export PLAYWRIGHT_BROWSERS_PATH=/root/Acoustic-Mireli/pw-browsers'
+        "export PLAYWRIGHT_BROWSERS_PATH=$MIRELI_PW_BROWSERS"
     cooldown
 
     # Stage 3: Music House (scrape + sheet update inside acms_main.py)
     run_stage "MusicHouse" \
         "$HOME/scraping-project" \
         "acms/acms_main.py" \
-        "$MUSIC_HOUSE_LOG"
+        "$MUSIC_HOUSE_LOG" \
+        "export PLAYWRIGHT_BROWSERS_PATH=$MUSIC_HOUSE_PW_BROWSERS"
     cooldown
 
     log "Cycle complete. Sleeping ${CYCLE_REST_SECONDS}s before next cycle..."
