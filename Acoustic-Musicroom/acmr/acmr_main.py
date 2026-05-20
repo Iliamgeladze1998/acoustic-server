@@ -11,6 +11,13 @@ import subprocess
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+# Ensure Playwright can locate the project-local browser install,
+# whether this script is launched from run_scrapers.sh or directly.
+os.environ.setdefault(
+    "PLAYWRIGHT_BROWSERS_PATH",
+    "/root/Acoustic-Musicroom/pw-browsers",
+)
+
 # Force UTF-8 encoding for stdout to handle Georgian characters
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
