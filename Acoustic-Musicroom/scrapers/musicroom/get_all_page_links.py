@@ -13,17 +13,6 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CATEGORY_FILE = os.path.join(SCRIPT_DIR, "get_main_category_links.txt")
 OUTPUT_FILE = os.path.join(SCRIPT_DIR, "all_category_pages.txt")
 
-# --- Stability / timeout knobs (Patch B) -------------------------------------
-# Tightened from the original 90s/3-retry config so a slow or hung page can't
-# stall the whole pipeline. Business logic (what is scraped, how it's stored,
-# stop conditions) is unchanged — only timing and a hard page cap.
-PAGE_TIMEOUT_MS        = 30_000   # was 90_000 (per goto attempt)
-SELECTOR_TIMEOUT_MS    = 8_000    # was 10_000 (wait_for_selector)
-MAX_RETRIES            = 2        # was 3      (retries per page)
-RETRY_BACKOFF_S        = 1.0      # sleep between retries
-MAX_PAGES_PER_CATEGORY = 60       # new safety cap; well above realistic count
-# -----------------------------------------------------------------------------
-
 
 def normalize_url(url: str) -> str:
     """Normalize URL to prevent double-counting by removing query params and trailing slashes."""
@@ -65,7 +54,7 @@ class PageLinkScraper:
         if self.playwright:
             await self.playwright.stop()
 
-    async def check_page(self, url: str, base_url: str, category_name: str, page_num: int, max_retries=MAX_RETRIES) -> tuple:
+    async def check_page(self, url: str, base_url: str, category_name: str, page_num: int, max_retries=3) -> tuple:
         """Check if a page exists. Returns (is_valid, content_hash, redirect_info, product_count)."""
         for attempt in range(max_retries):
             async with self.semaphore:
@@ -73,14 +62,14 @@ class PageLinkScraper:
                 # Block only images to speed up loading (keep CSS for rendering)
                 await page.route("**/*.{png,jpg,jpeg,gif,webp}", lambda route: route.abort())
                 try:
-                    await page.goto(url, wait_until="domcontentloaded", timeout=PAGE_TIMEOUT_MS)
-
+                    await page.goto(url, wait_until="domcontentloaded", timeout=90000)
+                    
                     # Wait for products to render
                     await asyncio.sleep(2)
-
+                    
                     # Wait for products to load
                     try:
-                        await page.wait_for_selector(".product, .product-item, .product-grid-item, div[class*='product'], .wd-product", timeout=SELECTOR_TIMEOUT_MS)
+                        await page.wait_for_selector(".product, .product-item, .product-grid-item, div[class*='product'], .wd-product", timeout=10000)
                     except:
                         pass  # Continue even if selector not found
                     
@@ -141,11 +130,11 @@ class PageLinkScraper:
                     
                 except Exception as e:
                     if attempt < max_retries - 1:
-                        print(f"⚠ Retry {attempt + 1}/{max_retries} for {url}: {e}", flush=True)
-                        await asyncio.sleep(RETRY_BACKOFF_S)
+                        print(f"⚠ Retry {attempt + 1}/{max_retries} for {url}: {e}")
+                        await asyncio.sleep(1)
                         continue
                     else:
-                        print(f"❌ Error checking {url}: {e}", flush=True)
+                        print(f"❌ Error checking {url}: {e}")
                         await page.close()
                         return (False, None, f"error: {e}", 0)
 
@@ -155,69 +144,61 @@ class PageLinkScraper:
         previous_hash = None
         consecutive_empty_pages = 0
         category_pages = set()  # Use set to ensure uniqueness
-
-        print(f"\n{'='*60}", flush=True)
-        print(f"Processing category: {category_name}", flush=True)
-        print(f"{'='*60}", flush=True)
-
+        
+        print(f"\n{'='*60}")
+        print(f"Processing category: {category_name}")
+        print(f"{'='*60}")
+        
         # First, check the base URL (page 1)
-        print(f"🔍 Checking {category_name} Page 1: {base_url}", flush=True)
+        print(f"🔍 Checking {category_name} Page 1: {base_url}")
         is_valid, content_hash, info, product_count = await self.check_page(base_url, base_url, category_name, 1)
-
+        
         if not is_valid:
-            print(f"❌ {category_name} Page 1: {info}, finished!", flush=True)
+            print(f"❌ {category_name} Page 1: {info}, finished!")
             return
-
+        
         category_pages.add(base_url)
-        print(f"✅ {category_name} Page 1: {info} ({product_count} unique products)", flush=True)
+        print(f"✅ {category_name} Page 1: {info} ({product_count} unique products)")
         previous_hash = content_hash
-
+        
         # Now check page/2/, page/3/, etc (skip page/1/ to avoid double-counting)
         page = 2
         while True:
-            # Hard safety cap: refuse to walk past MAX_PAGES_PER_CATEGORY even
-            # if the site keeps returning valid-looking pages. Prevents the
-            # whole pipeline from hanging on a misbehaving category. The cap
-            # is well above realistic Musicroom page counts.
-            if page > MAX_PAGES_PER_CATEGORY:
-                print(f"⛔ {category_name}: hit MAX_PAGES_PER_CATEGORY={MAX_PAGES_PER_CATEGORY}, stopping", flush=True)
-                break
-
             await asyncio.sleep(0.5)
-
+            
             page_url = f"{base_url}/page/{page}/"
-            print(f"🔍 Checking {category_name} Page {page}: {page_url}", flush=True)
-
+            print(f"🔍 Checking {category_name} Page {page}: {page_url}")
+            
             is_valid, content_hash, info, product_count = await self.check_page(page_url, base_url, category_name, page)
-
+            
             if not is_valid:
-                print(f"✅ {category_name} Page {page}: {info}, moving to next category", flush=True)
+                print(f"✅ {category_name} Page {page}: {info}, moving to next category")
                 break
-
+            
             # Content guard: if hash matches previous, we're on the last page repeating
             if content_hash == previous_hash:
-                print(f"✅ {category_name} Page {page}: identical content (last page reached)", flush=True)
+                print(f"✅ {category_name} Page {page}: identical content (last page reached)")
                 break
-
+            
             # Consecutive empty page counter: stop after 3 consecutive empty pages
             if product_count == 0:
                 consecutive_empty_pages += 1
-                print(f"⚠ {category_name} Page {page}: empty (consecutive empty: {consecutive_empty_pages}/3)", flush=True)
+                print(f"⚠ {category_name} Page {page}: empty (consecutive empty: {consecutive_empty_pages}/3)")
                 if consecutive_empty_pages >= 3:
-                    print(f"✅ {category_name}: 3 consecutive empty pages reached, stopping", flush=True)
+                    print(f"✅ {category_name}: 3 consecutive empty pages reached, stopping")
                     break
             else:
                 consecutive_empty_pages = 0  # Reset counter if page has products
-
+            
             normalized_url = normalize_url(page_url)
             category_pages.add(normalized_url)
-            print(f"✅ {category_name} Page {page}: valid ({product_count} unique products)", flush=True)
+            print(f"✅ {category_name} Page {page}: valid ({product_count} unique products)")
             previous_hash = content_hash
             page += 1
-
+        
         # Add all unique pages for this category to the master list
         self.all_pages.extend(list(category_pages))
-        print(f"📊 {category_name}: Found {len(category_pages)} unique page URLs", flush=True)
+        print(f"📊 {category_name}: Found {len(category_pages)} unique page URLs")
 
     async def run(self):
         # Read category URLs
