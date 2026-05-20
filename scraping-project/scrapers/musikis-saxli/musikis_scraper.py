@@ -161,11 +161,16 @@ async def main():
         urls = [line.strip() for line in f if line.strip()]
 
     print(f"Starting Music-Store scrape for {len(urls)} products...", flush=True)
-
-    # FULL CRAWL: do NOT merge with prior output. Each cycle must reflect the
-    # live site exactly so disappeared products drop out of the dataset.
-    print(f"[INFO] Full-crawl mode: prior {os.path.basename(OUTPUT_FILE)} will be overwritten with fresh data only.", flush=True)
-
+    
+    # Load existing data if file exists for merging
+    existing_df = pd.DataFrame()
+    if os.path.exists(OUTPUT_FILE):
+        try:
+            existing_df = pd.read_excel(OUTPUT_FILE)
+            print(f"[INFO] Loaded {len(existing_df)} existing products from {os.path.basename(OUTPUT_FILE)}", flush=True)
+        except Exception as e:
+            print(f"[WARN] Could not load existing file: {e}", flush=True)
+    
     semaphore = asyncio.Semaphore(SEMAPHORE_LIMIT)
     all_products = []
     processed_count = 0
@@ -198,15 +203,16 @@ async def main():
                 print(f"[ERROR] Batch {batch_start // batch_size + 1} failed: {e}", flush=True)
                 continue  # Continue to next batch
             
-            # Save checkpoint every 100 products (fresh-only, no prior merge)
+            # Save checkpoint every 100 products
             if processed_count >= 100:
                 try:
-                    combined_df = pd.DataFrame(all_products)
+                    # Combine with existing data and keep latest
+                    combined_df = pd.concat([existing_df, pd.DataFrame(all_products)], ignore_index=True)
                     combined_df.drop_duplicates(subset=['UNIQUE_ID'], keep='last', inplace=True)
                     combined_df['PRICE'] = combined_df['PRICE'].fillna(0).astype(int)
                     try:
                         combined_df.to_excel(OUTPUT_FILE, index=False, engine='openpyxl')
-                        print(f"[CHECKPOINT] Saved {len(combined_df)} fresh products to {os.path.basename(OUTPUT_FILE)}", flush=True)
+                        print(f"[CHECKPOINT] Saved {len(combined_df)} unique products to {os.path.basename(OUTPUT_FILE)}", flush=True)
                     except Exception as save_err:
                         print(f"[ERROR] Excel save failed: {save_err}", flush=True)
                 except Exception as e:
@@ -217,8 +223,8 @@ async def main():
     # Final save if any products were processed
     if all_products:
         try:
-            # Fresh full-crawl output only — no merge with prior file.
-            final_df = pd.DataFrame(all_products)
+            # Combine with existing data and keep latest
+            final_df = pd.concat([existing_df, pd.DataFrame(all_products)], ignore_index=True)
             final_df.drop_duplicates(subset=['UNIQUE_ID'], keep='last', inplace=True)
             final_df['PRICE'] = final_df['PRICE'].fillna(0).astype(int)
             try:
