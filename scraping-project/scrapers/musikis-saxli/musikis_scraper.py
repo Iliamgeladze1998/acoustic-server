@@ -161,16 +161,16 @@ async def main():
         urls = [line.strip() for line in f if line.strip()]
 
     print(f"Starting Music-Store scrape for {len(urls)} products...", flush=True)
-    
-    # Load existing data if file exists for merging
-    existing_df = pd.DataFrame()
+
+    # Always start with a clean slate — do NOT merge with previous run's data.
+    # If a stale output file exists, remove it so this run fully owns the output.
     if os.path.exists(OUTPUT_FILE):
         try:
-            existing_df = pd.read_excel(OUTPUT_FILE)
-            print(f"[INFO] Loaded {len(existing_df)} existing products from {os.path.basename(OUTPUT_FILE)}", flush=True)
+            os.remove(OUTPUT_FILE)
+            print(f"[INFO] Removed stale {os.path.basename(OUTPUT_FILE)} before fresh scrape", flush=True)
         except Exception as e:
-            print(f"[WARN] Could not load existing file: {e}", flush=True)
-    
+            print(f"[WARN] Could not remove existing output file: {e}", flush=True)
+
     semaphore = asyncio.Semaphore(SEMAPHORE_LIMIT)
     all_products = []
     processed_count = 0
@@ -206,8 +206,8 @@ async def main():
             # Save checkpoint every 100 products
             if processed_count >= 100:
                 try:
-                    # Combine with existing data and keep latest
-                    combined_df = pd.concat([existing_df, pd.DataFrame(all_products)], ignore_index=True)
+                    # Checkpoint uses only this run's data — no merging with prior file
+                    combined_df = pd.DataFrame(all_products)
                     combined_df.drop_duplicates(subset=['UNIQUE_ID'], keep='last', inplace=True)
                     combined_df['PRICE'] = combined_df['PRICE'].fillna(0).astype(int)
                     try:
@@ -223,11 +223,17 @@ async def main():
     # Final save if any products were processed
     if all_products:
         try:
-            # Combine with existing data and keep latest
-            final_df = pd.concat([existing_df, pd.DataFrame(all_products)], ignore_index=True)
+            # Final output contains ONLY this run's data — overwrite completely.
+            final_df = pd.DataFrame(all_products)
             final_df.drop_duplicates(subset=['UNIQUE_ID'], keep='last', inplace=True)
             final_df['PRICE'] = final_df['PRICE'].fillna(0).astype(int)
             try:
+                # Remove any existing file first to guarantee a clean overwrite
+                if os.path.exists(OUTPUT_FILE):
+                    try:
+                        os.remove(OUTPUT_FILE)
+                    except Exception:
+                        pass
                 final_df.to_excel(OUTPUT_FILE, index=False, engine='openpyxl')
                 print(f"\n{'='*60}", flush=True)
                 print(f"DONE! Total Unique Products: {len(final_df)}", flush=True)

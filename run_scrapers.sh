@@ -32,6 +32,11 @@ while true; do
     echo "[DEBUG] Python version: $(python --version)"
     echo "[DEBUG] Python path: $(which python)"
 
+    echo "Setting Playwright browsers path for Musicroom..."
+    echo "[DEBUG] Setting PLAYWRIGHT_BROWSERS_PATH=/root/Acoustic-Musicroom/pw-browsers"
+    export PLAYWRIGHT_BROWSERS_PATH=/root/Acoustic-Musicroom/pw-browsers
+
+    echo "[DEBUG] PLAYWRIGHT_BROWSERS_PATH set to: $PLAYWRIGHT_BROWSERS_PATH"
     echo "ვუშვებ Musicroom სკრიპტს..."
     echo "[DEBUG] Executing: python acmr/acmr_main.py"
     python acmr/acmr_main.py

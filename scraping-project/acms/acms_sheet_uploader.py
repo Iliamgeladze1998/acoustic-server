@@ -378,9 +378,32 @@ def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
         print("✅ No new products detected")
 
 
+def _abort_critical(message):
+    """Log a CRITICAL pipeline error and abort the process immediately.
+
+    Strict fresh-only flow: the uploader must NEVER fall back to a stale or
+    cached baseline. If any required fresh artifact is missing or out of
+    date, stop the pipeline here so no alerts are produced from bad data.
+    """
+    banner = "=" * 60
+    print(banner, flush=True)
+    print(f"CRITICAL: {message}", flush=True)
+    print("ABORTING pipeline — uploader will NOT proceed with a stale baseline.", flush=True)
+    print(banner, flush=True)
+    sys.exit(1)
+
+
 def upload_to_google_sheets():
-    """Upload price comparison data to Google Sheets"""
-    
+    """Upload price comparison data to Google Sheets.
+
+    Strict pipeline contract (must match Musicroom's fresh-only flow):
+      Scraper -> fresh source Excel(s)
+        -> merge_store_data() -> fresh reports/price_comparison_final.xlsx
+          -> uploader: df_new := THIS file (no cache, no fallback)
+          -> uploader: df_old := CURRENT Google Sheet state (only valid baseline)
+    If any link in the chain is missing or stale, abort with CRITICAL.
+    """
+
     print("="*60)
     print("GOOGLE SHEETS UPLOADER")
     print("="*60)
@@ -388,23 +411,55 @@ def upload_to_google_sheets():
     # File paths
     credentials_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "credentials.json")
     comparison_file = os.path.join(os.path.dirname(__file__), "reports", "price_comparison_final.xlsx")
+    # Upstream source files produced by the scrapers and consumed by merge_store_data().
+    # The merged comparison file MUST be at least as new as both of these, otherwise
+    # it is stale (left over from a previous cycle) and we must abort.
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    acoustic_source = os.path.join(project_root, 'scrapers', 'acoustic', 'acoustic_cleaned_models.xlsx')
+    musikis_source = os.path.join(project_root, 'scrapers', 'musikis-saxli', 'final_stock_cleaned.xlsx')
     print(f"Credentials file: {credentials_path}")
     print(f"Data file: {comparison_file}")
-    
-    # Check if files exist
+
+    # Credentials are still a soft failure (config problem, not a stale-data problem).
     if not os.path.exists(credentials_path):
         print(f"Error: {credentials_path} not found!")
         return False
-    
+
+    # --- STRICT FRESHNESS GUARD -------------------------------------------------
+    # df_new MUST come from a freshly produced merge_store_data() output.
+    # If the merged Excel is missing, abort: there is no valid df_new to upload.
     if not os.path.exists(comparison_file):
-        print(f"Error: {comparison_file} not found!")
-        print("Please run the data merger first to generate comparison file.")
-        return False
-    
+        _abort_critical(
+            f"Merged comparison file not found: {comparison_file}. "
+            "merge_store_data() did not run (or failed) this cycle — refusing to "
+            "upload or compare against a stale baseline."
+        )
+
+    # Verify the merged file is newer than (or equal to) both upstream source files.
+    # If a source file is missing, the merger could not have produced fresh output,
+    # so the on-disk price_comparison_final.xlsx — if present — is stale by definition.
+    for src in (acoustic_source, musikis_source):
+        if not os.path.exists(src):
+            _abort_critical(
+                f"Required upstream source file is missing: {src}. "
+                "Cannot trust price_comparison_final.xlsx as fresh — aborting."
+            )
+        if os.path.getmtime(comparison_file) < os.path.getmtime(src) - 1:
+            _abort_critical(
+                f"price_comparison_final.xlsx is older than upstream source {src} "
+                f"(merged mtime={os.path.getmtime(comparison_file):.0f}, "
+                f"source mtime={os.path.getmtime(src):.0f}). "
+                "merge_store_data() did not re-run this cycle — aborting to "
+                "prevent comparison against a stale baseline."
+            )
+    print("✅ Freshness check passed: price_comparison_final.xlsx is newer than all upstream sources.")
+    # ----------------------------------------------------------------------------
+
     df_old = None
     try:
-        # Load the Excel file
-        print("Loading price comparison data...")
+        # Load df_new STRICTLY from the freshly produced merged Excel — never from
+        # an in-memory cache or a previous-run artifact.
+        print("Loading price comparison data (fresh from merge_store_data() output)...")
         df = pd.read_excel(comparison_file)
         
         # Explicitly fill empty prices with 0
@@ -441,18 +496,22 @@ def upload_to_google_sheets():
             if len(existing_data) > 1:  # Has header + data
                 extract_blacklisted_pairs(existing_data)
 
-            # Fetch baseline for Telegram comparison via dedicated helper (before clearing)
-            print("📊 Fetching baseline data for price change comparison...")
+            # df_old is the ONE AND ONLY valid baseline: the current Google Sheet
+            # state, captured right before we clear/overwrite it. We never read
+            # df_old from a local file, cache, or previous run — if the live sheet
+            # has no data, we explicitly skip comparison rather than fall back.
+            print("📊 Fetching baseline data for price change comparison (live Google Sheet only)...")
             df_old = fetch_sheet_as_dataframe(worksheet)
             if df_old is None:
-                print("ℹ️  Sheet is empty — skipping price comparison for this run.")
+                print("ℹ️  Sheet is empty — skipping price comparison for this run (no baseline available).")
             else:
-                print(f"📊 Captured {len(df_old)} baseline rows for price change comparison.")
+                print(f"📊 Captured {len(df_old)} baseline rows from live sheet for price change comparison.")
 
         except gspread.WorksheetNotFound:
             print("Creating new 'Musikis-saxli' tab...")
             worksheet = spreadsheet.add_worksheet(title="Musikis-saxli", rows="1000", cols="20")
             existing_data = []
+            df_old = None  # No prior sheet state ⇒ no baseline ⇒ no alerts this run.
             print("ℹ️  New sheet — skipping price comparison for this run.")
 
         # Check current worksheet size and expand if needed
@@ -681,9 +740,12 @@ def upload_to_google_sheets():
 def main():
     """Main function"""
     print(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    
+
+    # upload_to_google_sheets() will call _abort_critical()/sys.exit(1) if any
+    # required fresh artifact is missing or stale, so we won't reach the
+    # branches below in that case.
     success = upload_to_google_sheets()
-    
+
     if success:
         print("\n" + "="*60)
         print("UPLOAD COMPLETED SUCCESSFULLY!")
@@ -692,6 +754,7 @@ def main():
         print("\n" + "="*60)
         print("UPLOAD FAILED!")
         print("="*60)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
