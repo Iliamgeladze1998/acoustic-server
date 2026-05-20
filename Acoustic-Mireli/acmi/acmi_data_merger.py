@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 import os
+import sys
 from rapidfuzz import fuzz, process
 from datetime import datetime
 import pytz
@@ -111,6 +112,14 @@ def main():
     acoustic_file = os.path.join(BASE_DIR, 'scrapers', 'acoustic', 'acoustic_cleaned_models.xlsx')
     mireli_file = os.path.join(BASE_DIR, 'scrapers', 'mireli', 'mireli_cleaned_models.xlsx')
     output_file = os.path.join(BASE_DIR, 'reports', 'acoustic_vs_mireli.xlsx')
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    if os.path.exists(output_file):
+        try:
+            os.remove(output_file)
+            print(f"Removed previous merged report: {output_file}")
+        except Exception as e:
+            print(f"Could not remove previous merged report: {e}")
+            return False
     
     try:
         # Load data
@@ -265,14 +274,17 @@ def main():
         print(f"  ID Matches: {id_matches}")
         print(f"  Fuzzy Matches: {fuzzy_matches}")
         print(f"  Total Matches: {len(df_result)}")
+        return True
         
     except FileNotFoundError as e:
         print(f"Error: {e}")
         print("Please ensure both acoustic_cleaned_models.xlsx and mireli_cleaned_models.xlsx exist.")
+        return False
     except Exception as e:
         print(f"An error occurred: {e}")
         import traceback
         traceback.print_exc()
+        return False
 
 if __name__ == "__main__":
-    main()
+    sys.exit(0 if main() else 1)

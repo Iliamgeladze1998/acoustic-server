@@ -201,13 +201,17 @@ class PageLinkScraper:
         print(f"📊 {category_name}: Found {len(category_pages)} unique page URLs")
 
     async def run(self):
+        output_path = Path(__file__).parent / "all_category_pages.txt"
+        if output_path.exists():
+            output_path.unlink()
+
         # Read category URLs
         try:
             with open(CATEGORY_FILE, "r", encoding="utf-8") as f:
                 category_urls = [line.strip() for line in f if line.strip()]
         except FileNotFoundError:
             print(f"❌ Category file not found: {CATEGORY_FILE}")
-            return
+            raise SystemExit(1)
         
         print(f"📂 Found {len(category_urls)} categories to check")
         
@@ -227,10 +231,9 @@ class PageLinkScraper:
         # Check for empty list before saving
         if not self.all_pages:
             print("❌ No valid pages found. File not written.")
-            return
+            raise SystemExit(1)
         
         # Save results with strict pathing
-        output_path = Path(__file__).parent / "all_category_pages.txt"
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
         with open(output_path, "w", encoding="utf-8") as f:

@@ -6,6 +6,7 @@ Features: Blacklist filtering, Feedback dropdown, Yellow background, Georgia tim
 """
 
 import os
+import sys
 import json
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -29,6 +30,43 @@ STORE_NAMES = {
     'price_ac': 'Acoustic',
     'price_mr': 'Musicroom',
 }
+MERGED_FILE_MAX_AGE_SECONDS = 24 * 60 * 60
+
+
+def _abort_critical(message):
+    """Log a CRITICAL pipeline error and abort the process immediately."""
+    banner = "=" * 60
+    print(banner, flush=True)
+    print(f"CRITICAL: {message}", flush=True)
+    print("ABORTING pipeline - uploader will NOT proceed with stale or missing merged data.", flush=True)
+    print(banner, flush=True)
+    sys.exit(1)
+
+
+def _ensure_recent_merged_file(merged_file):
+    """Require the merged Excel file to exist and be less than 24 hours old."""
+    if not os.path.exists(merged_file):
+        _abort_critical(
+            f"Merged Excel file not found: {merged_file}. "
+            "Run the merger before starting the uploader."
+        )
+
+    file_mtime = os.path.getmtime(merged_file)
+    age_seconds = datetime.now().timestamp() - file_mtime
+    if age_seconds > MERGED_FILE_MAX_AGE_SECONDS:
+        modified_at = datetime.fromtimestamp(file_mtime).strftime("%Y-%m-%d %H:%M:%S")
+        age_hours = age_seconds / 3600
+        _abort_critical(
+            f"Merged Excel file is older than 24 hours: {merged_file} "
+            f"(modified {modified_at}, age {age_hours:.2f} hours)."
+        )
+
+    modified_at = datetime.fromtimestamp(file_mtime).strftime("%Y-%m-%d %H:%M:%S")
+    age_hours = max(age_seconds, 0) / 3600
+    print(
+        f"✅ Freshness check passed: merged Excel modified at {modified_at} "
+        f"({age_hours:.2f} hours old)."
+    )
 
 def load_blacklist(blacklist_path):
     """Load blacklist.json and return set of UNIQUE_IDs"""
@@ -304,8 +342,10 @@ def send_telegram_message(token, chat_id, message):
         response = requests.post(url, json=payload, timeout=10)
         response.raise_for_status()
         print("   \u2705 Telegram message sent successfully")
+        return True
     except requests.exceptions.RequestException as e:
         print(f"   \u26a0\ufe0f  Failed to send Telegram message: {e}")
+        return False
 
 
 def fetch_sheet_as_dataframe(worksheet):
@@ -324,10 +364,18 @@ def fetch_sheet_as_dataframe(worksheet):
 
 def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
     """Compare old and new DataFrames by product ID and send Telegram alerts for price changes."""
+    print(f"\n📊 Comparison baseline: df_old={len(df_old)} rows, df_new={len(df_new)} rows")
+    if len(df_new) == 0:
+        print("⚠️  Comparison failed: df_new is empty")
+        return False
+    if len(df_old) == 0:
+        print("ℹ️  Comparison skipped: sheet baseline is empty")
+        return True
+
     id_col = 'product_name_ac'
     if id_col not in df_old.columns or id_col not in df_new.columns:
         print(f"⚠️  '{id_col}' column not found in sheet data, skipping alerts")
-        return
+        return False
 
     name_col = None
     for col in df_new.columns:
@@ -340,7 +388,7 @@ def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
 
     if not price_cols:
         print("\u26a0\ufe0f  No price columns found for comparison, skipping alerts")
-        return
+        return False
 
     df_old_indexed = df_old.set_index(id_col)
     changes_found = 0
@@ -385,7 +433,8 @@ def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
                 f"🔗 *ბმულები:*{links_lines}"
             )
 
-            send_telegram_message(token, chat_id, message)
+            if not send_telegram_message(token, chat_id, message):
+                return False
             changes_found += 1
 
     if changes_found == 0:
@@ -407,9 +456,12 @@ def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
             f"📦 სულ დაემატა: {new_count} ახალი პროდუქტი\\.\n"
             "📢 *გთხოვთ, ფასების სხვაობა და დეტალები გუგლ შითში გადაამოწმოთ\\.*"
         )
-        send_telegram_message(token, chat_id, message)
+        if not send_telegram_message(token, chat_id, message):
+            return False
     else:
         print("✅ No new products detected")
+
+    return True
 
 
 def main():
@@ -466,9 +518,7 @@ def main():
     print(f"📋 Blacklist now has {len(blacklist_ids)} product(s)")
     
     # STEP 4: Load Excel data
-    if not os.path.exists(excel_path):
-        print(f"❌ Excel file not found: {excel_path}")
-        return False
+    _ensure_recent_merged_file(excel_path)
     
     try:
         df = pd.read_excel(excel_path)
@@ -483,7 +533,7 @@ def main():
     # STEP 6: Add timestamp and feedback column
     df = add_timestamp_and_feedback(df)
     
-    # STEP 7: Clear and upload
+    # STEP 7: Compare and alert before clearing/uploading
     df_old = None
     try:
         if worksheet is None:
@@ -496,12 +546,19 @@ def main():
             if df_old is None:
                 print("ℹ️  Sheet is empty — skipping price comparison for this run.")
 
-        # Clear the worksheet
-        worksheet.clear()
-        
         # Convert DataFrame to list of lists
         data = [df.columns.tolist()] + df.values.tolist()
-        
+
+        # Telegram alerts must be sent before the sheet baseline is overwritten.
+        if df_old is not None:
+            print("\n📊 Checking for price changes before updating Google Sheets...")
+            if not detect_and_alert_price_changes(df_old, df, TELEGRAM_TOKEN, CHAT_ID):
+                print("❌ Comparison/alert checkpoint failed. Aborting before Google Sheet update.")
+                return False
+
+        # Clear the worksheet only after alerts have been sent.
+        worksheet.clear()
+
         # Upload data
         worksheet.update(data, value_input_option='RAW')
         print(f"✅ Uploaded {len(data)} rows to tab '{TAB_NAME}'")
@@ -517,14 +574,10 @@ def main():
     
     print("\n🎉 Upload completed successfully!")
 
-    # STEP 8: Telegram price change alerts
-    if df_old is not None:
-        print("\n📊 Checking for price changes...")
-        detect_and_alert_price_changes(df_old, df, TELEGRAM_TOKEN, CHAT_ID)
-
     return True
 
 if __name__ == "__main__":
     success = main()
     if not success:
         print("\n❌ Upload failed!")
+        sys.exit(1)

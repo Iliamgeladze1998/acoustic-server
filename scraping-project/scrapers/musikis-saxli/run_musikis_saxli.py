@@ -68,7 +68,7 @@ def run_script(script_name, description):
                 continue  # Skip read errors
             
         # Wait for process to complete
-        process.wait(timeout=3600)  # 1 hour timeout
+        process.wait()
         
         if process.returncode == 0:
             print(f"✅ SUCCESS: {script_name} completed", flush=True)
@@ -77,16 +77,12 @@ def run_script(script_name, description):
             print(f"❌ ERROR: {script_name} failed with exit code {process.returncode}", flush=True)
             return False
             
-    except subprocess.TimeoutExpired:
-        print(f"⏰ TIMEOUT: {script_name} timed out after 1 hour", flush=True)
-        process.kill()
-        return False
     except Exception as e:
         print(f"❌ EXCEPTION: {script_name} failed - {e}", flush=True)
         return False
 
 def main():
-    """Main pipeline orchestrator - always runs all 4 stages"""
+    """Main pipeline orchestrator - stops immediately if any stage fails."""
     print(f"\n🚀 MUSIC STORE SCRAPER PIPELINE - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", flush=True)
     print("Stage 1: Extract category links", flush=True)
     print("Stage 2: Extract product links from categories", flush=True) 
@@ -111,7 +107,8 @@ def main():
         if run_script(script_name, description):
             success_count += 1
         else:
-            print(f"\n⚠️  STAGE FAILED: {script_name} - continuing to next stage...", flush=True)
+            print(f"\n❌ STAGE FAILED: {script_name} - stopping scraper pipeline.", flush=True)
+            break
     
     # Final summary
     print(f"\n{'='*80}", flush=True)
@@ -129,5 +126,4 @@ def main():
     return success_count == total_stages
 
 if __name__ == "__main__":
-    main()
-    sys.exit(0)  # Always exit 0 - crash-proof
+    sys.exit(0 if main() else 1)

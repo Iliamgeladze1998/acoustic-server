@@ -8,6 +8,8 @@ def get_all_product_links():
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     input_file = os.path.join(BASE_DIR, 'scrapers', 'mireli', 'mireli_pages.txt')
     output_file = os.path.join(BASE_DIR, 'scrapers', 'mireli', 'mireli_products.txt')
+    if os.path.exists(output_file):
+        os.remove(output_file)
     
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -48,16 +50,24 @@ def get_all_product_links():
                 continue
         
         # Save unique product links to file
+        if not product_links:
+            print("No product links were collected.")
+            return False
+
         with open(output_file, 'w', encoding='utf-8') as f:
             for link in sorted(product_links):
                 f.write(link + '\n')
         
         print(f"Successfully saved {len(product_links)} unique product links to {output_file}")
+        return True
         
     except FileNotFoundError:
         print(f"Error: {input_file} not found. Please run get_all_page_links.py first.")
+        return False
     except Exception as e:
         print(f"An error occurred: {e}")
+        return False
 
 if __name__ == "__main__":
-    get_all_product_links()
+    import sys
+    sys.exit(0 if get_all_product_links() else 1)

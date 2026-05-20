@@ -76,7 +76,7 @@ def main():
         ('scrapers/acoustic/run_acoustic.py', 'Scraping Acoustic Data',
          ['scrapers/acoustic/acoustic_final_stock.xlsx', 'scrapers/acoustic/acoustic_cleaned_models.xlsx']),
         ('scrapers/mireli/run_mireli.py', 'Scraping Mireli Data',
-         ['scrapers/mireli/mireli_final_stock.xlsx']),
+         ['scrapers/mireli/mireli_final_stock.xlsx', 'scrapers/mireli/mireli_cleaned_models.xlsx']),
         ('acmi/acmi_data_merger.py', 'Merging Acoustic and Mireli Data',
          ['reports/acoustic_vs_mireli.xlsx']),
         ('acmi/acmi_sheet_uploader.py', 'Uploading to Google Sheets',

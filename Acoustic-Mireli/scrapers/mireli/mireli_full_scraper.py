@@ -124,6 +124,8 @@ def main():
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     input_file = os.path.join(BASE_DIR, 'scrapers', 'mireli', 'mireli_products.txt')
     output_file = os.path.join(BASE_DIR, 'scrapers', 'mireli', 'mireli_final_stock.xlsx')
+    if os.path.exists(output_file):
+        os.remove(output_file)
     
     # Use session for better performance
     session = requests.Session()
@@ -134,9 +136,12 @@ def main():
             product_urls = [line.strip() for line in f if line.strip()]
     except FileNotFoundError:
         print(f"Error: {input_file} not found. Please run get_all_product_links.py first.")
-        return
+        return False
     
     print(f"Found {len(product_urls)} products to scrape.")
+    if not product_urls:
+        print("No product URLs found. Aborting.")
+        return False
     print("-" * 80)
     
     # Scrape all products
@@ -156,8 +161,11 @@ def main():
         df = pd.DataFrame(products_data, columns=['UNIQUE_ID', 'NAME', 'PRICE', 'STATUS', 'LINK', 'DATE'])
         df.to_excel(output_file, index=False, engine='openpyxl')
         print(f"Successfully saved {len(products_data)} products to {output_file}")
+        return True
     else:
         print("No product data was scraped.")
+        return False
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(0 if main() else 1)

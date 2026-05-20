@@ -64,6 +64,11 @@ def scrape_musicroom(url):
 
 # Read all product links
 input_path = Path(INPUT_FILE)
+output_path = Path(OUTPUT_FILE)
+if output_path.exists():
+    output_path.unlink()
+    print(f"Cleared existing output file: {output_path}")
+
 try:
     with open(input_path, "r", encoding="utf-8") as f:
         product_links = [line.strip() for line in f if line.strip()]
@@ -72,6 +77,9 @@ except FileNotFoundError:
     exit(1)
 
 print(f" Found {len(product_links)} product links to process")
+if not product_links:
+    print(" No product links found. Aborting.")
+    exit(1)
 
 # Main loop - process all links
 for i, link in enumerate(product_links, 1):
@@ -87,8 +95,8 @@ for i, link in enumerate(product_links, 1):
 if all_data:
     df = pd.DataFrame(all_data)
     # Save to the output path
-    output_path = Path(OUTPUT_FILE)
     df.to_excel(output_path, index=False)
     print(f"\n Complete. {len(all_data)} products saved to {output_path}")
 else:
     print(" No data collected. File not created.")
+    exit(1)

@@ -8,6 +8,8 @@ def get_all_page_links():
     # Use BASE_DIR for cross-platform compatibility
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     output_file = os.path.join(BASE_DIR, 'scrapers', 'mireli', 'mireli_pages.txt')
+    if os.path.exists(output_file):
+        os.remove(output_file)
     
     try:
         # Fetch the first page
@@ -21,7 +23,7 @@ def get_all_page_links():
         
         if not pagination:
             print("No pagination found on the page.")
-            return
+            return False
         
         # Extract all page numbers from pagination links
         page_numbers = []
@@ -37,7 +39,7 @@ def get_all_page_links():
         
         if not page_numbers:
             print("No page numbers found in pagination.")
-            return
+            return False
         
         # Get the highest page number
         max_page = max(page_numbers)
@@ -52,11 +54,15 @@ def get_all_page_links():
                 f.write(url + '\n')
         
         print(f"Successfully saved {len(page_urls)} page URLs to {output_file}")
+        return True
         
     except requests.exceptions.RequestException as e:
         print(f"Connection error occurred: {e}")
+        return False
     except Exception as e:
         print(f"An error occurred: {e}")
+        return False
 
 if __name__ == "__main__":
-    get_all_page_links()
+    import sys
+    sys.exit(0 if get_all_page_links() else 1)
