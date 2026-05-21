@@ -254,8 +254,83 @@ def parse_price(val):
         return 0.0
 
 
+def _normalize_alert_key_value(value, is_url=False):
+    """Normalize values used only for Telegram old/new row matching."""
+    text = str(value).strip()
+    if text.lower() in ('', 'nan', 'none', 'n/a', '-'):
+        return ''
+    text = ' '.join(text.split())
+    if is_url:
+        try:
+            text = requests.utils.unquote(text)
+        except Exception:
+            pass
+        text = text.split('#', 1)[0].rstrip('/')
+    return text.lower()
+
+
+def _alert_product_key(row, cols):
+    """Build a stable product-pair key from exact links, with exact names as fallback."""
+    link_ac = _normalize_alert_key_value(row.get(cols['link_ac'], ''), is_url=True)
+    link_other = _normalize_alert_key_value(row.get(cols['link_other'], ''), is_url=True)
+    if link_ac and link_other:
+        return f"links::{link_ac}||{link_other}"
+
+    name_ac = _normalize_alert_key_value(row.get(cols['name_ac'], ''))
+    name_other = _normalize_alert_key_value(row.get(cols['name_other'], ''))
+    if name_ac and name_other:
+        return f"names::{name_ac}||{name_other}"
+    return ''
+
+
+def _build_alert_row_map(df, cols, label):
+    """Create a unique key -> row map; ambiguous duplicate keys are skipped."""
+    row_map = {}
+    duplicate_keys = set()
+    skipped = 0
+
+    for _, row in df.iterrows():
+        key = _alert_product_key(row, cols)
+        if not key:
+            skipped += 1
+            continue
+        if key in duplicate_keys:
+            continue
+        if key in row_map:
+            duplicate_keys.add(key)
+            del row_map[key]
+            continue
+        row_map[key] = row
+
+    if skipped:
+        print(f"   {label}: skipped {skipped} row(s) without a stable product key")
+    if duplicate_keys:
+        print(f"   {label}: skipped {len(duplicate_keys)} duplicate product key(s) to avoid mismatched alerts")
+    return row_map
+
+
+def _parse_alert_price(value):
+    """Parse a price for Telegram comparisons without treating formatting changes as price changes."""
+    text = str(value).strip()
+    if text.lower() in ('', 'nan', 'none', 'n/a', '-'):
+        return None
+    cleaned = text.replace(',', '').replace(' ', '').replace('₾', '')
+    cleaned = ''.join(ch for ch in cleaned if ch.isdigit() or ch in '.-')
+    if cleaned in ('', '-', '.', '-.'):
+        return None
+    try:
+        return round(float(cleaned), 2)
+    except (TypeError, ValueError):
+        return None
+
+
+def _format_alert_price(value):
+    price = _parse_alert_price(value)
+    return f"{price:.2f}" if price is not None else 'N/A'
+
+
 def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
-    """Compare old and new DataFrames by product ID and send Telegram alerts for price changes."""
+    """Compare old and new rows by exact product-pair key and alert only real price changes."""
     print(f"\n📊 Comparison baseline: df_old={len(df_old)} rows, df_new={len(df_new)} rows")
     if len(df_new) == 0:
         print("⚠️  Comparison failed: df_new is empty")
@@ -263,130 +338,84 @@ def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
     if len(df_old) == 0:
         print("ℹ️  Comparison skipped: sheet baseline is empty")
         return True
-    row_diff_pct = abs(len(df_old) - len(df_new)) / max(len(df_new), 1)
-    if row_diff_pct > 0.10:
-        print(f"⚠️  Comparison skipped due to data mismatch: df_old={len(df_old)} rows vs df_new={len(df_new)} rows ({row_diff_pct:.1%} difference — threshold is 10%)")
+
+    cols = {
+        'name_ac': 'Product_Name_AC',
+        'name_other': 'Product_Name_MS',
+        'price_ac': 'Price_AC',
+        'price_other': 'Price_MS',
+        'link_ac': 'Link_AC',
+        'link_other': 'Link_MS',
+        'other_store': 'Musikis-saxli',
+    }
+    required_cols = [
+        cols['name_ac'], cols['name_other'], cols['price_ac'], cols['price_other'],
+        cols['link_ac'], cols['link_other'],
+    ]
+    missing_old = [c for c in required_cols if c not in df_old.columns]
+    missing_new = [c for c in required_cols if c not in df_new.columns]
+    if missing_old or missing_new:
+        print(f"⚠️  Missing columns for exact Telegram comparison. old={missing_old}, new={missing_new}")
         return False
 
-    id_col = 'Match_Key'
-    if id_col not in df_old.columns or id_col not in df_new.columns:
-        print(f"⚠️  '{id_col}' column not found in sheet data, skipping alerts")
-        return False
+    old_rows = _build_alert_row_map(df_old, cols, 'old sheet')
+    new_rows = _build_alert_row_map(df_new, cols, 'new scrape')
+    matched_keys = set(old_rows).intersection(new_rows)
+    print(f"   Exact product matches for Telegram comparison: {len(matched_keys)}")
 
-    name_col = None
-    for col in df_new.columns:
-        if 'product_name' in col.lower():
-            name_col = col
-            break
+    if not matched_keys:
+        print("✅ No overlapping products found for price-change alerts")
+        return True
 
-    link_cols = [col for col in df_new.columns if 'link' in col.lower()]
-    price_cols = [c for c in PRICE_COLUMNS if c in df_old.columns and c in df_new.columns]
+    pending_alerts = []
+    price_cols = [cols['price_ac'], cols['price_other']]
 
-    if not price_cols:
-        print("⚠️  No price columns found for comparison, skipping alerts")
-        return False
-
-    # Deduplicate both DataFrames on Match_Key so each product is processed exactly once
-    df_old = df_old.drop_duplicates(subset=[id_col], keep='last')
-    df_new = df_new.drop_duplicates(subset=[id_col], keep='last')
-    print(f"   Processing {len(df_new)} unique products after deduplication (df_old: {len(df_old)}, df_new: {len(df_new)})")
-
-    df_old_indexed = df_old.set_index(id_col)
-    pending_alerts = []  # Collect all alerts before sending
-
-    for _, new_row in df_new.iterrows():
-        product_id = str(new_row.get(id_col, '')).strip()
-        if not product_id or product_id not in df_old_indexed.index:
+    for key, new_row in new_rows.items():
+        if key not in old_rows:
             continue
-
-        old_row = df_old_indexed.loc[product_id]
-        if isinstance(old_row, pd.DataFrame):
-            old_row = old_row.iloc[0]
+        old_row = old_rows[key]
 
         for price_col in price_cols:
-            old_val = old_row.get(price_col, '')
-            new_val = new_row.get(price_col, '')
+            old_price = _parse_alert_price(old_row.get(price_col, ''))
+            new_price = _parse_alert_price(new_row.get(price_col, ''))
 
-            old_str = str(old_val).strip().lower()
-            new_str = str(new_val).strip().lower()
-
-            # Out-of-stock: new price is zero/empty — skip silently
-            if new_str in ['0', '0.0', '', 'nan', 'n/a', 'none']:
+            if old_price is None and new_price is None:
+                continue
+            if old_price is not None and new_price is not None and abs(old_price - new_price) < 0.01:
                 continue
 
-            # Fast-path: identical strings
-            if old_str == new_str:
-                continue
-
-            # Robust numeric comparison: round to 2dp, treat diff < 0.01 as identical
-            old_price = round(parse_price(old_val), 2)
-            new_price = round(parse_price(new_val), 2)
-
-            if abs(old_price - new_price) < 0.01:
-                print(f"DEBUG: ID={product_id} | col={price_col} | old={old_str!r}({old_price}) new={new_str!r}({new_price}) | Decision: Skip (same price after rounding)")
-                continue
-
-            print(f"DEBUG: ID={product_id} | col={price_col} | old={old_str!r}({old_price}) new={new_str!r}({new_price}) | Decision: ALERT")
-
-            product_name = str(new_row.get(name_col, product_id)) if name_col else product_id
             store_name = STORE_NAMES.get(price_col, price_col)
-            old_display = f"{old_price:.2f}" if old_price != 0.0 else 'N/A'
-            new_display = f"{new_price:.2f}" if new_price != 0.0 else 'N/A'
-
-            links_lines = ''
-            for lc in link_cols:
-                link_val = str(new_row.get(lc, '')).strip()
-                if link_val and link_val not in ('nan', 'None', ''):
-                    links_lines += f'\n  \\- {escape_md(lc)}: {escape_md(link_val)}'
-            if not links_lines:
-                links_lines = '\n  \\- N/A'
+            product_name_ac = str(new_row.get(cols['name_ac'], '')).strip() or 'N/A'
+            product_name_other = str(new_row.get(cols['name_other'], '')).strip() or 'N/A'
+            link_ac = str(new_row.get(cols['link_ac'], '')).strip() or 'N/A'
+            link_other = str(new_row.get(cols['link_other'], '')).strip() or 'N/A'
+            old_display = f"{old_price:.2f}" if old_price is not None else 'N/A'
+            new_display = f"{new_price:.2f}" if new_price is not None else 'N/A'
+            current_price_ac = _format_alert_price(new_row.get(cols['price_ac'], ''))
+            current_price_other = _format_alert_price(new_row.get(cols['price_other'], ''))
 
             pending_alerts.append((
                 "🚨 *ფასის ცვლილება დეტექტირებულია\\!* 🚨\n"
-                f"📦 *პროდუქტი:* {escape_md(product_name)}\n"
-                f"🏦 *მაღაზია:* {escape_md(store_name)}\n"
-                f"💰 *ცვლილება:* {escape_md(old_display)} ₾ ➡️ {escape_md(new_display)} ₾\n"
-                f"🔗 *ბმულები:*{links_lines}"
+                f"📦 *Acoustic პროდუქტი:* {escape_md(product_name_ac)}\n"
+                f"📦 *{escape_md(cols['other_store'])} პროდუქტი:* {escape_md(product_name_other)}\n"
+                f"*შეცვლილი მაღაზია:* {escape_md(store_name)}\n"
+                f"💰 *ძველი → ახალი:* {escape_md(old_display)} ₾ ➡️ {escape_md(new_display)} ₾\n"
+                f"*მიმდინარე ფასები:* Acoustic {escape_md(current_price_ac)} ₾ \\| {escape_md(cols['other_store'])} {escape_md(current_price_other)} ₾\n"
+                f"*Acoustic ბმული:* {escape_md(link_ac)}\n"
+                f"*{escape_md(cols['other_store'])} ბმული:* {escape_md(link_other)}"
             ))
 
-    # Safety cap: > 5 pending alerts → send one consolidated message instead
-    alert_count = len(pending_alerts)
-    if alert_count == 0:
+    if not pending_alerts:
         print("✅ No price changes detected")
-    elif alert_count > 5:
-        print(f"⚠️  {alert_count} alerts queued — exceeds safety cap of 5, sending single consolidated notification")
-        consolidated = (
-            "🚨 *ფასის ცვლილება დეტექტირებულია\\!* 🚨\n"
-            f"📦 სულ {escape_md(str(alert_count))} პროდუქტის ფასი შეიცვალა\\.\n"
-            "📢 *გთხოვთ, ფასების სხვაობა გუგლ შითში გადაამოწმოთ\\.*"
-        )
-        if not send_telegram_message(token, chat_id, consolidated):
-            return False
-        print(f"📨 Sent 1 consolidated alert covering {alert_count} price changes")
     else:
-        for msg in pending_alerts:
-            if not send_telegram_message(token, chat_id, msg):
+        for message in pending_alerts:
+            if not send_telegram_message(token, chat_id, message):
                 return False
-        print(f"📨 Sent {alert_count} Telegram alert(s) for price changes")
+        print(f"📨 Sent {len(pending_alerts)} Telegram alert(s) for exact product price changes")
 
-    # Detect new products: in df_new but absent from df_old
-    old_ids = set(df_old_indexed.index.astype(str).str.strip())
-    new_ids = set(df_new[id_col].astype(str).str.strip())
-    new_products = new_ids - old_ids
-    new_products.discard('')
-    new_count = len(new_products)
-
-    if new_count > 0:
-        print(f"🆕 {new_count} new product(s) detected, sending consolidated alert...")
-        message = (
-            "✨ *ბაზაში დაემატა ახალი პროდუქცია\\!* ✨\n"
-            f"📦 სულ დაემატა: {new_count} ახალი პროდუქტი\\.\n"
-            "📢 *გთხოვთ, ფასების სხვაობა და დეტალები გუგლ შითში გადაამოწმოთ\\.*"
-        )
-        if not send_telegram_message(token, chat_id, message):
-            return False
-    else:
-        print("✅ No new products detected")
+    new_only_count = len(set(new_rows) - set(old_rows))
+    if new_only_count:
+        print(f"ℹ️  {new_only_count} new product(s) skipped by Telegram alerts; only existing-product price changes are notified.")
 
     return True
 
