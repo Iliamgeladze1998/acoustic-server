@@ -123,11 +123,19 @@ while true; do
 
     echo "Auto-insuring dependencies for Music House..."
     pip install --upgrade pip
-    pip install pandas openpyxl requests fuzzywuzzy python-Levenshtein gspread gspread-formatting google-api-python-client google-auth-httplib2 google-auth-oauthlib flask
+    pip install pandas openpyxl requests fuzzywuzzy python-Levenshtein gspread gspread-formatting google-api-python-client google-auth-httplib2 google-auth-oauthlib flask playwright
+    pip install playwright
+    playwright install chromium
 
     echo "[DEBUG] Virtual environment activated"
     echo "[DEBUG] Python version: $(python --version)"
     echo "[DEBUG] Python path: $(which python)"
+
+    echo "Setting Playwright browsers path for Music House..."
+    echo "[DEBUG] Setting PLAYWRIGHT_BROWSERS_PATH=/root/scraping-project/pw-browsers"
+    export PLAYWRIGHT_BROWSERS_PATH=/root/scraping-project/pw-browsers
+
+    echo "[DEBUG] PLAYWRIGHT_BROWSERS_PATH set to: $PLAYWRIGHT_BROWSERS_PATH"
 
     echo "ვუშვებ Music House სკრიპტს..."
     echo "[DEBUG] Executing: python acms/acms_main.py"
