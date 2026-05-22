@@ -8,6 +8,7 @@ Features: Blacklist filtering, Feedback dropdown, Yellow background, Georgia tim
 import os
 import sys
 import json
+import re
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import pandas as pd
@@ -418,18 +419,22 @@ def _build_alert_row_map(df, cols, label):
 
 
 def _parse_alert_price(value):
-    """Parse a price for Telegram comparisons without treating formatting changes as price changes."""
+    """Strictly parse a positive price for Telegram comparisons.
+
+    Empty, invalid, and non-positive values are treated as missing data, not 0.
+    """
     text = str(value).strip()
     if text.lower() in ('', 'nan', 'none', 'n/a', '-'):
         return None
-    cleaned = text.replace(',', '').replace(' ', '').replace('₾', '')
-    cleaned = ''.join(ch for ch in cleaned if ch.isdigit() or ch in '.-')
-    if cleaned in ('', '-', '.', '-.'):
+    cleaned = text.replace('₾', '').replace(',', '').strip()
+    cleaned = ''.join(cleaned.split())
+    if not re.fullmatch(r'-?\d+(?:\.\d+)?', cleaned):
         return None
     try:
-        return round(float(cleaned), 2)
+        price = round(float(cleaned), 2)
     except (TypeError, ValueError):
         return None
+    return price if price > 0 else None
 
 
 def _format_alert_price(value):
@@ -487,9 +492,9 @@ def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
             old_price = _parse_alert_price(old_row.get(price_col, ''))
             new_price = _parse_alert_price(new_row.get(price_col, ''))
 
-            if old_price is None and new_price is None:
+            if old_price is None or new_price is None:
                 continue
-            if old_price is not None and new_price is not None and abs(old_price - new_price) < 0.01:
+            if abs(old_price - new_price) < 0.01:
                 continue
 
             store_name = STORE_NAMES.get(price_col, price_col)
