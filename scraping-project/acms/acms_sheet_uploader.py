@@ -200,6 +200,7 @@ def escape_md(text):
 
 def send_telegram_message(token, chat_id, message):
     """Send a formatted message via Telegram Bot API using MarkdownV2."""
+    time.sleep(1.2)
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     payload = {
         "chat_id": chat_id,
@@ -207,30 +208,24 @@ def send_telegram_message(token, chat_id, message):
         "parse_mode": "MarkdownV2",
         "disable_web_page_preview": False,
     }
-    time.sleep(1.5)
     try:
         response = requests.post(url, json=payload, timeout=10)
         response.raise_for_status()
         print("   ✅ Telegram message sent successfully")
         return True
-    except requests.exceptions.HTTPError as e:
-        if e.response is not None and e.response.status_code == 429:
-            print("   ⚠️  Rate limit hit, pausing...")
-            time.sleep(10)
-            try:
-                response = requests.post(url, json=payload, timeout=10)
-                response.raise_for_status()
-                print("   ✅ Telegram message sent successfully (after retry)")
-                return True
-            except requests.exceptions.RequestException as retry_err:
-                print(f"   ⚠️  Failed to send Telegram message after retry: {retry_err}")
-                return False
-        else:
-            print(f"   ⚠️  Failed to send Telegram message: {e}")
-            return False
     except requests.exceptions.RequestException as e:
         print(f"   ⚠️  Failed to send Telegram message: {e}")
-        return False
+        print("   ⏳ Waiting 5 seconds before retry...")
+        time.sleep(5)
+        try:
+            response = requests.post(url, json=payload, timeout=10)
+            response.raise_for_status()
+            print("   ✅ Telegram message sent successfully (after retry)")
+            return True
+        except requests.exceptions.RequestException as retry_err:
+            print(f"   ⚠️  Failed to send Telegram message after retry: {retry_err}")
+            print("   ⚠️  Continuing with pipeline despite notification failure")
+            return False
 
 
 def fetch_sheet_as_dataframe(worksheet):
