@@ -200,7 +200,7 @@ def escape_md(text):
 
 def send_telegram_message(token, chat_id, message):
     """Send a formatted message via Telegram Bot API using MarkdownV2."""
-    time.sleep(1.2)
+    time.sleep(2.5)
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     payload = {
         "chat_id": chat_id,
