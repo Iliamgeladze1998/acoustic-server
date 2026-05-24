@@ -298,9 +298,7 @@ def generate_ai_response(user_message, products_data, client):
     # ============================================================
     found_product_data = None
     search_log = ""
-    
-    # Always check for a 6-digit code FIRST - this is an explicit product request
-    code_match = re.search(r'\b\d{6}\b', user_message)
+    code_match = re.search(r'\b\d{6}\b', user_message)  # Store for fallback block
     
     if code_match:
         code = code_match.group()
@@ -394,6 +392,11 @@ def generate_ai_response(user_message, products_data, client):
                     product_name = first.get('product', 'N/A')
                     price = first.get('price', 'N/A')
                     return f"AI ლიმიტი ამოწურულია, თუმცა მოძებნილი პროდუქტია: {product_name}. ფასი: {price} ლარი. მეტი ინფორმაციისთვის დაგვიკავშირდით: +995 551 160 562."
+        
+        # If code was provided but not found, inform user about that specifically
+        if code_match and found_product_data is None:
+            code = code_match.group()
+            return f"AI ლიმიტი ამოწურულია. კოდი {code} არ არის ჩვენს კატალოგში. გთხოვთ შეამოწმეთ სწორი კოდი ან დაგვირეკეთ: +995 551 160 562."
         
         # No product data and AI down - be honest about the situation
         if is_rate_limit:
