@@ -35,7 +35,7 @@ PRODUCTS_JSON_URL = "https://acoustic.ge/data/products.json"
 BASE_SYSTEM_INSTRUCTION = '''
 You are a helpful shop assistant for Acoustic.ge.
 
-CORE RULE: All product data below was fetched LIVE from acoustic.ge moments ago. NEVER rely on memory or guess product info. If product data is provided in the SEARCH RESULT section, quote it verbatim. If no product data is provided, use the official store info or politely say you don't know.
+CORE RULE: All product data below was fetched LIVE from acoustic.ge moments ago. NEVER rely on memory or guess product info. If product data is provided in the SEARCH RESULT section, quote it verbatim. If no product data is provided (CONVERSATION MODE), respond naturally as a friendly shop assistant - use the OFFICIAL STORE INFORMATION for address/phone questions, or just chat normally. Do NOT force product search into general conversations.
 
 OFFICIAL STORE INFORMATION:
 - Name: Acoustic.ge (აკუსტიკა)
@@ -54,6 +54,16 @@ RULES:
 6. Language: Respond in the same language the user writes in (Georgian or English).
 '''
 
+# Keywords that EXPLICITLY request product search - only search when these are present
+PRODUCT_SEARCH_KEYWORDS = [
+    # English
+    'price', 'cost', 'how much', 'search', 'find', 'look for',
+    'product', 'item', 'instrument', 'guitar', 'piano', 'drum',
+    # Georgian
+    'ფასი', 'ღირს', 'პროდუქტი', 'მოძებნე', 'ეძება', 'გიტარა',
+    'პიანინო', 'დრამი', 'ინსტრუმენტი'
+]
+
 # Keywords that indicate a general store query (not a product search)
 GENERAL_QUERY_KEYWORDS = [
     # English
@@ -63,6 +73,15 @@ GENERAL_QUERY_KEYWORDS = [
     'მისამართი', 'სად', 'ტელეფონი', 'კონტაქტი', 'საათები', 'ღია',
     'დაკეტილი', 'ფოსტა', 'მაღაზია', 'ვებსაიტი', 'სამუშაო'
 ]
+
+def is_product_search_request(user_message):
+    """Check if user is EXPLICITLY asking for product search/info."""
+    message_lower = user_message.lower()
+    for keyword in PRODUCT_SEARCH_KEYWORDS:
+        if keyword.lower() in message_lower:
+            logger.info(f"🔍 Product search request detected (keyword: '{keyword}')")
+            return True
+    return False
 
 def is_general_query(user_message):
     """Check if user message is a general store query (not a product search)"""
@@ -76,8 +95,13 @@ def is_general_query(user_message):
 def local_fallback(user_message):
     """Check for specific keywords and return static responses without calling AI.
     Returns None if no match, allowing the AI to handle it.
+    Only applies to general store info (address, phone, website), NOT product queries.
     """
     message_lower = user_message.lower()
+    
+    # Skip local fallback if this is a product search request
+    if is_product_search_request(user_message):
+        return None
     
     # Address queries
     if 'მისამართი' in message_lower or 'სად არის მაღაზია' in message_lower:
@@ -272,12 +296,12 @@ def generate_ai_response(user_message, products_data, client):
         return static_response
     
     # ============================================================
-    # STEP A: SEARCH LOGIC - Run BEFORE any tone/persona decisions
+    # STEP A: SEARCH LOGIC - Only run when EXPLICITLY requested
     # ============================================================
     found_product_data = None
     search_log = ""
     
-    # Always check for a 6-digit code FIRST, regardless of other keywords
+    # Always check for a 6-digit code FIRST - this is an explicit product request
     code_match = re.search(r'\b\d{6}\b', user_message)
     
     if code_match:
@@ -296,26 +320,28 @@ def generate_ai_response(user_message, products_data, client):
             print(f"❌ No product matched code {code}")
             logger.info(f"❌ STEP A: No product found for code {code}")
             search_log = f"Code {code} not found in catalog"
-    else:
-        # No code - try fuzzy search unless it's clearly a general store question
-        if is_general_query(user_message):
-            print(f"🏪 General store query (no code, no product keywords)")
-            logger.info("🏪 STEP A: General store query - skipping product search")
-            search_log = "General store inquiry"
+    
+    # Only do fuzzy search if user EXPLICITLY asks for product info (keywords)
+    elif is_product_search_request(user_message):
+        print(f"🔍 Product search request detected - running fuzzy search")
+        logger.info(f"🔍 STEP A: Product search keywords detected - running fuzzy search for '{user_message}'")
+        relevant_products = search_products(user_message, products_data)
+        
+        if relevant_products:
+            print(f"✅ Fuzzy search found {len(relevant_products)} products")
+            logger.info(f"✅ STEP A: Found {len(relevant_products)} relevant products")
+            found_product_data = relevant_products
+            search_log = f"Found {len(relevant_products)} products via fuzzy search"
         else:
-            print(f"🔍 Executing fuzzy product search")
-            logger.info(f"🔍 STEP A: Running fuzzy search for '{user_message}'")
-            relevant_products = search_products(user_message, products_data)
-            
-            if relevant_products:
-                print(f"✅ Fuzzy search found {len(relevant_products)} products")
-                logger.info(f"✅ STEP A: Found {len(relevant_products)} relevant products")
-                found_product_data = relevant_products
-                search_log = f"Found {len(relevant_products)} products via fuzzy search"
-            else:
-                print(f"❌ Fuzzy search returned no matches")
-                logger.info("❌ STEP A: No fuzzy matches")
-                search_log = "No products matched query"
+            print(f"❌ Fuzzy search returned no matches")
+            logger.info("❌ STEP A: No fuzzy matches")
+            search_log = "No products matched query"
+    
+    else:
+        # No code, no product keywords - skip search, let AI handle as general conversation
+        print(f"💬 General conversation - skipping product search")
+        logger.info("💬 STEP A: No product search request - skipping search, letting AI handle as conversation")
+        search_log = "General conversation (no product search requested)"
     
     # ============================================================
     # STEP B: Build context with found data
@@ -324,7 +350,8 @@ def generate_ai_response(user_message, products_data, client):
         product_json = json.dumps(found_product_data, ensure_ascii=False, indent=2)
         context_section = f"\n\nSEARCH RESULT: {search_log}\n\nPRODUCT DATA FOUND IN JSON:\n{product_json}\n\nUse this product data to answer the customer. Quote exact prices, SKUs, and stock levels from the data above."
     else:
-        context_section = f"\n\nSEARCH RESULT: {search_log}\n\nNo product data was found in the catalog for this query. If the customer is asking general store info (address, hours, phone), answer using the OFFICIAL STORE INFORMATION in your instructions. If they were looking for a product, politely inform them it wasn't found and offer to help further."
+        # No product data - this is a general conversation, NOT a failed search
+        context_section = f"\n\nCONVERSATION MODE: {search_log}\n\nThe user is having a general conversation or asking non-product questions. Be a friendly, helpful shop assistant. Answer naturally using the OFFICIAL STORE INFORMATION in your instructions. Do NOT mention products or search unless the user specifically asks."
     
     final_system_instruction = BASE_SYSTEM_INSTRUCTION + context_section
     
