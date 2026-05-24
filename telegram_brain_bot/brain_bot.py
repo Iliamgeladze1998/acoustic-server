@@ -274,19 +274,17 @@ def format_products_list_directly(products):
     lines.append("\nუფრო კონკრეტული პროდუქტისთვის გამომიგზავნეთ მისი 6-ნიშნა კოდი.")
     return "\n".join(lines)
 
-
 def generate_ai_response(user_message, products_data, client):
     """Generate AI response using Groq.
     
-    SEPARATION OF LOGIC AND TONE:
-    - LOCAL FALLBACK: Check for static keyword responses first
-    - STEP A: Search logic runs FIRST (code -> exact match -> fuzzy fallback)
-    - STEP B: Found product data is injected into system prompt
-    - STEP C: Groq is told to use product data if found, store info otherwise
+    SAFE PIPELINE:
+    - Independent Search: ALWAYS run find_product_by_code() or fuzzy_search() BEFORE calling AI
+    - Store Result: Store product data in found_product_data variable
+    - AI Call with Fallback: Wrap AI call in try-except
+    - IF AI succeeds: Return AI response with product context
+    - IF AI fails (429/Error): IGNORE AI, return simple text using ONLY product_data
     
-    FALLBACK: If Groq fails (rate limit, network), and we have product data
-    found in STEP A, we return that data directly formatted - never lose
-    information just because the AI is down.
+    This ensures product search remains active even when AI is rate-limited.
     """
     # ============================================================
     # LOCAL FALLBACK: Check for static keyword responses
@@ -380,22 +378,22 @@ def generate_ai_response(user_message, products_data, client):
         logger.error(f"Error generating AI response: {e}")
         logger.error(f"Error type: {type(e).__name__} (rate_limit={is_rate_limit})")
         
-        # If we have product data, format and return it directly - no AI needed
+        # If we have product data, return simple clean text using ONLY that data
         if found_product_data is not None:
-            logger.info("🛟 AI failed but product data was found - returning direct data response")
-            prefix = ""
-            if is_rate_limit:
-                # Try to extract reset time from the error if available
-                reset_minutes = "რამდენიმე"
-                if 'Please try again in' in err_str:
-                    time_match = re.search(r'Please try again in (\d+)m', err_str)
-                    if time_match:
-                        reset_minutes = time_match.group(1)
-                prefix = f"⚠️ AI ლიმიტი დროებით ამოწურულია. განახლდება დაახლოებით {reset_minutes} წუთში. მაგრამ მონაცემები ვიპოვე:\n\n"
+            logger.info("🛟 AI failed but product data was found - returning simple text response")
+            
+            # Extract product info
             if isinstance(found_product_data, dict):
-                return prefix + format_product_directly(found_product_data)
+                product_name = found_product_data.get('product', 'N/A')
+                price = found_product_data.get('price', 'N/A')
+                return f"AI ლიმიტი ამოწურულია, თუმცა მოძებნილი პროდუქტია: {product_name}. ფასი: {price} ლარი. მეტი ინფორმაციისთვის დაგვიკავშირდით: +995 551 160 562."
             elif isinstance(found_product_data, list):
-                return prefix + format_products_list_directly(found_product_data)
+                # Multiple products - return first one for simplicity
+                if found_product_data:
+                    first = found_product_data[0]
+                    product_name = first.get('product', 'N/A')
+                    price = first.get('price', 'N/A')
+                    return f"AI ლიმიტი ამოწურულია, თუმცა მოძებნილი პროდუქტია: {product_name}. ფასი: {price} ლარი. მეტი ინფორმაციისთვის დაგვიკავშირდით: +995 551 160 562."
         
         # No product data and AI down - be honest about the situation
         if is_rate_limit:
