@@ -73,6 +73,29 @@ def is_general_query(user_message):
             return True
     return False
 
+def local_fallback(user_message):
+    """Check for specific keywords and return static responses without calling AI.
+    Returns None if no match, allowing the AI to handle it.
+    """
+    message_lower = user_message.lower()
+    
+    # Address queries
+    if 'მისამართი' in message_lower or 'სად არის მაღაზია' in message_lower:
+        logger.info("🏪 Local fallback: address query")
+        return 'ჩვენი მაღაზია მდებარეობს: 142 აკაკი წერეთლის გამზირი. გელოდებით!'
+    
+    # Phone queries
+    if 'ტელეფონი' in message_lower or 'ნომერი' in message_lower:
+        logger.info("🏪 Local fallback: phone query")
+        return 'დაგვირეკეთ: +995 551 160 562'
+    
+    # Website queries
+    if 'საიტი' in message_lower:
+        logger.info("🏪 Local fallback: website query")
+        return 'ეწვიეთ ჩვენს საიტს: https://acoustic.ge'
+    
+    return None
+
 def search_products(query, all_products):
     """Search for products using fuzzy matching, return top 5 relevant matches"""
     if not all_products:
@@ -232,6 +255,7 @@ def generate_ai_response(user_message, products_data, client):
     """Generate AI response using Groq.
     
     SEPARATION OF LOGIC AND TONE:
+    - LOCAL FALLBACK: Check for static keyword responses first
     - STEP A: Search logic runs FIRST (code -> exact match -> fuzzy fallback)
     - STEP B: Found product data is injected into system prompt
     - STEP C: Groq is told to use product data if found, store info otherwise
@@ -240,6 +264,13 @@ def generate_ai_response(user_message, products_data, client):
     found in STEP A, we return that data directly formatted - never lose
     information just because the AI is down.
     """
+    # ============================================================
+    # LOCAL FALLBACK: Check for static keyword responses
+    # ============================================================
+    static_response = local_fallback(user_message)
+    if static_response is not None:
+        return static_response
+    
     # ============================================================
     # STEP A: SEARCH LOGIC - Run BEFORE any tone/persona decisions
     # ============================================================
@@ -327,7 +358,13 @@ def generate_ai_response(user_message, products_data, client):
             logger.info("🛟 AI failed but product data was found - returning direct data response")
             prefix = ""
             if is_rate_limit:
-                prefix = "⚠️ AI ასისტენტი ამჟამად დატვირთულია, მაგრამ მონაცემები ვიპოვე:\n\n"
+                # Try to extract reset time from the error if available
+                reset_minutes = "რამდენიმე"
+                if 'Please try again in' in err_str:
+                    time_match = re.search(r'Please try again in (\d+)m', err_str)
+                    if time_match:
+                        reset_minutes = time_match.group(1)
+                prefix = f"⚠️ AI ლიმიტი დროებით ამოწურულია. განახლდება დაახლოებით {reset_minutes} წუთში. მაგრამ მონაცემები ვიპოვე:\n\n"
             if isinstance(found_product_data, dict):
                 return prefix + format_product_directly(found_product_data)
             elif isinstance(found_product_data, list):
@@ -335,9 +372,14 @@ def generate_ai_response(user_message, products_data, client):
         
         # No product data and AI down - be honest about the situation
         if is_rate_limit:
-            return ("⚠️ AI ასისტენტი ამჟამად დატვირთულია, გთხოვთ სცადოთ რამდენიმე წუთში. "
-                    "თუ კონკრეტული პროდუქტი გაინტერესებთ, გამოგზავნეთ მისი 6-ნიშნა კოდი — "
-                    "მონაცემებს პირდაპირ კატალოგიდან მოგცემთ.")
+            # Try to extract reset time from the error
+            reset_minutes = "რამდენიმე"
+            if 'Please try again in' in err_str:
+                time_match = re.search(r'Please try again in (\d+)m', err_str)
+                if time_match:
+                    reset_minutes = time_match.group(1)
+            return (f"⚠️ AI ლიმიტი დროებით ამოწურულია. განახლდება დაახლოებით {reset_minutes} წუთში. "
+                    "მანამდე შეგიძლიათ დაგვირეკოთ: +995 551 160 562.")
         return ("სამწუხაროდ, ამ წუთას ტექნიკური ხარვეზია. "
                 "გთხოვთ, დაგვიკავშირდეთ: sales@acoustic.ge ან +995 551 160 562.")
 
