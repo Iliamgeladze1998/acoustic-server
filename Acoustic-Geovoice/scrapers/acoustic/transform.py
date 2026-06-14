@@ -160,7 +160,8 @@ def transform_acoustic_data():
     print(f"\n📋 Sample NAME vs CLEAN_MODEL verification:")
     sample_df = df_cleaned[['NAME', 'CLEAN_MODEL', 'CLEAN_ID']].head(10)
     for idx, row in sample_df.iterrows():
-        print(f"   {row['NAME'][:50]:<50} -> {row['CLEAN_MODEL']:<30} (ID: {row['CLEAN_ID']})")
+        product_name = str(row['NAME']) if pd.notna(row['NAME']) else "No Name"
+        print(f"   {product_name[:50]:<50} -> {str(row['CLEAN_MODEL']):<30} (ID: {row['CLEAN_ID']})")
     
     # Save cleaned data
     try:

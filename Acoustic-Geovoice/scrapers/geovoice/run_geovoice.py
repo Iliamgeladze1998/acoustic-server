@@ -169,9 +169,9 @@ def main():
         logger.error("Failed to get Geovoice category links. Aborting.")
         return False
     
-    # Step 2: Geovoice Product Link Collection (extract product links from categories - Stealth Mode)
-    print("\n==================== STEP 2: Geovoice Product Link Collection (Stealth) ====================", flush=True)
-    execution_log['geovoice_product_links'] = run_script("geovoice_all_links_stealth.py")
+    # Step 2: Geovoice Product Link Collection (extract product links from categories)
+    print("\n==================== STEP 2: Geovoice Product Link Collection ====================", flush=True)
+    execution_log['geovoice_product_links'] = run_script("geovoice_all_links.py")
     if not execution_log['geovoice_product_links']:
         logger.error("Failed to get Geovoice product links. Aborting.")
         return False
@@ -189,20 +189,6 @@ def main():
     if not execution_log['geovoice_transform']:
         logger.error("Geovoice transformation failed. Aborting.")
         return False
-
-    # Step 5: Data Merging (merge with Acoustic data)
-    print("\n==================== STEP 5: Data Merging ====================", flush=True)
-    execution_log['geovoice_merge'] = run_script("../acgv/acgv_data_merger.py")
-    if not execution_log['geovoice_merge']:
-        logger.error("Geovoice data merging failed. Aborting.")
-        return False
-
-    # Step 6: Google Sheets Upload (upload to Geovoice tab)
-    print("\n==================== STEP 6: Google Sheets Upload ====================", flush=True)
-    execution_log['geovoice_upload'] = run_script("../acgv/acgv_sheet_uploader.py")
-    if not execution_log['geovoice_upload']:
-        logger.error("Geovoice upload failed. Aborting.")
-        return False
     
     # Final Summary
     end_time = datetime.now()
@@ -210,11 +196,9 @@ def main():
     logger.info("\n" + "="*60)
     logger.info("GEOVOICE EXECUTION SUMMARY:")
     logger.info(f"   Geovoice Category Links: {'OK' if execution_log.get('geovoice_links') else 'FAIL'}")
-    logger.info(f"   Geovoice Product Links (Stealth): {'OK' if execution_log.get('geovoice_product_links') else 'FAIL'}")
+    logger.info(f"   Geovoice Product Links: {'OK' if execution_log.get('geovoice_product_links') else 'FAIL'}")
     logger.info(f"   Geovoice Scraping: {'OK' if execution_log.get('geovoice_scrape') else 'FAIL'}")
     logger.info(f"   Geovoice Transformation: {'OK' if execution_log.get('geovoice_transform') else 'FAIL'}")
-    logger.info(f"   Data Merging: {'OK' if execution_log.get('geovoice_merge') else 'FAIL'}")
-    logger.info(f"   Google Sheets Upload: {'OK' if execution_log.get('geovoice_upload') else 'FAIL'}")
     logger.info(f"\nGEOVOICE CYCLE FINISHED")
     logger.info(f"   End Time: {end_time.strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info("="*60 + "\n")

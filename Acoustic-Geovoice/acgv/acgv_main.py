@@ -7,6 +7,7 @@ Automates the entire workflow from scraping to uploading
 import subprocess
 import sys
 import os
+import socket
 from datetime import datetime
 
 def run_script(script_name, stage_name):
@@ -35,6 +36,41 @@ def run_script(script_name, stage_name):
         return False
     except Exception as e:
         print(f"\n✗ {stage_name} Failed with Exception: {e}")
+        return False
+
+def setup_ssh_tunnel():
+    """Setup SSH tunnel for acoustic API access if running locally"""
+    hostname = socket.gethostname()
+    
+    # Only setup tunnel if running locally (not on server)
+    if 'root' in hostname or 'ubuntu' in hostname or 'server' in hostname.lower():
+        print("Server environment detected - no SSH tunnel needed")
+        return True
+    
+    print("Local environment detected - setting up SSH tunnel for acoustic API")
+    
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    tunnel_script = os.path.join(script_dir, '..', 'scrapers', 'acoustic', 'setup_ssh_tunnel.py')
+    
+    if not os.path.exists(tunnel_script):
+        print("WARNING: setup_ssh_tunnel.py not found, acoustic scraping may fail")
+        return False
+    
+    try:
+        result = subprocess.run(
+            [sys.executable, tunnel_script],
+            check=True,
+            capture_output=False,
+            text=True,
+            cwd=os.path.dirname(tunnel_script)
+        )
+        print("✓ SSH tunnel setup completed successfully")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"✗ SSH tunnel setup failed (exit code: {e.returncode})")
+        return False
+    except Exception as e:
+        print(f"✗ SSH tunnel setup failed with exception: {e}")
         return False
 
 def main():
@@ -73,6 +109,13 @@ def main():
     
     execution_log = {}
     
+    # Setup SSH tunnel for acoustic API if running locally
+    print(f"\n{'='*60}")
+    print("--- SSH Tunnel Setup ---")
+    print(f"{'='*60}")
+    tunnel_success = setup_ssh_tunnel()
+    execution_log['SSH Tunnel Setup'] = tunnel_success
+    
     # Run each script in sequence
     for script_info in scripts:
         script_path = script_info['path']
@@ -102,6 +145,10 @@ def main():
     print(f"\n{'='*60}")
     print("PIPELINE EXECUTION SUMMARY:")
     print(f"{'='*60}")
+    
+    # Print SSH tunnel status
+    tunnel_status = "✓ SUCCESS" if execution_log.get('SSH Tunnel Setup') else "✗ FAILED"
+    print(f"   SSH Tunnel Setup: {tunnel_status}")
     
     for script_info in scripts:
         stage_name = script_info['name']
