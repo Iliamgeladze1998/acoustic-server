@@ -83,72 +83,50 @@ async def scrape_geovoice_full():
     all_products = []
     output_file = os.path.join(script_dir, "geovoice_final_stock.xlsx")
     
-    # Random User-Agents for human-mimic (Chrome, Safari, Firefox)
+    # Random User-Agents for human-mimic
     USER_AGENTS = [
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/122.0.0.0 Safari/537.36',
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/122.0.0.0 Safari/537.36'
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0'
     ]
     
     async with async_playwright() as p:
         headless_mode = os.getenv('HEADLESS', 'true').lower() == 'true'
-        # Launch browser once
+        # Pick random user-agent for this session
+        random_user_agent = random.choice(USER_AGENTS)
+        print(f"Using User-Agent: {random_user_agent[:50]}...", flush=True)
+        
         browser = await p.chromium.launch(headless=headless_mode, args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'])
+        context = await browser.new_context(
+            user_agent=random_user_agent,
+            extra_http_headers={'Referer': 'https://geovoice.ge/'}
+        )
+        page = await context.new_page()
         
-        # PRODUCTION MODE: Full scraping
-        TEST_MODE = False
-        MAX_PRODUCTS = 5 if TEST_MODE else len(product_links)
-        
-        for idx, product_url in enumerate(product_links[:MAX_PRODUCTS], 1):
-            print(f"\nProduct {idx}/{MAX_PRODUCTS}: {product_url}", flush=True)
+        for idx, product_url in enumerate(product_links, 1):
+            print(f"\nProduct {idx}/{len(product_links)}: {product_url}", flush=True)
             
-            # Human-like delay before each product page (3-7 seconds) - Hooligan Mode
+            # Random delay before each product page (2-5 seconds) for local use
             if idx > 1:  # Skip delay for first product
-                delay = random.uniform(3, 7)
-                print(f"  Hooligan Mode: Waiting {delay:.1f}s before visiting...", flush=True)
+                delay = random.uniform(2, 5)
+                print(f"  Waiting {delay:.1f}s before visiting...", flush=True)
                 await asyncio.sleep(delay)
             
-            # Session Isolation: Create fresh browser_context for each request to clear cookies/fingerprints
-            random_user_agent = random.choice(USER_AGENTS)
-            print(f"  Using User-Agent: {random_user_agent[:50]}...", flush=True)
-            
-            context = await browser.new_context(
-                user_agent=random_user_agent,
-                viewport={'width': 1920, 'height': 1080},
-                extra_http_headers={
-                    'Referer': 'https://www.google.com/search?q=geovoice+products',
-                    'Accept-Language': 'ka-GE,ka;q=0.9,en-US;q=0.8,en;q=0.7'
-                }
-            )
-            page = await context.new_page()
-            
             retry_count = 0
-            max_retries = 3
+            max_retries = 1
             
             while retry_count <= max_retries:
                 try:
                     await page.goto(product_url, wait_until="domcontentloaded", timeout=60000)
                 
-                    # Randomized Navigation: Random scroll to simulate human reading
-                    try:
-                        scroll_amount = random.randint(100, 500)
-                        await page.evaluate(f"window.scrollBy(0, {scroll_amount})")
-                        await asyncio.sleep(random.uniform(0.5, 1.5))
-                        await page.evaluate(f"window.scrollBy(0, -{scroll_amount // 2})")
-                    except Exception as scroll_error:
-                        print(f"  Scroll failed (non-critical): {scroll_error}", flush=True)
-                
                     # Check for Cloudflare 'Just a moment' page
                     page_content = await page.content()
                     if 'Just a moment' in page_content or 'Checking your browser' in page_content:
-                        print(f"  ⚠ Cloudflare detected! Quick retry with new identity...", flush=True)
-                        await asyncio.sleep(random.uniform(3, 7))  # Quick retry instead of 2 minutes
+                        print(f"  ⚠ Cloudflare detected! Waiting 2 minutes before retry...", flush=True)
+                        await asyncio.sleep(120)  # Wait 2 minutes
                         retry_count += 1
                         if retry_count <= max_retries:
                             print(f"  Retrying ({retry_count}/{max_retries})...", flush=True)
@@ -234,22 +212,13 @@ async def scrape_geovoice_full():
                 
                 except Exception as e:
                     if retry_count < max_retries and 'CancelledError' not in str(type(e)):
-                        error_msg = str(e).lower()
-                        if '403' in error_msg or 'forbidden' in error_msg:
-                            print(f"  ERROR: 403 Forbidden detected - waiting 60s before retry", flush=True)
-                            await asyncio.sleep(60)  # Wait 60 seconds for 403 errors
-                        else:
-                            await asyncio.sleep(5)  # Brief pause before retry for other errors
                         print(f"  ERROR: Failed to scrape {product_url}: {str(e)[:50]}", flush=True)
                         retry_count += 1
-                        print(f"  Retrying ({retry_count}/{max_retries})...", flush=True)
+                        await asyncio.sleep(5)  # Brief pause before retry
                         continue
                     else:
                         print(f"  ERROR: Failed to scrape {product_url}: {str(e)[:50]}", flush=True)
                         break
-            
-            # Close context after each request for session isolation
-            await context.close()
         
         await browser.close()
     

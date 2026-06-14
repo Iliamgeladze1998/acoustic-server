@@ -28,10 +28,6 @@ def transform_geovoice_data():
     try:
         df = pd.read_excel(input_file, dtype={'UNIQUE_ID': str})
         print(f"✅ Loaded {len(df)} products from Geovoice Store")
-    except FileNotFoundError:
-        print(f"⚠️  Warning: Input file not found: {input_file}")
-        print(f"⚠️  Skipping transformation - no data to process")
-        return True  # Return True to allow pipeline to continue
     except Exception as e:
         print(f"❌ Error loading input file: {e}")
         return False

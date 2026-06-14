@@ -1,4 +1,5 @@
 # Excel files
+*.xlsx
 ~$*.xlsx
 
 # Python cache
@@ -28,9 +29,10 @@ Thumbs.db
 credentials.json
 venv/
 __pycache__/
+*.xlsx
+reports/
 
 # Environment
 .env
 
 # Docker
-.docker/

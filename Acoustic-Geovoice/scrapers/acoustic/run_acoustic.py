@@ -1,7 +1,6 @@
 import subprocess
 import sys
 import os
-import asyncio
 
 def run_script(script_name):
     """Run a Python script in the same directory"""
@@ -30,26 +29,18 @@ def run_acoustic_master():
     print("ACOUSTIC SCRAPING MASTER CONTROLLER", flush=True)
     print("="*60, flush=True)
     
-    # Step 1: Update links
-    print("\nStep 1: Updating links...", flush=True)
+    print("\nStep 1: Starting full scrape...", flush=True)
     print("-" * 40, flush=True)
     
-    if not run_script("acoustic_get_links.py"):
-        print("Failed to update links. Aborting process.", flush=True)
-        return False
-    
-    print("\nStep 2: Starting full scrape...", flush=True)
-    print("-" * 40, flush=True)
-    
-    # Step 2: Run full scraper
+    # Step 1: Run full scraper
     if not run_script("acoustic_full_scraper.py"):
         print("Full scrape failed.", flush=True)
         return False
     
-    print("\nStep 3: Running data transformation...", flush=True)
+    print("\nStep 2: Running data transformation...", flush=True)
     print("-" * 40, flush=True)
     
-    # Step 3: Run transformation
+    # Step 2: Run transformation
     if not run_script("transform.py"):
         print("Data transformation failed.", flush=True)
         return False
