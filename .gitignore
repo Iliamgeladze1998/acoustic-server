@@ -1,73 +1,57 @@
-# Virtual environments
-.venv/
-venv/
-*/venv/
-*/*/venv/
-env/
-.env/
-
-# Playwright / browser caches & binaries
-.playwright/
-*/.playwright/
-pw-browsers/
-*/pw-browsers/
-*/*/pw-browsers/
-
-# Windsurf / Editor caches
+# Server environment files
+.bash_history
+.bashrc
+.cache/
+.cloud-locale-test.skip
 .codeium/
+.config/
+.gitconfig
+.lesshst
+.local/
+.pki/
+.profile
+.selected_editor
+.ssh/
 .windsurf-server/
-.windsurf/
 
-# System / Logs
+# Downloaded/generated files
+.wget-hsts
+get-pip.py
+products.json
+
+# Logs
 *.log
 nohup.out
 output.txt
-full_logs.txt
 scrapers_output.log
+scrapers_screen.log
+
+# Generated scraper data (output files, not source)
+**/blacklist.json
+**/*_links.txt
+**/*_products.txt
+**/*_product_links.txt
+**/*_category_links.txt
+music-store-all-links.txt
+music-store-product-links.txt
+
+# Excel output files
+**/*.xlsx
 
 # Python cache
-__pycache__/
-*/__pycache__/
-*.pyc
-*.pyo
-*.egg-info/
-dist/
-build/
+**/__pycache__/
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# Virtual environments
+**/venv/
 
-# OS
-.DS_Store
-Thumbs.db
+# Sub-repos (managed separately)
+Acoustic-Invoice-Bot/
 
-# System dotfiles (not project code)
-.bash_history
-.bashrc
-.gitconfig
-.lesshst
-.profile
-.selected_editor
-.cloud-locale-test.skip
-.config/
-.local/
-.pki/
-.ssh/
+# Credentials
+**/credentials.json
 
-# Cache
-.cache/
-*.cache
+# Playwright browsers
+**/pw-browsers/
 
-# Credentials / secrets
-credentials.json
-*/credentials.json
-*/*/credentials.json
-
-# Large data files
-*.xlsx
-*.xls
-!requirements.txt
+# Misc generated logs
+**/full_logs.txt

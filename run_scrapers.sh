@@ -11,58 +11,9 @@ while true; do
     echo "--- ახალი სრული ციკლის დასაწყისი: $(date) ---"
     echo "=========================================================="
 
-    # --- ნაწილი 1: ACOUSTIC MUSICOOM (PYTHON VENV) ---
-    echo "[DEBUG] --- Starting Part 1: Acoustic Musicroom (VENV) ---"
-    echo "1. ვიწყებ Musicroom-ს პროექტს (VENV)..."
-    echo "[DEBUG] Changing directory to ~/Acoustic-Musicroom"
-    cd ~/Acoustic-Musicroom || exit
-
-    echo "[DEBUG] Current directory: $(pwd)"
-    echo "ვირტუალური გარემოს აქტივაცია..."
-    echo "[DEBUG] Activating virtual environment: venv/bin/activate"
-    source venv/bin/activate
-
-    echo "Auto-insuring dependencies for Musicroom..."
-    pip install --upgrade pip
-    pip install -r requirements.txt || pip install pandas openpyxl requests fuzzywuzzy python-Levenshtein playwright gspread gspread-formatting google-api-python-client google-auth-httplib2 google-auth-oauthlib
-    pip install gspread-formatting
-    playwright install chromium
-
-    echo "[DEBUG] Virtual environment activated"
-    echo "[DEBUG] Python version: $(python --version)"
-    echo "[DEBUG] Python path: $(which python)"
-
-    echo "Setting Playwright browsers path for Musicroom..."
-    echo "[DEBUG] Setting PLAYWRIGHT_BROWSERS_PATH=/root/Acoustic-Musicroom/pw-browsers"
-    export PLAYWRIGHT_BROWSERS_PATH=/root/Acoustic-Musicroom/pw-browsers
-
-    echo "[DEBUG] PLAYWRIGHT_BROWSERS_PATH set to: $PLAYWRIGHT_BROWSERS_PATH"
-    echo "ვუშვებ Musicroom სკრიპტს..."
-    echo "[DEBUG] Executing: python acmr/acmr_main.py"
-    python acmr/acmr_main.py
-    MUSICOOM_EXIT_CODE=$?
-
-    echo "[DEBUG] Musicroom script exit code: $MUSICOOM_EXIT_CODE"
-    echo "გარემოს დეაქტივაცია..."
-    echo "[DEBUG] Deactivating virtual environment"
-    deactivate
-
-    echo "[DEBUG] Virtual environment deactivated"
-
-    if [ $MUSICOOM_EXIT_CODE -ne 0 ]; then
-        echo "CRITICAL: MUSICOOM_UPDATE_FAILED - Exit code: $MUSICOOM_EXIT_CODE"
-        echo "Stopping entire pipeline. Will NOT proceed to next cycle."
-        echo "[DEBUG] Script exiting with code 1"
-        exit 1
-    fi
-
-    echo "[DEBUG] Musicroom completed successfully"
-    echo "Musicroom პროექტი დასრულდა."
-    echo "----------------------------------------------------------"
-
-    # --- ნაწილი 2: ACOUSTIC MIRELI (PYTHON VENV) ---
-    echo "[DEBUG] --- Starting Part 2: Acoustic Mireli (VENV) ---"
-    echo "2. ვიწყებ Mireli-ს პროექტს (VENV)..."
+    # --- ნაწილი 1: ACOUSTIC MIRELI (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 1: Acoustic Mireli (VENV) ---"
+    echo "1. ვიწყებ Mireli-ს პროექტს (VENV)..."
     echo "[DEBUG] Changing directory to ~/Acoustic-Mireli"
     cd ~/Acoustic-Mireli || exit
 
@@ -110,9 +61,16 @@ while true; do
     echo "Mireli პროექტი დასრულდა."
     echo "----------------------------------------------------------"
 
-    # --- ნაწილი 3: MUSIC HOUSE & ACOUSTIC (PYTHON VENV) ---
-    echo "[DEBUG] --- Starting Part 3: Music House & Acoustic (VENV) ---"
-    echo "3. ვიწყებ Music House პროექტს (VENV)..."
+    echo "=========================================================="
+    echo "--- Mireli დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
+    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
+    sleep 28800
+    echo "[DEBUG] 8-hour sleep done, starting Music House ($(date))"
+    echo "=========================================================="
+
+    # --- ნაწილი 2: MUSIC HOUSE & ACOUSTIC (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 2: Music House & Acoustic (VENV) ---"
+    echo "2. ვიწყებ Music House პროექტს (VENV)..."
     echo "[DEBUG] Changing directory to ~/scraping-project"
     cd ~/scraping-project || exit
 
@@ -161,11 +119,10 @@ while true; do
     echo "----------------------------------------------------------"
 
     echo "=========================================================="
-    echo "--- ციკლი მორჩა. ვისვენებ 10 წუთი... ---"
-    echo "[DEBUG] Sleeping for 600 seconds (10 minutes)"
-
-    sleep 600
-    echo "[DEBUG] Sleep completed, starting next cycle"
+    echo "--- Music House დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
+    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
+    sleep 28800
+    echo "[DEBUG] 8-hour sleep done, starting next cycle ($(date))"
     cd ~
     echo "[DEBUG] Changed directory to: $(pwd)"
 done

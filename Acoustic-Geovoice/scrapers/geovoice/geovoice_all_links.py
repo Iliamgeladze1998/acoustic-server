@@ -1,4 +1,5 @@
 import requests
+import cloudscraper
 import pandas as pd
 import time
 import re
@@ -15,7 +16,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class GeovoiceProductLinkCollector:
     def __init__(self):
-        self.session = requests.Session()
+        self.session = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True})
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         })
