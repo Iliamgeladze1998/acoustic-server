@@ -1,5 +1,7 @@
 import requests
 
+import cloudscraper
+
 import time
 
 import os
@@ -26,7 +28,7 @@ class GeovoiceLinkCollector:
 
     def __init__(self):
 
-        self.session = requests.Session()
+        self.session = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True})
 
         self.session.headers.update({
 
