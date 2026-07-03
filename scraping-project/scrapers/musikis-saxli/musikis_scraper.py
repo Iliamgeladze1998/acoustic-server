@@ -19,11 +19,64 @@ OUTPUT_FILE = os.path.join(BASE_DIR, "music_store_final_stock.xlsx")
 # Parallel request limit to avoid blocking
 SEMAPHORE_LIMIT = 15
 
+# Semantic soft-404 marker: musikis-saxli.ge returns this Georgian
+# "requested page was not found" message (sometimes with HTTP 200)
+# when a product URL no longer exists (e.g. after link structure changes).
+NOT_FOUND_MARKER = "მოთხოვნილი გვერდი არ იქნა ნაპოვნი"
+
+def is_valid_product_page(html) -> bool:
+    """Guard-rail against 'false-positive 200 OK' responses.
+
+    Returns True if the document appears to be a real product page,
+    False if it is empty or contains the Georgian 'page not found' marker.
+    Pure content analysis — no network calls.
+    """
+    if isinstance(html, bytes):
+        html = html.decode("utf-8", errors="replace")
+    if not html or not html.strip():
+        return False
+    return NOT_FOUND_MARKER not in html
+
 def extract_unique_id(url: str) -> str:
-    """Extract ID from URL (after last dashes)"""
-    if '--' in url:
-        return url.split('--')[-1]
+    """Fallback ID from URL slug (handles old '--SKU' and new '-SKU' structures)"""
+    slug = url.rstrip('/').rsplit('/', 1)[-1]
+    if '--' in slug:
+        return slug.split('--')[-1]
+    if '-' in slug:
+        return slug.rsplit('-', 1)[-1]
     return "N/A"
+
+async def extract_sku_from_page(page):
+    """Extract the real SKU from the product page ('კოდი:' row in .rev_item).
+
+    This is the primary ID source — the URL slug is only a fallback, since the
+    site changed its link structure (name--SKU -> name-SKU) and URL parsing
+    is no longer reliable.
+    """
+    try:
+        sku = await page.evaluate("""() => {
+            for (const item of document.querySelectorAll('.rev_item')) {
+                const spans = item.querySelectorAll('span');
+                if (spans.length >= 2 && spans[0].textContent.trim().startsWith('კოდი')) {
+                    return spans[1].textContent.trim();
+                }
+            }
+            return null;
+        }""")
+        return sku.strip() if sku and sku.strip() else None
+    except Exception:
+        return None
+
+def dedup_products(df):
+    """Deduplicate by UNIQUE_ID, but never collapse missing/placeholder IDs.
+
+    Rows with 'N/A'/empty IDs are kept as individual entries instead of being
+    merged into a single row by drop_duplicates.
+    """
+    ids = df['UNIQUE_ID'].astype(str).str.strip()
+    valid = df['UNIQUE_ID'].notna() & ~ids.isin(['', 'N/A', 'nan', 'None'])
+    deduped_valid = df[valid].drop_duplicates(subset=['UNIQUE_ID'], keep='last')
+    return pd.concat([deduped_valid, df[~valid]], ignore_index=True)
 
 async def scrape_single_product(semaphore, context, url, index, total):
     """Extract data from a single product"""
@@ -45,6 +98,16 @@ async def scrape_single_product(semaphore, context, url, index, total):
             await page.goto(url, wait_until="domcontentloaded", timeout=30000)
             print(f"[{index}/{total}] Page loaded successfully", flush=True)
             
+            # Guard-rail: skip soft-404 pages (site may return 200 OK with a
+            # Georgian "page not found" message for stale/dead product links).
+            # Skipped products never reach the Excel output, so dead links
+            # cannot propagate to the merger, Google Sheet, or Telegram alerts.
+            page_content = await page.content()
+            if not is_valid_product_page(page_content):
+                print(f"[{index}/{total}] SOFT-404 detected ('{NOT_FOUND_MARKER}') — skipping dead link: {url}", flush=True)
+                await page.close()
+                return None
+            
             # Wait for main product container
             try:
                 print(f"[{index}/{total}] Waiting for product elements...", flush=True)
@@ -55,6 +118,15 @@ async def scrape_single_product(semaphore, context, url, index, total):
                 pass  # Continue even if wait times out
             
             await asyncio.sleep(0.3)
+
+            # Primary ID source: real SKU from the page ('კოდი:' row).
+            # Falls back to the URL-derived ID if the element is missing.
+            page_sku = await extract_sku_from_page(page)
+            if page_sku:
+                product_id = page_sku
+                print(f"[{index}/{total}] SKU from page: {product_id}", flush=True)
+            else:
+                print(f"[{index}/{total}] SKU element not found, using URL fallback: {product_id}", flush=True)
 
             # 1. Name - protected with try/except
             try:
@@ -210,8 +282,7 @@ async def main():
             if processed_count >= 100:
                 try:
                     # Checkpoint uses only this run's data — no merging with prior file
-                    combined_df = pd.DataFrame(all_products)
-                    combined_df.drop_duplicates(subset=['UNIQUE_ID'], keep='last', inplace=True)
+                    combined_df = dedup_products(pd.DataFrame(all_products))
                     combined_df['PRICE'] = combined_df['PRICE'].fillna(0).astype(int)
                     try:
                         combined_df.to_excel(OUTPUT_FILE, index=False, engine='openpyxl')
@@ -227,8 +298,7 @@ async def main():
     if all_products:
         try:
             # Final output contains ONLY this run's data — overwrite completely.
-            final_df = pd.DataFrame(all_products)
-            final_df.drop_duplicates(subset=['UNIQUE_ID'], keep='last', inplace=True)
+            final_df = dedup_products(pd.DataFrame(all_products))
             final_df['PRICE'] = final_df['PRICE'].fillna(0).astype(int)
             try:
                 # Remove any existing file first to guarantee a clean overwrite
