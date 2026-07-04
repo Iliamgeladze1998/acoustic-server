@@ -4,6 +4,8 @@ import cloudscraper
 
 import time
 
+import random
+
 import os
 
 import logging
@@ -148,9 +150,9 @@ class GeovoiceLinkCollector:
 
                     
 
-                    # Be respectful to the server
+                    # Be respectful to the server (randomized delay to avoid blocking)
 
-                    time.sleep(0.5)
+                    time.sleep(random.uniform(2, 4))
 
                     
 

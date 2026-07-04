@@ -64,6 +64,11 @@ https://geovoice.ge/audio/page-63/
 https://geovoice.ge/audio/page-64/
 https://geovoice.ge/audio/page-65/
 https://geovoice.ge/audio/page-66/
+https://geovoice.ge/audio/page-67/
+https://geovoice.ge/audio/page-68/
+https://geovoice.ge/audio/page-69/
+https://geovoice.ge/audio/page-70/
+https://geovoice.ge/audio/page-71/
 https://geovoice.ge/dj-studia/
 https://geovoice.ge/dj-studia/page-2/
 https://geovoice.ge/dj-studia/page-3/
@@ -102,6 +107,8 @@ https://geovoice.ge/video-aparatura/page-3/
 https://geovoice.ge/video-aparatura/page-4/
 https://geovoice.ge/video-aparatura/page-5/
 https://geovoice.ge/video-aparatura/page-6/
+https://geovoice.ge/video-aparatura/page-7/
+https://geovoice.ge/video-aparatura/page-8/
 https://geovoice.ge/sasceno-ganateba/
 https://geovoice.ge/sasceno-ganateba/page-2/
 https://geovoice.ge/sasceno-ganateba/page-3/
@@ -126,6 +133,9 @@ https://geovoice.ge/komutacia/page-18/
 https://geovoice.ge/komutacia/page-19/
 https://geovoice.ge/komutacia/page-20/
 https://geovoice.ge/komutacia/page-21/
+https://geovoice.ge/komutacia/page-22/
+https://geovoice.ge/komutacia/page-23/
+https://geovoice.ge/komutacia/page-24/
 https://geovoice.ge/sadgamebi-sakidebi/
 https://geovoice.ge/sadgamebi-sakidebi/page-2/
 https://geovoice.ge/sadgamebi-sakidebi/page-3/
@@ -154,3 +164,5 @@ https://geovoice.ge/sale/page-9/
 https://geovoice.ge/sale/page-10/
 https://geovoice.ge/sale/page-11/
 https://geovoice.ge/sale/page-12/
+https://geovoice.ge/sale/page-13/
+https://geovoice.ge/sale/page-14/
