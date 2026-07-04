@@ -12,7 +12,7 @@ Price comparison pipeline between **Acoustic.ge** and **Musikis-Saxli** (Music H
 ## Run
 
 ```bash
-cd /root/scraping-project
+cd /root/Acoustic-Musikissaxli
 source venv/bin/activate
 python acms/acms_main.py
 ```

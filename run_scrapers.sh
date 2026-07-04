@@ -126,8 +126,8 @@ while true; do
     # --- ნაწილი 3: MUSIC HOUSE & ACOUSTIC (PYTHON VENV) ---
     echo "[DEBUG] --- Starting Part 3: Music House & Acoustic (VENV) ---"
     echo "3. ვიწყებ Music House პროექტს (VENV)..."
-    echo "[DEBUG] Changing directory to ~/scraping-project"
-    cd ~/scraping-project || exit
+    echo "[DEBUG] Changing directory to ~/Acoustic-Musikissaxli"
+    cd ~/Acoustic-Musikissaxli || exit
 
     echo "[DEBUG] Current directory: $(pwd)"
     echo "ვირტუალური გარემოს აქტივაცია..."
@@ -145,8 +145,8 @@ while true; do
     echo "[DEBUG] Python path: $(which python)"
 
     echo "Setting Playwright browsers path for Music House..."
-    echo "[DEBUG] Setting PLAYWRIGHT_BROWSERS_PATH=/root/scraping-project/pw-browsers"
-    export PLAYWRIGHT_BROWSERS_PATH=/root/scraping-project/pw-browsers
+    echo "[DEBUG] Setting PLAYWRIGHT_BROWSERS_PATH=/root/Acoustic-Musikissaxli/pw-browsers"
+    export PLAYWRIGHT_BROWSERS_PATH=/root/Acoustic-Musikissaxli/pw-browsers
 
     echo "[DEBUG] PLAYWRIGHT_BROWSERS_PATH set to: $PLAYWRIGHT_BROWSERS_PATH"
 

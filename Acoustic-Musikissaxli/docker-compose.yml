@@ -10,5 +10,5 @@ services:
     volumes:
       - .:/app
       - ./acms/data:/app/acms/data
-      - /root/scraping-project/acms/reports:/app/reports
+      - /root/Acoustic-Musikissaxli/acms/reports:/app/reports
       - ./credentials.json:/app/credentials.json:ro

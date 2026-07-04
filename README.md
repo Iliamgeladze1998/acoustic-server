@@ -56,7 +56,7 @@ Scraper → Fresh Excel → Merger → Fresh Merged Excel → Uploader → Googl
 │   ├── reports/                 # Generated Excel reports
 │   └── requirements.txt
 │
-├── scraping-project/            # ACMS Project
+├── Acoustic-Musikissaxli/            # ACMS Project
 │   ├── acms/
 │   │   ├── acms_main.py         # Main orchestrator
 │   │   ├── acms_data_merger.py  # Merges acoustic + musikis data
@@ -119,7 +119,7 @@ python acmi/acmi_main.py
 
 **ACMS (Acoustic-Musikis-Saxli):**
 ```bash
-cd /root/scraping-project
+cd /root/Acoustic-Musikissaxli
 source venv/bin/activate
 python acms/acms_main.py
 ```
