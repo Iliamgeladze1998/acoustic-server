@@ -2,6 +2,7 @@ import requests
 import cloudscraper
 import pandas as pd
 import time
+import random
 import re
 import os
 from bs4 import BeautifulSoup
@@ -79,8 +80,8 @@ class GeovoiceProductLinkCollector:
                 # Add to master list
                 all_product_links.extend(page_product_links)
                 
-                # Be respectful to the server
-                time.sleep(0.3)
+                # Be respectful to the server (randomized delay to avoid blocking)
+                time.sleep(random.uniform(2, 4))
                 
             except Exception as e:
                 logger.error(f"Error processing category page {category_page_url}: {e}")

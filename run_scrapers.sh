@@ -11,9 +11,64 @@ while true; do
     echo "--- ახალი სრული ციკლის დასაწყისი: $(date) ---"
     echo "=========================================================="
 
-    # --- ნაწილი 1: ACOUSTIC MIRELI (PYTHON VENV) ---
-    echo "[DEBUG] --- Starting Part 1: Acoustic Mireli (VENV) ---"
-    echo "1. ვიწყებ Mireli-ს პროექტს (VENV)..."
+    # --- ნაწილი 1: GEOVOICE & ACOUSTIC (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 1: Geovoice & Acoustic (VENV) ---"
+    echo "1. ვიწყებ Geovoice პროექტს (VENV)..."
+    echo "[DEBUG] Changing directory to ~/Acoustic-Geovoice"
+    cd ~/Acoustic-Geovoice || exit
+
+    echo "[DEBUG] Current directory: $(pwd)"
+    echo "ვირტუალური გარემოს აქტივაცია..."
+    echo "[DEBUG] Activating virtual environment: venv/bin/activate"
+    source venv/bin/activate
+
+    echo "Auto-insuring dependencies for Geovoice..."
+    pip install --upgrade pip
+    pip install -r requirements.txt || pip install pandas openpyxl requests fuzzywuzzy python-Levenshtein playwright gspread gspread-formatting google-api-python-client google-auth-httplib2 google-auth-oauthlib cloudscraper beautifulsoup4 rapidfuzz
+    playwright install chromium
+
+    echo "[DEBUG] Virtual environment activated"
+    echo "[DEBUG] Python version: $(python --version)"
+    echo "[DEBUG] Python path: $(which python)"
+
+    echo "Setting Playwright browsers path for Geovoice..."
+    echo "[DEBUG] Setting PLAYWRIGHT_BROWSERS_PATH=/root/Acoustic-Geovoice/pw-browsers"
+    export PLAYWRIGHT_BROWSERS_PATH=/root/Acoustic-Geovoice/pw-browsers
+
+    echo "[DEBUG] PLAYWRIGHT_BROWSERS_PATH set to: $PLAYWRIGHT_BROWSERS_PATH"
+    echo "ვუშვებ Geovoice სკრიპტს..."
+    echo "[DEBUG] Executing: python acgv/acgv_main.py"
+    python acgv/acgv_main.py
+    GEOVOICE_EXIT_CODE=$?
+
+    echo "[DEBUG] Geovoice script exit code: $GEOVOICE_EXIT_CODE"
+    echo "გარემოს დეაქტივაცია..."
+    echo "[DEBUG] Deactivating virtual environment"
+    deactivate
+
+    echo "[DEBUG] Virtual environment deactivated"
+
+    if [ $GEOVOICE_EXIT_CODE -ne 0 ]; then
+        echo "CRITICAL: GEOVOICE_UPDATE_FAILED - Exit code: $GEOVOICE_EXIT_CODE"
+        echo "Stopping entire pipeline. Will NOT proceed to Mireli."
+        echo "[DEBUG] Script exiting with code 1"
+        exit 1
+    fi
+
+    echo "[DEBUG] Geovoice completed successfully"
+    echo "Geovoice პროექტი დასრულდა."
+    echo "----------------------------------------------------------"
+
+    echo "=========================================================="
+    echo "--- Geovoice დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
+    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
+    sleep 28800
+    echo "[DEBUG] 8-hour sleep done, starting Mireli ($(date))"
+    echo "=========================================================="
+
+    # --- ნაწილი 2: ACOUSTIC MIRELI (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 2: Acoustic Mireli (VENV) ---"
+    echo "2. ვიწყებ Mireli-ს პროექტს (VENV)..."
     echo "[DEBUG] Changing directory to ~/Acoustic-Mireli"
     cd ~/Acoustic-Mireli || exit
 
@@ -68,9 +123,9 @@ while true; do
     echo "[DEBUG] 8-hour sleep done, starting Music House ($(date))"
     echo "=========================================================="
 
-    # --- ნაწილი 2: MUSIC HOUSE & ACOUSTIC (PYTHON VENV) ---
-    echo "[DEBUG] --- Starting Part 2: Music House & Acoustic (VENV) ---"
-    echo "2. ვიწყებ Music House პროექტს (VENV)..."
+    # --- ნაწილი 3: MUSIC HOUSE & ACOUSTIC (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 3: Music House & Acoustic (VENV) ---"
+    echo "3. ვიწყებ Music House პროექტს (VENV)..."
     echo "[DEBUG] Changing directory to ~/scraping-project"
     cd ~/scraping-project || exit
 
