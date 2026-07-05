@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 
 # Force UTF-8 encoding for stdout to handle Georgian characters
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', write_through=True)
 
 # Use absolute paths based on script location
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -18,14 +18,44 @@ OUTPUT_FILE = os.path.join(SCRIPT_DIR, "musicroom_results.xlsx")
 
 all_data = []
 
+FLARESOLVERR_URL = os.getenv('FLARESOLVERR_URL', 'http://localhost:8191/v1')
+
+def flaresolverr_available():
+    try:
+        r = requests.get(FLARESOLVERR_URL.rsplit('/v1', 1)[0] + '/', timeout=5)
+        return r.status_code == 200
+    except Exception:
+        return False
+
+def fetch_via_flaresolverr(url, timeout_ms=60000):
+    try:
+        resp = requests.post(
+            FLARESOLVERR_URL,
+            json={'cmd': 'request.get', 'url': url, 'maxTimeout': timeout_ms},
+            timeout=timeout_ms / 1000 + 30
+        )
+        data = resp.json()
+        if data.get('status') == 'ok':
+            return data['solution']['response']
+        print(f"  FlareSolverr error: {data.get('message', 'unknown')}")
+        return None
+    except Exception as e:
+        print(f"  FlareSolverr request failed: {str(e)[:80]}")
+        return None
+
 def scrape_musicroom(url):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
     }
     
     try:
-        response = requests.get(url, headers=headers)
-        soup = BeautifulSoup(response.content, 'html.parser')
+        html = None
+        if flaresolverr_available():
+            html = fetch_via_flaresolverr(url)
+        if html is None:
+            response = requests.get(url, headers=headers)
+            html = response.text
+        soup = BeautifulSoup(html, 'html.parser')
 
         # Find Schema.org JSON data (SKU, Name, Price are in there)
         schema_data = soup.find('script', type='application/ld+json', class_='rank-math-schema')
@@ -77,6 +107,18 @@ except FileNotFoundError:
     exit(1)
 
 print(f" Found {len(product_links)} product links to process")
+if flaresolverr_available():
+    print(f" Using FlareSolverr at {FLARESOLVERR_URL} for Cloudflare bypass")
+else:
+    print(" FlareSolverr not available, falling back to direct requests")
+
+max_products = os.getenv('MAX_PRODUCTS')
+if max_products and max_products.isdigit():
+    max_products = int(max_products)
+    if max_products > 0:
+        product_links = product_links[:max_products]
+        print(f" [TEST MODE] Limited to {max_products} products")
+
 if not product_links:
     print(" No product links found. Aborting.")
     exit(1)

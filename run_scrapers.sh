@@ -11,9 +11,65 @@ while true; do
     echo "--- ახალი სრული ციკლის დასაწყისი: $(date) ---"
     echo "=========================================================="
 
-    # --- ნაწილი 1: GEOVOICE & ACOUSTIC (PYTHON VENV) ---
-    echo "[DEBUG] --- Starting Part 1: Geovoice & Acoustic (VENV) ---"
-    echo "1. ვიწყებ Geovoice პროექტს (VENV)..."
+    # --- ნაწილი 1: MUSICROOM & ACOUSTIC (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 1: Musicroom & Acoustic (VENV) ---"
+    echo "1. ვიწყებ Musicroom პროექტს (VENV)..."
+    echo "[DEBUG] Changing directory to ~/Acoustic-Musicroom"
+    cd ~/Acoustic-Musicroom || exit
+
+    echo "[DEBUG] Current directory: $(pwd)"
+    echo "ვირტუალური გარემოს აქტივაცია..."
+    echo "[DEBUG] Activating virtual environment: venv/bin/activate"
+    source venv/bin/activate
+
+    echo "Auto-insuring dependencies for Musicroom..."
+    pip install --upgrade pip
+    pip install -r requirements.txt || pip install pandas openpyxl requests fuzzywuzzy python-Levenshtein playwright gspread gspread-formatting google-api-python-client google-auth-httplib2 google-auth-oauthlib beautifulsoup4
+    playwright install chromium
+
+    echo "[DEBUG] Virtual environment activated"
+    echo "[DEBUG] Python version: $(python --version)"
+    echo "[DEBUG] Python path: $(which python)"
+
+    echo "Setting Playwright browsers path for Musicroom..."
+    echo "[DEBUG] Setting PLAYWRIGHT_BROWSERS_PATH=/root/Acoustic-Musicroom/pw-browsers"
+    export PLAYWRIGHT_BROWSERS_PATH=/root/Acoustic-Musicroom/pw-browsers
+
+    echo "[DEBUG] PLAYWRIGHT_BROWSERS_PATH set to: $PLAYWRIGHT_BROWSERS_PATH"
+
+    echo "ვუშვებ Musicroom სკრიპტს..."
+    echo "[DEBUG] Executing: python acmr/acmr_main.py"
+    python acmr/acmr_main.py
+    MUSICROOM_EXIT_CODE=$?
+
+    echo "[DEBUG] Musicroom script exit code: $MUSICROOM_EXIT_CODE"
+    echo "გარემოს დეაქტივაცია..."
+    echo "[DEBUG] Deactivating virtual environment"
+    deactivate
+
+    echo "[DEBUG] Virtual environment deactivated"
+
+    if [ $MUSICROOM_EXIT_CODE -ne 0 ]; then
+        echo "CRITICAL: MUSICROOM_UPDATE_FAILED - Exit code: $MUSICROOM_EXIT_CODE"
+        echo "Stopping entire pipeline. Will NOT proceed to Geovoice."
+        echo "[DEBUG] Script exiting with code 1"
+        exit 1
+    fi
+
+    echo "[DEBUG] Musicroom completed successfully"
+    echo "Musicroom პროექტი დასრულდა."
+    echo "----------------------------------------------------------"
+
+    echo "=========================================================="
+    echo "--- Musicroom დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
+    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
+    sleep 28800
+    echo "[DEBUG] 8-hour sleep done, starting Geovoice ($(date))"
+    echo "=========================================================="
+
+    # --- ნაწილი 2: GEOVOICE & ACOUSTIC (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 2: Geovoice & Acoustic (VENV) ---"
+    echo "2. ვიწყებ Geovoice პროექტს (VENV)..."
     echo "[DEBUG] Changing directory to ~/Acoustic-Geovoice"
     cd ~/Acoustic-Geovoice || exit
 
@@ -66,9 +122,9 @@ while true; do
     echo "[DEBUG] 8-hour sleep done, starting Mireli ($(date))"
     echo "=========================================================="
 
-    # --- ნაწილი 2: ACOUSTIC MIRELI (PYTHON VENV) ---
-    echo "[DEBUG] --- Starting Part 2: Acoustic Mireli (VENV) ---"
-    echo "2. ვიწყებ Mireli-ს პროექტს (VENV)..."
+    # --- ნაწილი 3: ACOUSTIC MIRELI (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 3: Acoustic Mireli (VENV) ---"
+    echo "3. ვიწყებ Mireli-ს პროექტს (VENV)..."
     echo "[DEBUG] Changing directory to ~/Acoustic-Mireli"
     cd ~/Acoustic-Mireli || exit
 
@@ -123,9 +179,9 @@ while true; do
     echo "[DEBUG] 8-hour sleep done, starting Music House ($(date))"
     echo "=========================================================="
 
-    # --- ნაწილი 3: MUSIC HOUSE & ACOUSTIC (PYTHON VENV) ---
-    echo "[DEBUG] --- Starting Part 3: Music House & Acoustic (VENV) ---"
-    echo "3. ვიწყებ Music House პროექტს (VENV)..."
+    # --- ნაწილი 4: MUSIC HOUSE & ACOUSTIC (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 4: Music House & Acoustic (VENV) ---"
+    echo "4. ვიწყებ Music House პროექტს (VENV)..."
     echo "[DEBUG] Changing directory to ~/Acoustic-Musikissaxli"
     cd ~/Acoustic-Musikissaxli || exit
 

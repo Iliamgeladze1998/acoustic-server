@@ -1,8 +1,25 @@
-import asyncio
+import sys
+import io
 from pathlib import Path
-from playwright.async_api import async_playwright
+from bs4 import BeautifulSoup
+from flaresolverr_helper import flaresolverr_available, fetch_via_flaresolverr
+
+# Force UTF-8 encoding for stdout to handle Georgian characters
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', write_through=True)
 
 BASE_URL = "https://musicroom.ge/"
+
+# Known category slugs on musicroom.ge
+FALLBACK_CATEGORIES = [
+    "https://musicroom.ge/products/gitara/",
+    "https://musicroom.ge/products/klavishi/",
+    "https://musicroom.ge/products/dasartkami/",
+    "https://musicroom.ge/products/audio/",
+    "https://musicroom.ge/products/ganateba/",
+    "https://musicroom.ge/products/dj-studia/",
+    "https://musicroom.ge/products/saorkestro/",
+]
+
 TARGET_CATEGORIES = {
     "გიტარა",
     "დასარტყამი",
@@ -15,102 +32,75 @@ TARGET_CATEGORIES = {
 # Partial match keywords for keyboard instruments
 KEYWORD_MATCHES = ["კლავიშ", "klavish"]
 
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+def fetch_category_links():
+    if not flaresolverr_available():
+        print("⚠ FlareSolverr not available. Using fallback categories.")
+        return FALLBACK_CATEGORIES
+
+    html = fetch_via_flaresolverr(BASE_URL)
+    if not html:
+        print("⚠ FlareSolverr returned empty. Using fallback categories.")
+        return FALLBACK_CATEGORIES
+
+    soup = BeautifulSoup(html, 'html.parser')
+    category_urls = {}
+
+    # Look for the product menu (Woodmart theme)
+    menu = soup.select_one("ul.menu-product-menu")
+    if menu:
+        links = menu.select("a.woodmart-nav-link")
+    else:
+        links = soup.select("a.woodmart-nav-link")
+
+    for link in links:
+        text = link.get_text(strip=True)
+        href = link.get("href")
+        if not href:
+            continue
+
+        # Check for exact match
+        if text.strip() in TARGET_CATEGORIES and text.strip() not in category_urls:
+            if not href.startswith("http"):
+                href = BASE_URL.rstrip("/") + href
+            category_urls[text.strip()] = href.strip()
+
+        # Check for partial match for keyboard instruments
+        for keyword in KEYWORD_MATCHES:
+            if keyword.lower() in text.lower() and "კლავიშებიანი ინსტრუმენტები" not in category_urls:
+                if not href.startswith("http"):
+                    href = BASE_URL.rstrip("/") + href
+                category_urls["კლავიშებიანი ინსტრუმენტები"] = href.strip()
+
+    if not category_urls:
+        print("⚠ No category links found in HTML. Using fallback categories.")
+        return FALLBACK_CATEGORIES
+
+    return list(category_urls.values())
 
 
-async def fetch_category_links():
-    playwright = await async_playwright().start()
-    browser = await playwright.chromium.launch(headless=True)
-    context = await browser.new_context(
-        user_agent=USER_AGENT,
-        viewport={"width": 1920, "height": 1080},
-        ignore_https_errors=True
-    )
-    page = await context.new_page()
-    
-    # Block only images to speed up loading (keep CSS for menu rendering)
-    await page.route("**/*.{png,jpg,jpeg,gif,webp}", lambda route: route.abort())
-    
-    try:
-        await page.goto(BASE_URL, wait_until="commit", timeout=90000)
-        
-        # Wait a bit for the page to render since we're using commit
-        await asyncio.sleep(2)
-        
-        # Try to find and hover/click on 'პროდუქცია' menu to reveal categories
-        try:
-            product_menu = page.get_by_text("პროდუქცია")
-            if await product_menu.count() > 0:
-                await product_menu.first.hover()
-                await asyncio.sleep(0.5)  # Wait for menu to expand
-        except:
-            pass  # Menu might already be visible or not needed
-        
-        # Look for the product menu (Woodmart theme)
-        menu = page.locator("ul.menu-product-menu")
-        if await menu.count() == 0:
-            # Fallback: search for woodmart nav links
-            links = page.locator("a.woodmart-nav-link")
-        else:
-            links = menu.locator("a.woodmart-nav-link")
-        
-        # Track first occurrence of each category to avoid duplicates
-        category_urls = {}
-        link_count = await links.count()
-        
-        for i in range(link_count):
-            link = links.nth(i)
-            text = await link.inner_text()
-            href = await link.get_attribute("href")
-            
-            # Check for exact match
-            if text.strip() in TARGET_CATEGORIES and text.strip() not in category_urls:
-                if href:
-                    # Ensure absolute URL
-                    if not href.startswith("http"):
-                        href = BASE_URL.rstrip("/") + href
-                    category_urls[text.strip()] = href.strip()
-            
-            # Check for partial match for keyboard instruments
-            for keyword in KEYWORD_MATCHES:
-                if keyword.lower() in text.lower() and "კლავიშებიანი ინსტრუმენტები" not in category_urls:
-                    if href:
-                        # Ensure absolute URL
-                        if not href.startswith("http"):
-                            href = BASE_URL.rstrip("/") + href
-                        category_urls["კლავიშებიანი ინსტრუმენტები"] = href.strip()
-        
-        return list(category_urls.values())
-        
-    finally:
-        await page.close()
-        await context.close()
-        await browser.close()
-        await playwright.stop()
-
-
-async def main():
+def main():
     # Clear previous run's output before fetching so stale links cannot survive.
     output_file = Path(__file__).parent / "get_main_category_links.txt"
     if output_file.exists():
         output_file.unlink()
 
-    urls = await fetch_category_links()
-    
+    urls = fetch_category_links()
+
     # Check for empty list before opening file
     if not urls:
         print("❌ No category links found. File not written.")
         raise SystemExit(1)
-    
+
     with open(output_file, "w", encoding="utf-8") as f:
         for url in urls:
             f.write(url + "\n")
             f.flush()  # Immediate flush
-    
+
     print(f"Extracted {len(urls)} category links to {output_file}")
     for url in urls:
         print(f"  {url}")
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
