@@ -21,6 +21,8 @@ CATEGORIES: list[str] = [
 ]
 
 FILE_NAME: str = os.path.join(os.path.dirname(__file__), "music-store-all-links.txt")
+MAX_PAGE_RETRIES: int = 3
+PAGE_TIMEOUT_MS: int = 45000
 
 async def save_links_to_file(links: set[str]) -> None:
     """Save a set of links to the file, overwriting it."""
@@ -49,8 +51,16 @@ async def scrape_music_store() -> None:
                 print(f"[PAGE] Checking: {target_url}", flush=True)
 
                 try:
-                    await page.goto(target_url, wait_until="domcontentloaded")
-                    await asyncio.sleep(0.5)  # Short sleep for stability
+                    for attempt in range(1, MAX_PAGE_RETRIES + 1):
+                        try:
+                            await page.goto(target_url, wait_until="domcontentloaded", timeout=PAGE_TIMEOUT_MS)
+                            await asyncio.sleep(0.5)  # Short sleep for stability
+                            break
+                        except Exception as e:
+                            print(f"[WARN] Attempt {attempt}/{MAX_PAGE_RETRIES} failed on {target_url}: {e}", flush=True)
+                            if attempt == MAX_PAGE_RETRIES:
+                                raise
+                            await asyncio.sleep(attempt * 2)
 
                     # Save the current page URL if not already present
                     if target_url not in all_links:
