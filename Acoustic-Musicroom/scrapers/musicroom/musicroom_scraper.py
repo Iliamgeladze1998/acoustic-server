@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 import time
 import os
 from pathlib import Path
+from flaresolverr_helper import flaresolverr_available, fetch_via_flaresolverr
 
 # Force UTF-8 encoding for stdout to handle Georgian characters
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', write_through=True)
@@ -17,31 +18,6 @@ INPUT_FILE = os.path.join(SCRIPT_DIR, "all_product_links.txt")
 OUTPUT_FILE = os.path.join(SCRIPT_DIR, "musicroom_results.xlsx")
 
 all_data = []
-
-FLARESOLVERR_URL = os.getenv('FLARESOLVERR_URL', 'http://localhost:8191/v1')
-
-def flaresolverr_available():
-    try:
-        r = requests.get(FLARESOLVERR_URL.rsplit('/v1', 1)[0] + '/', timeout=5)
-        return r.status_code == 200
-    except Exception:
-        return False
-
-def fetch_via_flaresolverr(url, timeout_ms=60000):
-    try:
-        resp = requests.post(
-            FLARESOLVERR_URL,
-            json={'cmd': 'request.get', 'url': url, 'maxTimeout': timeout_ms},
-            timeout=timeout_ms / 1000 + 30
-        )
-        data = resp.json()
-        if data.get('status') == 'ok':
-            return data['solution']['response']
-        print(f"  FlareSolverr error: {data.get('message', 'unknown')}")
-        return None
-    except Exception as e:
-        print(f"  FlareSolverr request failed: {str(e)[:80]}")
-        return None
 
 def scrape_musicroom(url):
     headers = {
@@ -108,9 +84,9 @@ except FileNotFoundError:
 
 print(f" Found {len(product_links)} product links to process")
 if flaresolverr_available():
-    print(f" Using FlareSolverr at {FLARESOLVERR_URL} for Cloudflare bypass")
+    print(" Using Camoufox for Cloudflare bypass")
 else:
-    print(" FlareSolverr not available, falling back to direct requests")
+    print(" Camoufox not available, falling back to direct requests")
 
 max_products = os.getenv('MAX_PRODUCTS')
 if max_products and max_products.isdigit():
