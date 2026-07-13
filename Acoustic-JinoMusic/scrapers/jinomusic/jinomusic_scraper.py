@@ -107,7 +107,7 @@ def scrape_product(url, index, total):
         if price_tag:
             price = parse_price(price_tag.get_text())
 
-    if not availability:
+    if not availability or availability == "Unknown":
         stock_tag = soup.find("p", class_="stock")
         if stock_tag:
             avail_text = stock_tag.get_text(strip=True).lower()
@@ -123,7 +123,12 @@ def scrape_product(url, index, total):
             if cart_btn:
                 availability = "In Stock"
             else:
-                availability = "Unknown"
+                # Check if product is purchasable
+                purchasable = soup.find("form", class_=re.compile("cart|woocommerce-cart"))
+                if purchasable:
+                    availability = "In Stock"
+                else:
+                    availability = "Out of Stock"
 
     if not sku:
         sku_tag = soup.find("span", class_="sku")
