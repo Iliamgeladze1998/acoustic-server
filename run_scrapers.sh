@@ -240,6 +240,61 @@ while true; do
     echo "--- Mireli დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
     echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
     sleep 28800
+    echo "[DEBUG] 8-hour sleep done, starting JinoMusic ($(date))"
+    echo "=========================================================="
+
+    # --- ნაწილი 5: JINOMUSIC & ACOUSTIC (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 5: JinoMusic & Acoustic (VENV) ---"
+    echo "5. ვიწყებ JinoMusic პროექტს (VENV)..."
+    echo "[DEBUG] Changing directory to ~/Acoustic-JinoMusic"
+    cd ~/Acoustic-JinoMusic || exit
+
+    echo "[DEBUG] Current directory: $(pwd)"
+    echo "ვირტუალური გარემოს აქტივაცია..."
+    echo "[DEBUG] Activating virtual environment: venv/bin/activate"
+    source venv/bin/activate
+
+    echo "Auto-insuring dependencies for JinoMusic..."
+    pip install --upgrade pip
+    pip install -r requirements.txt || pip install pandas openpyxl requests rapidfuzz gspread gspread-formatting google-api-python-client google-auth-httplib2 google-auth-oauthlib flask beautifulsoup4 "camoufox[geoip]" pillow pytz
+    python -m camoufox fetch
+
+    echo "[DEBUG] Virtual environment activated"
+    echo "[DEBUG] Python version: $(python --version)"
+    echo "[DEBUG] Python path: $(which python)"
+
+    echo "Cleaning up stale Camoufox processes for JinoMusic..."
+    pkill -f "camoufox.*Acoustic-JinoMusic" 2>/dev/null || true
+    sleep 2
+    echo "[DEBUG] Camoufox cleanup completed"
+
+    echo "ვუშვებ JinoMusic სკრიპტს..."
+    echo "[DEBUG] Executing: python acjm/acjm_main.py"
+    python acjm/acjm_main.py
+    JINOMUSIC_EXIT_CODE=$?
+
+    echo "[DEBUG] JinoMusic script exit code: $JINOMUSIC_EXIT_CODE"
+    echo "გარემოს დეაქტივაცია..."
+    echo "[DEBUG] Deactivating virtual environment"
+    deactivate
+
+    echo "[DEBUG] Virtual environment deactivated"
+
+    if [ $JINOMUSIC_EXIT_CODE -ne 0 ]; then
+        echo "CRITICAL: JINOMUSIC_UPDATE_FAILED - Exit code: $JINOMUSIC_EXIT_CODE"
+        echo "Stopping entire pipeline. Will NOT proceed to next cycle."
+        echo "[DEBUG] Script exiting with code 1"
+        exit 1
+    fi
+
+    echo "[DEBUG] JinoMusic completed successfully"
+    echo "JinoMusic პროექტი დასრულდა."
+    echo "----------------------------------------------------------"
+
+    echo "=========================================================="
+    echo "--- JinoMusic დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
+    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
+    sleep 28800
     echo "[DEBUG] 8-hour sleep done, starting next cycle ($(date))"
     cd ~
     echo "[DEBUG] Changed directory to: $(pwd)"
