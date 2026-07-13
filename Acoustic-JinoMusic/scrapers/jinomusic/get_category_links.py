@@ -1,20 +1,16 @@
 #!/usr/bin/env python3
-"""Fetch all category links from jinomusic.ge/en/."""
+"""Fetch all category links from jinomusic.ge/en/ using Camoufox + Tor."""
 
-import requests
 from bs4 import BeautifulSoup
 import sys
 import os
 import time
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from camoufox_fetcher import init_browser, close_browser, fetch_page
+
 BASE_URL = "https://jinomusic.ge/en/"
 OUTPUT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "category_links.txt")
-
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.9",
-}
 
 # Known categories as fallback
 FALLBACK_CATEGORIES = [
@@ -34,37 +30,37 @@ def get_category_links():
     """Fetch category links from the main products page."""
     print(f"Fetching category links from {BASE_URL}")
 
-    try:
-        response = requests.get(BASE_URL, headers=HEADERS, timeout=30)
-        response.raise_for_status()
-    except requests.RequestException as e:
-        print(f"⚠️  Failed to fetch main page: {e}")
-        print("Using fallback categories")
-        return FALLBACK_CATEGORIES
+    init_browser()
 
-    soup = BeautifulSoup(response.text, "html.parser")
+    html = fetch_page(BASE_URL)
+    if not html or "One moment" in html:
+        print("⚠️  Could not fetch main page, using fallback categories")
+        close_browser()
+        links = sorted(FALLBACK_CATEGORIES)
+        with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+            for link in links:
+                f.write(link + "\n")
+        return links
+
+    soup = BeautifulSoup(html, "html.parser")
     links = set()
 
-    # Look for category links in the products page navigation
     for a_tag in soup.find_all("a", href=True):
         href = a_tag["href"]
-        # Match category URLs like /en/guitar/, /en/drums/, etc.
         if "jinomusic.ge/en/" in href and href.endswith("/"):
-            # Exclude non-category pages
             exclude = [
                 "about-us", "cart", "contact", "feed", "privacy",
                 "wp-json", "comments", "products", "checkout",
                 "my-account", "shop", "home", "/en/"
             ]
             if not any(exc in href for exc in exclude):
-                # Make sure it's a category (not a product)
                 if "/en/product/" not in href:
                     links.add(href)
 
     # Also check /en/products/ page
-    try:
-        response2 = requests.get("https://jinomusic.ge/en/products/", headers=HEADERS, timeout=30)
-        soup2 = BeautifulSoup(response2.text, "html.parser")
+    html2 = fetch_page("https://jinomusic.ge/en/products/")
+    if html2 and "One moment" not in html2:
+        soup2 = BeautifulSoup(html2, "html.parser")
         for a_tag in soup2.find_all("a", href=True):
             href = a_tag["href"]
             if "jinomusic.ge/en/" in href and href.endswith("/"):
@@ -76,8 +72,8 @@ def get_category_links():
                 if not any(exc in href for exc in exclude):
                     if "/en/product/" not in href:
                         links.add(href)
-    except requests.RequestException:
-        pass
+
+    close_browser()
 
     # Deduplicate: wind-instrument and wind-instruments are the same
     # Keep only one of them
