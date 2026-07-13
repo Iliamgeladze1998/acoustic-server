@@ -13,26 +13,32 @@ def main():
     print("JinoMusic Scraper Pipeline")
     print("=" * 60)
 
-    # Step 1: Get category links
+    # Step 1: Get category links (fresh every run)
     print("\n📂 Step 1: Fetching category links...")
+    from camoufox_fetcher import init_browser, close_browser
+    init_browser()
+
     from get_category_links import get_category_links
     categories = get_category_links()
     if not categories:
         print("❌ Failed to get category links!")
+        close_browser()
         return False
 
-    # Step 2: Get all product links
+    # Step 2: Get all product links (same browser session)
     print("\n📋 Step 2: Fetching all product links...")
     from get_all_product_links import get_all_product_links
     product_links = get_all_product_links()
     if not product_links:
         print("❌ Failed to get product links!")
+        close_browser()
         return False
 
-    # Step 3: Scrape all products
+    # Step 3: Scrape all products (same browser session)
     print("\n🚀 Step 3: Scraping all products...")
     from jinomusic_scraper import scrape_all_products
     success = scrape_all_products()
+    close_browser()
     if not success:
         print("❌ Scraping failed!")
         return False

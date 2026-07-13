@@ -35,7 +35,6 @@ def get_category_links():
     html = fetch_page(BASE_URL)
     if not html or "One moment" in html:
         print("⚠️  Could not fetch main page, using fallback categories")
-        close_browser()
         links = sorted(FALLBACK_CATEGORIES)
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             for link in links:
@@ -72,8 +71,6 @@ def get_category_links():
                 if not any(exc in href for exc in exclude):
                     if "/en/product/" not in href:
                         links.add(href)
-
-    close_browser()
 
     # Deduplicate: wind-instrument and wind-instruments are the same
     # Keep only one of them

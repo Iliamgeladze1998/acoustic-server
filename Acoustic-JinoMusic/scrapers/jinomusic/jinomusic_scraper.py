@@ -191,8 +191,6 @@ def scrape_all_products():
         else:
             failed += 1
 
-    close_browser()
-
     print(f"\n{'='*60}")
     print(f"✅ Scraped {len(all_products)} products successfully")
     if failed:
@@ -213,3 +211,4 @@ def scrape_all_products():
 
 if __name__ == "__main__":
     scrape_all_products()
+    close_browser()
