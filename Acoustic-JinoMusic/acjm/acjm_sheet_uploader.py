@@ -144,6 +144,44 @@ def update_timestamp(sheet, row_count, col_letter):
     print(f"   Timestamp written to {row_count} rows in column {col_letter}.")
 
 
+def apply_standard_sheet_formatting(worksheet, headers, row_count):
+    print("   Applying standardized sheet formatting...")
+    if not headers or row_count < 1:
+        return
+    end_col = column_letter(len(headers))
+    full_range = f'A1:{end_col}{row_count}'
+    data_range = f'A2:{end_col}{max(row_count, 2)}'
+    header_range = f'A1:{end_col}1'
+    soft_border = Border('SOLID', Color(0.85, 0.85, 0.85))
+
+    format_cell_range(worksheet, full_range, CellFormat(
+        backgroundColor=Color(1, 1, 1),
+        textFormat=TextFormat(foregroundColor=Color(0, 0, 0), fontSize=10),
+        horizontalAlignment='LEFT',
+        borders=Borders(top=soft_border, bottom=soft_border, left=soft_border, right=soft_border)
+    ))
+    format_cell_range(worksheet, header_range, CellFormat(
+        backgroundColor=Color(0.122, 0.306, 0.471),
+        textFormat=TextFormat(foregroundColor=Color(1, 1, 1), bold=True, fontSize=10),
+        horizontalAlignment='CENTER',
+        borders=Borders(top=soft_border, bottom=soft_border, left=soft_border, right=soft_border)
+    ))
+
+    for idx, header in enumerate(headers, start=1):
+        col = column_letter(idx)
+        if header in ['Price_AC', 'Price_JM', 'Price_Diff']:
+            format_cell_range(worksheet, f'{col}2:{col}{row_count}', CellFormat(horizontalAlignment='RIGHT'))
+        elif 'Product_Name' in header or 'Link_' in header:
+            format_cell_range(worksheet, f'{col}2:{col}{row_count}', CellFormat(horizontalAlignment='LEFT'))
+
+    target_range = GridRange.from_a1_range(data_range, worksheet)
+    rules = get_conditional_format_rules(worksheet)
+    rules.clear()
+    rules.save()
+    worksheet.freeze(rows=1)
+    print("   Standardized formatting applied.")
+
+
 def upload_to_sheet(df, sheet, sh):
     if 'Match_Score' in df.columns:
         df = df.drop(columns=['Match_Score'])
@@ -160,15 +198,38 @@ def upload_to_sheet(df, sheet, sh):
     data = [headers] + values
     print(f"Step 3: Uploading {len(values)} rows to sheet starting at A1...")
     sheet.update(values=data, range_name='A1')
-    sheet.freeze(1)
+
+    row_count = len(df)
     feedback_col_index = df.columns.get_loc('Feedback') + 1
+
+    # Clear ALL existing data validation rules first (removes leftover dropdowns from deleted rows)
+    clear_validation_body = {
+        'requests': [{
+            'setDataValidation': {
+                'range': {
+                    'sheetId': sheet.id,
+                    'startRowIndex': 1,
+                    'endRowIndex': 1000,
+                    'startColumnIndex': feedback_col_index - 1,
+                    'endColumnIndex': feedback_col_index
+                },
+                'rule': None
+            }
+        }]
+    }
+    try:
+        sh.batch_update(clear_validation_body)
+    except Exception:
+        pass
+
+    # Dropdown only on actual data rows
     body = {
         'requests': [{
             'setDataValidation': {
                 'range': {
                     'sheetId': sheet.id,
                     'startRowIndex': 1,
-                    'endRowIndex': len(df) + 1,
+                    'endRowIndex': row_count + 1,
                     'startColumnIndex': feedback_col_index - 1,
                     'endColumnIndex': feedback_col_index
                 },
@@ -192,6 +253,10 @@ def upload_to_sheet(df, sheet, sh):
         print("   Data validation dropdown added to Feedback column.")
     except Exception as e:
         print(f"   Warning: Could not apply data validation: {e}")
+
+    # Apply standard formatting (colors, borders, conditional formatting)
+    apply_standard_sheet_formatting(sheet, headers, row_count + 1)
+
     print(f"Successfully uploaded {len(df)} rows to sheet.")
 
 
