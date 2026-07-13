@@ -76,17 +76,26 @@ def fetch_page(url, wait_selector=None):
     if _page_count > 0 and _page_count % RENEW_CIRCUIT_EVERY == 0:
         _renew_tor_circuit()
 
+    # Occasional longer pause to simulate human browsing (every ~10 pages)
+    if _page_count > 0 and _page_count % 10 == 0:
+        pause = random.uniform(5.0, 10.0)
+        print(f"   😌 Pausing {pause:.1f}s (human-like break)...")
+        time.sleep(pause)
+
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            PAGE.goto(url, timeout=60000, wait_until="networkidle")
+            PAGE.goto(url, timeout=60000, wait_until="domcontentloaded")
 
-            # Wait for JS challenge to resolve
+            # Brief wait for JS to execute
+            PAGE.wait_for_timeout(1500)
+
+            # Wait for JS challenge to resolve if present
             for _ in range(6):
                 title = PAGE.title()
                 if "One moment" not in title and "Just a moment" not in title:
                     break
-                time.sleep(5)
+                PAGE.wait_for_timeout(5000)
 
             # Extra wait for specific selector if provided
             if wait_selector:
@@ -98,8 +107,12 @@ def fetch_page(url, wait_selector=None):
             content = PAGE.content()
             _page_count += 1
 
-            # Random delay to avoid pattern detection
-            delay = random.uniform(2.0, 4.0)
+            # Varied delay: shorter for category pages, longer for product pages
+            # Sometimes a longer pause to look like reading
+            if random.random() < 0.15:
+                delay = random.uniform(5.0, 8.0)
+            else:
+                delay = random.uniform(2.5, 5.0)
             time.sleep(delay)
 
             return content
