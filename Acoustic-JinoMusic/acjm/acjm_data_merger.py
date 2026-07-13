@@ -7,73 +7,58 @@ from datetime import datetime
 import pytz
 
 
-def clean_name_for_matching(text):
-    """Clean product names for fuzzy matching."""
-    if pd.isna(text):
-        return ''
-    text = str(text)
-    text = re.sub(r'In Stock|Out of Stock|მარაგშია|არ არის მარაგში', '', text, flags=re.IGNORECASE)
-    text = re.sub(r'\(copy\)', '', text, flags=re.IGNORECASE)
-    text = re.sub(r'[–\-—_]', ' ', text)
-    text = re.sub(r'\s+', ' ', text)
-    text = text.strip()
-    return text
+# Known brands found on both sites
+KNOWN_BRANDS = [
+    'IBANEZ', 'TAKAMINE', 'YAMAHA', 'FENDER', 'MARSHALL', 'KORG', 'CASIO',
+    'ROLAND', 'NUX', 'RCF', 'DEVISER', 'KOZMOS', 'SQUIER', 'GIBSON',
+    'EPIPHONE', 'CORT', 'WASHBURN', 'ALHAMBRA', 'VALENCIA', 'ARIA',
+    'STAGG', 'BEHRINGER', 'SHURE', 'SENNHEISER', 'AKG', 'BOSS', 'ZOOM',
+    'DUNLOP', 'ERNIE', 'DADDARIO', "D'ADDARIO", 'ELIXIR', 'MARTIN',
+    'ORTEGA', 'KRAMER', 'JACKSON', 'ESP', 'LTD', 'SCHECTER', 'GRETSCH',
+    'TAYLOR', 'SEAGULL', 'KAWAI', 'NORD', 'KURZWEIL', 'MEDELI', 'RINGWAY',
+    'MAX', 'MUSEDO', 'FINKS', 'BLANTH', 'HOHNER', 'SUZUKI', 'PEARL',
+    'TAMA', 'MAPEX', 'SABIAN', 'ZILDJIAN', 'PAISTE', 'MEINL', 'REMO',
+    'EVANS', 'VIC', 'PROMARK', 'LANEY', 'ORANGE', 'VOX', 'PEAVEY',
+    'HARTKE', 'AMPEG', 'GALLIEN', 'MACKIE', 'SOUNDCRAFT', 'ALLEN',
+    'DYNACORD', 'ELECTRO', 'JBL', 'QSC', 'ALTO', 'WHARFEDALE',
+]
 
 
-def extract_model_number(text):
-    """Extract model numbers from product name."""
+def extract_brand(text):
+    """Extract brand from product name."""
     if pd.isna(text):
         return ''
-    patterns = [
-        r'\b[A-Z]{1,4}\d{1,4}\b',
-        r'\b\d{1,4}[A-Z]{1,4}\b',
-        r'\b[A-Z]{2,5}\d{2,4}\b',
-        r'\b\d{2,4}[A-Z]{2,5}\b',
-    ]
-    text = str(text).upper()
-    for pattern in patterns:
-        matches = re.findall(pattern, text)
-        if matches:
-            return matches[0]
+    text_upper = str(text).upper()
+    for brand in KNOWN_BRANDS:
+        if brand in text_upper:
+            return brand
     return ''
 
 
-def check_model_compatibility(ac_name, jm_name):
-    """Check if model numbers are compatible (must be exact match)."""
-    ac_model = extract_model_number(ac_name)
-    jm_model = extract_model_number(jm_name)
-    if ac_model and jm_model:
-        return ac_model == jm_model
-    if ac_model or jm_model:
-        return False
-    return True
+def normalize_token(token):
+    """Normalize a model token: uppercase, remove separators."""
+    return re.sub(r'[\-_/\.]', '', token.upper())
 
 
-def check_brand_compatibility(ac_name, jm_name):
-    """Check if brands are compatible."""
-    ac_name_upper = str(ac_name).upper()
-    jm_name_upper = str(jm_name).upper()
-
-    ac_has_yamaha = 'YAMAHA' in ac_name_upper
-    jm_has_yamaha = 'YAMAHA' in jm_name_upper
-    if ac_has_yamaha != jm_has_yamaha:
-        return False
-
-    ac_words = str(ac_name).strip().split()
-    jm_words = str(jm_name).strip().split()
-
-    if ac_words and jm_words:
-        ac_brand = ac_words[0].upper()
-        jm_brand = jm_words[0].upper()
-        if ac_brand != jm_brand:
-            return False
-        generic_words = {'USED', 'NEW', 'CLASSICAL', 'ACOUSTIC', 'ELECTRIC', 'DIGITAL', 'ANALOG'}
-        if ac_brand in generic_words and len(ac_words) > 1 and len(jm_words) > 1:
-            ac_second = ac_words[1].upper()
-            jm_second = jm_words[1].upper()
-            if ac_second != jm_second:
-                return False
-    return True
+def extract_model_codes(text):
+    """Extract all candidate model codes from a product name.
+    A model code is a latin token containing both letters and digits,
+    normalized by removing separators (FK-310 -> FK310, GRX70QA_TRB -> GRX70QATRB)."""
+    if pd.isna(text):
+        return set()
+    text = str(text).upper()
+    # Split on whitespace, keep latin/digit tokens
+    tokens = re.findall(r'[A-Z0-9][A-Z0-9\-_/\.]*[A-Z0-9]|[A-Z0-9]', text)
+    codes = set()
+    for tok in tokens:
+        norm = normalize_token(tok)
+        # Must contain at least one letter AND one digit, length >= 3
+        if len(norm) >= 3 and re.search(r'[A-Z]', norm) and re.search(r'\d', norm):
+            # Skip pure measurement patterns like 4/4, 1/2, sizes
+            if re.fullmatch(r'\d+[/X]\d+', norm):
+                continue
+            codes.add(norm)
+    return codes
 
 
 def main():
@@ -115,51 +100,63 @@ def main():
                 print(f"Warning: Column '{col}' not found in JinoMusic data. Using empty values.")
                 df_jm[col] = ''
 
-        print("Cleaning names for matching...")
-        df_ac['CLEANED_NAME'] = df_ac['NAME'].apply(clean_name_for_matching)
-        df_jm['CLEANED_NAME'] = df_jm['NAME'].apply(clean_name_for_matching)
+        print("Extracting brands and model codes...")
+        df_ac['BRAND_X'] = df_ac['NAME'].apply(extract_brand)
+        df_jm['BRAND_X'] = df_jm['NAME'].apply(extract_brand)
+        df_ac['MODEL_CODES'] = df_ac['NAME'].apply(extract_model_codes)
+        df_jm['MODEL_CODES'] = df_jm['NAME'].apply(extract_model_codes)
 
-        # JinoMusic has no reliable IDs for matching — use fuzzy matching only
-        print("Stage 1: Fuzzy Matching (brand + model + name similarity)...")
-        threshold = 90
+        print(f"   Acoustic with model codes: {(df_ac['MODEL_CODES'].apply(len) > 0).sum()}")
+        print(f"   JinoMusic with model codes: {(df_jm['MODEL_CODES'].apply(len) > 0).sum()}")
+
+        print("Stage 1: Brand + Model code matching...")
         matches = []
         matched_ac_indices = set()
         matched_jm_indices = set()
 
-        jm_cleaned_names = []
-        jm_indices = []
-        for jm_idx, jm_row in df_jm.iterrows():
-            jm_clean_name = jm_row['CLEANED_NAME']
-            if jm_clean_name and len(jm_clean_name) >= 3:
-                jm_cleaned_names.append(jm_clean_name)
-                jm_indices.append(jm_idx)
-
+        # Build index: model_code -> list of ac indices
+        ac_code_index = {}
         for ac_idx, ac_row in df_ac.iterrows():
-            ac_clean_name = ac_row['CLEANED_NAME']
-            if not ac_clean_name or len(ac_clean_name) < 3:
+            for code in ac_row['MODEL_CODES']:
+                ac_code_index.setdefault(code, []).append(ac_idx)
+
+        for jm_idx, jm_row in df_jm.iterrows():
+            jm_codes = jm_row['MODEL_CODES']
+            jm_brand = jm_row['BRAND_X']
+            if not jm_codes:
                 continue
 
-            result = process.extractOne(
-                ac_clean_name,
-                jm_cleaned_names,
-                scorer=fuzz.token_set_ratio,
-                score_cutoff=threshold
-            )
+            best_ac_idx = None
+            best_score = 0
+            best_code = ''
 
-            if result:
-                best_match_name, score, best_match_idx_in_list = result
-                jm_idx = jm_indices[best_match_idx_in_list]
-                jm_row = df_jm.loc[jm_idx]
+            for code in jm_codes:
+                for ac_idx in ac_code_index.get(code, []):
+                    if ac_idx in matched_ac_indices:
+                        continue
+                    ac_row = df_ac.loc[ac_idx]
+                    ac_brand = ac_row['BRAND_X']
 
-                if not check_model_compatibility(ac_row['NAME'], jm_row['NAME']):
-                    continue
+                    # Brand check: if both have brands, they must match
+                    if jm_brand and ac_brand and jm_brand != ac_brand:
+                        continue
 
-                if not check_brand_compatibility(ac_row['NAME'], jm_row['NAME']):
-                    continue
+                    # Score: prefer longer model codes (more specific) and matching brands
+                    score = len(code) * 10
+                    if jm_brand and ac_brand and jm_brand == ac_brand:
+                        score += 50
 
+                    if score > best_score:
+                        best_score = score
+                        best_ac_idx = ac_idx
+                        best_code = code
+
+            if best_ac_idx is not None:
+                ac_row = df_ac.loc[best_ac_idx]
                 matches.append({
-                    'Matching_Style': 'Fuzzy',
-                    'Match_Score': score,
+                    'Matching_Style': 'Brand+Model',
+                    'Match_Score': best_score,
+                    'Match_Key': best_code,
                     'Product_Name_AC': ac_row['NAME'],
                     'Product_Name_JM': jm_row['NAME'],
                     'Price_AC': ac_row['PRICE'],
@@ -169,16 +166,14 @@ def main():
                     'Link_JM': jm_row['LINK'],
                     'Last_Updated': last_updated
                 })
-                matched_ac_indices.add(ac_idx)
+                matched_ac_indices.add(best_ac_idx)
                 matched_jm_indices.add(jm_idx)
-                jm_cleaned_names.pop(best_match_idx_in_list)
-                jm_indices.pop(best_match_idx_in_list)
 
-        print(f"Found {len(matches)} fuzzy matches")
+        print(f"Found {len(matches)} brand+model matches")
 
         df_result = pd.DataFrame(matches)
 
-        column_order = ['Matching_Style', 'Match_Score', 'Product_Name_AC', 'Product_Name_JM',
+        column_order = ['Matching_Style', 'Match_Score', 'Match_Key', 'Product_Name_AC', 'Product_Name_JM',
                         'Price_AC', 'Price_JM', 'Price_Diff', 'Link_AC', 'Link_JM', 'Last_Updated']
 
         if len(df_result) > 0:
@@ -191,7 +186,7 @@ def main():
         print(f"\n6. Results saved to: {output_file}")
 
         print(f"\nSummary:")
-        print(f"  Fuzzy Matches: {len(matches)}")
+        print(f"  Brand+Model Matches: {len(matches)}")
         print(f"  Acoustic unmatched: {len(df_ac) - len(matched_ac_indices)}")
         print(f"  JinoMusic unmatched: {len(df_jm) - len(matched_jm_indices)}")
         return True
