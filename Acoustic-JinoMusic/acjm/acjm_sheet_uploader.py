@@ -77,9 +77,11 @@ def encode_links_in_df(df):
                             parts = link.split('jinomusic.ge/')
                             if len(parts) >= 2:
                                 path = parts[1].lstrip('/')
-                                encoded_path = urllib.parse.quote(path)
-                                final_url = f"https://jinomusic.ge/{encoded_path}"
-                                df.at[idx, col] = final_url
+                                # Only encode if not already encoded
+                                if '%' not in path:
+                                    encoded_path = urllib.parse.quote(path)
+                                    final_url = f"https://jinomusic.ge/{encoded_path}"
+                                    df.at[idx, col] = final_url
     print("Link encoding completed.")
     return df
 
