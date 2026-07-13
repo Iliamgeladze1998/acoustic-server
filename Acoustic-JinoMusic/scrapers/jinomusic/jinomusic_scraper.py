@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Scrape individual product pages from jinomusic.ge/en/."""
+"""Scrape individual product pages from jinomusic.ge/en/ using Camoufox + Tor."""
 
-import requests
 from bs4 import BeautifulSoup
 import json
 import os
@@ -9,20 +8,13 @@ import time
 import re
 import sys
 import pandas as pd
-from concurrent.futures import ThreadPoolExecutor, as_completed
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from camoufox_fetcher import init_browser, close_browser, fetch_page
 
 BASE_URL = "https://jinomusic.ge/en/"
 PRODUCT_LINKS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "all_product_links.txt")
 OUTPUT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jinomusic_results.xlsx")
-
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.9",
-}
-
-MAX_WORKERS = 5
-REQUEST_DELAY = 0.3
 
 
 def parse_price(price_str):
@@ -51,14 +43,20 @@ def extract_json_ld(soup):
 
 def scrape_product(url, index, total):
     """Scrape a single product page and return product data dict."""
-    try:
-        response = requests.get(url, headers=HEADERS, timeout=30)
-        response.raise_for_status()
-    except requests.RequestException as e:
-        print(f"[{index}/{total}] ⚠️  Failed to fetch {url}: {e}")
+    html = fetch_page(url)
+    if not html:
+        print(f"[{index}/{total}] ❌ Failed to fetch {url}")
         return None
 
-    soup = BeautifulSoup(response.text, "html.parser")
+    if "One moment" in html or "Just a moment" in html:
+        print(f"[{index}/{total}] ⚠️  JS challenge on product page, retrying...")
+        time.sleep(10)
+        html = fetch_page(url)
+        if not html or "One moment" in html:
+            print(f"[{index}/{total}] ❌ Could not pass JS challenge")
+            return None
+
+    soup = BeautifulSoup(html, "html.parser")
 
     # Try JSON-LD first (most reliable)
     json_ld = extract_json_ld(soup)
@@ -178,25 +176,22 @@ def scrape_all_products():
 
     total = len(product_links)
     print(f"\n🚀 Starting to scrape {total} products from jinomusic.ge")
-    print(f"   Workers: {MAX_WORKERS} | Delay: {REQUEST_DELAY}s")
+    print(f"   Mode: Camoufox + Tor proxy (single thread, 2-4s delay)")
     print(f"{'='*60}")
+
+    init_browser()
 
     all_products = []
     failed = 0
 
-    # Use ThreadPoolExecutor for parallel scraping
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        future_to_url = {
-            executor.submit(scrape_product, url, i + 1, total): url
-            for i, url in enumerate(product_links)
-        }
+    for i, url in enumerate(product_links):
+        result = scrape_product(url, i + 1, total)
+        if result:
+            all_products.append(result)
+        else:
+            failed += 1
 
-        for future in as_completed(future_to_url):
-            result = future.result()
-            if result:
-                all_products.append(result)
-            else:
-                failed += 1
+    close_browser()
 
     print(f"\n{'='*60}")
     print(f"✅ Scraped {len(all_products)} products successfully")
