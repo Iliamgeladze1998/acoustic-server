@@ -1,108 +1,190 @@
-import subprocess
-import sys
+#!/usr/bin/env python3
+"""
+ACJM Main Orchestrator
+Full pipeline: Scrape -> Merge -> Upload
+"""
+
 import os
+import sys
+import subprocess
+import datetime
+import io
+import threading
+import time
+from flask import Flask
 
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+    os.system('chcp 65001 >nul 2>&1')
 
-def run_script(script_path, stage_name, base_dir, required_output_files=None):
-    print(f"[DEBUG] --- Starting Stage: {stage_name} ---")
-    print(f"[DEBUG] Script path: {script_path}")
-    print(f"[DEBUG] Working directory: {base_dir}")
-    print(f"[DEBUG] Python executable: {sys.executable}")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+flask_app = Flask(__name__)
+
+@flask_app.route('/')
+def health_check():
+    return 'Healthy', 200
+
+def start_flask_server():
+    port = int(os.environ.get('PORT', 10000))
+    flask_app.run(host='0.0.0.0', port=port, use_reloader=False)
+
+def heartbeat():
+    while True:
+        time.sleep(120)
+        print(f"Status: Scraper is active... [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]", flush=True)
+
+def run_scraper(scraper_path):
+    """Run a scraper script using absolute path with LIVE streaming output"""
+    full_path = os.path.join(BASE_DIR, scraper_path)
+    print(f"Running: {scraper_path}", flush=True)
+    print(f"Full path: {full_path}", flush=True)
+    print("-" * 70, flush=True)
+
+    if not os.path.exists(full_path):
+        print(f"[ERROR] Scraper not found: {full_path}", flush=True)
+        return False
 
     try:
-        print(f"[DEBUG] Executing subprocess...")
-        result = subprocess.run(
-            [sys.executable, script_path],
-            check=True,
-            cwd=base_dir,
-            capture_output=False,
-            text=True
+        env = os.environ.copy()
+        env['PYTHONIOENCODING'] = 'utf-8'
+        env['PYTHONUNBUFFERED'] = '1'
+
+        process = subprocess.Popen(
+            [sys.executable, '-u', full_path],
+            cwd=BASE_DIR,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            bufsize=1,
+            env=env
         )
 
-        print(f"[DEBUG] Subprocess completed with exit code: {result.returncode}")
+        text_stream = io.TextIOWrapper(
+            process.stdout,
+            encoding='utf-8',
+            errors='replace',
+            line_buffering=True
+        )
 
-        if result.returncode != 0:
-            print(f"[ERROR] Stage '{stage_name}' returned non-zero exit code: {result.returncode}")
+        while True:
+            try:
+                line = text_stream.readline()
+                if not line:
+                    break
+                try:
+                    print(line, end='', flush=True)
+                except Exception:
+                    pass
+            except Exception:
+                continue
+
+        process.wait()
+        print("-" * 70, flush=True)
+
+        if process.returncode != 0:
+            print(f"[WARNING] Scraper had issues (exit code: {process.returncode})", flush=True)
             return False
 
-        print(f"[DEBUG] Exit code validation passed")
-
-        if required_output_files:
-            print(f"[DEBUG] Validating {len(required_output_files)} required output files...")
-            for output_file in required_output_files:
-                full_path = os.path.join(base_dir, output_file)
-                print(f"[DEBUG] Checking file: {output_file}")
-                print(f"[DEBUG] Full path: {full_path}")
-
-                if not os.path.exists(full_path):
-                    print(f"[ERROR] Required output file not found: {output_file}")
-                    return False
-                file_size = os.path.getsize(full_path)
-                print(f"[DEBUG] File exists, size: {file_size} bytes")
-
-                if file_size == 0:
-                    print(f"[ERROR] Required output file is empty: {output_file}")
-                    return False
-                print(f"[DEBUG] ✓ Output file validated: {output_file} ({file_size} bytes)")
-
-        print(f"[DEBUG] --- Completed Stage: {stage_name} ---")
+        print(f"✓ {scraper_path} completed successfully", flush=True)
         return True
-    except subprocess.CalledProcessError as e:
-        print(f"[ERROR] Stage '{stage_name}' failed with exit code {e.returncode}")
-        print(f"[ERROR] STDERR: {e.stderr if e.stderr else 'None'}")
-        print(f"[ERROR] STDOUT: {e.stdout if e.stdout else 'None'}")
-        return False
     except Exception as e:
-        print(f"[ERROR] Unexpected error in stage '{stage_name}': {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"[ERROR] Failed to run {scraper_path}: {e}", flush=True)
         return False
+
+
+def validate_output_files(base_dir, required_files):
+    """Check that required output files exist and are non-empty."""
+    if not required_files:
+        return True
+    for output_file in required_files:
+        full_path = os.path.join(base_dir, output_file)
+        if not os.path.exists(full_path):
+            print(f"[ERROR] Required output file not found: {output_file}", flush=True)
+            return False
+        file_size = os.path.getsize(full_path)
+        if file_size == 0:
+            print(f"[ERROR] Required output file is empty: {output_file}", flush=True)
+            return False
+        print(f"✓ Output file validated: {output_file} ({file_size} bytes)", flush=True)
+    return True
 
 
 def main():
-    print("=" * 80)
-    print("ACJM DATA PIPELINE ORCHESTRATOR")
-    print("=" * 80)
-    print()
+    """Run the complete ACJM cycle: Scrape -> Merge -> Upload"""
 
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    print(f"Project root: {BASE_DIR}")
-    print()
+    flask_thread = threading.Thread(target=start_flask_server, daemon=True)
+    flask_thread.start()
+    print("[RENDER] Flask server started on port", os.environ.get('PORT', 10000), flush=True)
+
+    heartbeat_thread = threading.Thread(target=heartbeat, daemon=True)
+    heartbeat_thread.start()
+    print("[RENDER] Heartbeat thread started", flush=True)
+
+    print("=" * 70, flush=True)
+    print(" " * 20 + "ACJM FULL PIPELINE", flush=True)
+    print("=" * 70, flush=True)
+    print(flush=True)
+    print("This script will:", flush=True)
+    print("  1. Scrape Acoustic store (fresh data)", flush=True)
+    print("  2. Scrape JinoMusic store (fresh data)", flush=True)
+    print("  3. Merge data from both stores", flush=True)
+    print("  4. Upload results to Google Sheets", flush=True)
+    print(flush=True)
+    print("=" * 70, flush=True)
+    print(flush=True)
 
     stages = [
-        ('scrapers/acoustic/run_acoustic.py', 'Scraping Acoustic Data',
+        ('scrapers/acoustic/run_acoustic.py', 'SCRAPING ACOUSTIC STORE',
          ['scrapers/acoustic/acoustic_final_stock.xlsx', 'scrapers/acoustic/acoustic_cleaned_models.xlsx']),
-        ('scrapers/jinomusic/run_jinomusic.py', 'Scraping JinoMusic Data',
+        ('scrapers/jinomusic/run_jinomusic.py', 'SCRAPING JINOMUSIC STORE',
          ['scrapers/jinomusic/jinomusic_results.xlsx', 'scrapers/jinomusic/jinomusic_cleaned.xlsx']),
-        ('acjm/acjm_data_merger.py', 'Merging Acoustic and JinoMusic Data',
+        ('acjm/acjm_data_merger.py', 'DATA MERGING',
          ['reports/acoustic_vs_jinomusic.xlsx']),
-        ('acjm/acjm_sheet_uploader.py', 'Uploading to Google Sheets',
+        ('acjm/acjm_sheet_uploader.py', 'UPLOAD TO GOOGLE SHEETS',
          None)
     ]
 
-    for script_path, stage_name, required_files in stages:
-        print(f"\n{'='*80}")
-        print(f"STAGE: {stage_name}")
-        print(f"{'='*80}")
+    for step_num, (script_path, stage_name, required_files) in enumerate(stages, 1):
+        print(f"\n{'='*70}", flush=True)
+        print(f"STEP {step_num}: {stage_name}", flush=True)
+        print(f"{'='*70}", flush=True)
 
-        if not run_script(script_path, stage_name, BASE_DIR, required_files):
-            print()
-            print("=" * 80)
-            print("PIPELINE FAILED - SCRIPT STOPPED")
-            print("=" * 80)
-            print(f"Failed at stage: {stage_name}")
-            print("This script will NOT continue to the next stage.")
-            print("Fix the error and run again.")
+        success = run_scraper(script_path)
+        if not success:
+            print(f"\n[ERROR] {stage_name} failed. Stopping pipeline.", flush=True)
             sys.exit(1)
-        print()
 
-    print("=" * 80)
-    print("PIPELINE COMPLETED SUCCESSFULLY")
-    print("=" * 80)
-    print()
-    print("All stages completed successfully!")
-    print()
+        if not validate_output_files(BASE_DIR, required_files):
+            print(f"\n[ERROR] Output validation failed for {stage_name}. Stopping pipeline.", flush=True)
+            sys.exit(1)
+
+        print(flush=True)
+
+    print("=" * 70, flush=True)
+    print(" " * 25 + "CYCLE COMPLETED!", flush=True)
+    print("=" * 70, flush=True)
+    print(flush=True)
+    print("Summary:", flush=True)
+    print("  ✓ Acoustic store scraped", flush=True)
+    print("  ✓ JinoMusic store scraped", flush=True)
+    print("  ✓ Data merged successfully", flush=True)
+    print("  ✓ Blacklist applied", flush=True)
+    print("  ✓ Results uploaded to Google Sheets", flush=True)
+    print(flush=True)
+    print("Next steps:", flush=True)
+    print("  1. Review the data in Google Sheets", flush=True)
+    print("  2. Mark incorrect matches as 'Wrong' in the Feedback column", flush=True)
+    print("  3. Run this script again to update with fresh data and corrections", flush=True)
+    print(flush=True)
+    print("=" * 70, flush=True)
+
+    return True
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        sys.exit(0 if main() else 1)
+    except Exception as e:
+        print(f"[CRITICAL] Pipeline crashed: {e}", flush=True)
+        sys.exit(1)
