@@ -104,8 +104,6 @@ def get_all_product_links():
             all_product_links.update(page_links)
             print(f"   ✅ Found {len(page_links)} products ({len(new_links)} new, {len(all_product_links)} total unique)")
 
-    close_browser()
-
     # Save all unique product links
     sorted_links = sorted(all_product_links)
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
@@ -122,3 +120,4 @@ def get_all_product_links():
 
 if __name__ == "__main__":
     get_all_product_links()
+    close_browser()
