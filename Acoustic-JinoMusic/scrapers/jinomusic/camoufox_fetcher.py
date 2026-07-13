@@ -87,15 +87,18 @@ def fetch_page(url, wait_selector=None):
         try:
             PAGE.goto(url, timeout=60000, wait_until="domcontentloaded")
 
-            # Brief wait for JS to execute
-            PAGE.wait_for_timeout(1500)
-
-            # Wait for JS challenge to resolve if present
-            for _ in range(6):
+            # Wait for JS challenge to resolve (up to 60s)
+            for _ in range(12):
+                PAGE.wait_for_timeout(5000)
                 title = PAGE.title()
                 if "One moment" not in title and "Just a moment" not in title:
                     break
-                PAGE.wait_for_timeout(5000)
+            else:
+                # Challenge still not resolved after 60s
+                if attempt < max_retries - 1:
+                    print(f"   ⚠️  JS challenge not resolved, retrying with new IP...")
+                    _renew_tor_circuit()
+                    continue
 
             # Extra wait for specific selector if provided
             if wait_selector:
