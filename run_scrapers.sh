@@ -295,6 +295,55 @@ while true; do
     echo "--- JinoMusic დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
     echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
     sleep 28800
+    echo "[DEBUG] 8-hour sleep done, starting Largo ($(date))"
+    echo "=========================================================="
+
+    # --- ნაწილი 6: LARGO & ACOUSTIC (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 6: Largo & Acoustic (VENV) ---"
+    echo "6. ვიწყებ Largo პროექტს (VENV)..."
+    echo "[DEBUG] Changing directory to ~/Acoustic-Largo"
+    cd ~/Acoustic-Largo || exit
+
+    echo "[DEBUG] Current directory: $(pwd)"
+    echo "ვირტუალური გარემოს აქტივაცია..."
+    echo "[DEBUG] Activating virtual environment: venv/bin/activate"
+    source venv/bin/activate
+
+    echo "Auto-insuring dependencies for Largo..."
+    pip install --upgrade pip
+    pip install -r requirements.txt || pip install pandas openpyxl requests rapidfuzz gspread gspread-formatting google-api-python-client google-auth-httplib2 google-auth-oauthlib flask beautifulsoup4 pytz
+
+    echo "[DEBUG] Virtual environment activated"
+    echo "[DEBUG] Python version: $(python --version)"
+    echo "[DEBUG] Python path: $(which python)"
+
+    echo "ვუშვებ Largo სკრიპტს..."
+    echo "[DEBUG] Executing: python aclg/aclg_main.py"
+    python aclg/aclg_main.py
+    LARGO_EXIT_CODE=$?
+
+    echo "[DEBUG] Largo script exit code: $LARGO_EXIT_CODE"
+    echo "გარემოს დეაქტივაცია..."
+    echo "[DEBUG] Deactivating virtual environment"
+    deactivate
+
+    echo "[DEBUG] Virtual environment deactivated"
+
+    if [ $LARGO_EXIT_CODE -ne 0 ]; then
+        echo "CRITICAL: LARGO_UPDATE_FAILED - Exit code: $LARGO_EXIT_CODE"
+        echo "Stopping entire pipeline. Will NOT proceed to next cycle."
+        echo "[DEBUG] Script exiting with code 1"
+        exit 1
+    fi
+
+    echo "[DEBUG] Largo completed successfully"
+    echo "Largo პროექტი დასრულდა."
+    echo "----------------------------------------------------------"
+
+    echo "=========================================================="
+    echo "--- Largo დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
+    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
+    sleep 28800
     echo "[DEBUG] 8-hour sleep done, starting next cycle ($(date))"
     cd ~
     echo "[DEBUG] Changed directory to: $(pwd)"
