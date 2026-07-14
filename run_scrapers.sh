@@ -11,9 +11,113 @@ while true; do
     echo "--- ახალი სრული ციკლის დასაწყისი: $(date) ---"
     echo "=========================================================="
 
-    # --- ნაწილი 1: MUSIC HOUSE & ACOUSTIC (PYTHON VENV) ---
-    echo "[DEBUG] --- Starting Part 1: Music House & Acoustic (VENV) ---"
-    echo "1. ვიწყებ Music House პროექტს (VENV)..."
+    # --- ნაწილი 1: LARGO & ACOUSTIC (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 1: Largo & Acoustic (VENV) ---"
+    echo "1. ვიწყებ Largo პროექტს (VENV)..."
+    echo "[DEBUG] Changing directory to ~/Acoustic-Largo"
+    cd ~/Acoustic-Largo || exit
+
+    echo "[DEBUG] Current directory: $(pwd)"
+    echo "ვირტუალური გარემოს აქტივაცია..."
+    echo "[DEBUG] Activating virtual environment: venv/bin/activate"
+    source venv/bin/activate
+
+    echo "Auto-insuring dependencies for Largo..."
+    pip install --upgrade pip
+    pip install -r requirements.txt || pip install pandas openpyxl requests rapidfuzz gspread gspread-formatting google-api-python-client google-auth-httplib2 google-auth-oauthlib flask beautifulsoup4 pytz
+
+    echo "[DEBUG] Virtual environment activated"
+    echo "[DEBUG] Python version: $(python --version)"
+    echo "[DEBUG] Python path: $(which python)"
+
+    echo "ვუშვებ Largo სკრიპტს..."
+    echo "[DEBUG] Executing: python aclg/aclg_main.py"
+    python aclg/aclg_main.py
+    LARGO_EXIT_CODE=$?
+
+    echo "[DEBUG] Largo script exit code: $LARGO_EXIT_CODE"
+    echo "გარემოს დეაქტივაცია..."
+    echo "[DEBUG] Deactivating virtual environment"
+    deactivate
+
+    echo "[DEBUG] Virtual environment deactivated"
+
+    if [ $LARGO_EXIT_CODE -ne 0 ]; then
+        echo "CRITICAL: LARGO_UPDATE_FAILED - Exit code: $LARGO_EXIT_CODE"
+        echo "Stopping entire pipeline. Will NOT proceed to JinoMusic."
+        echo "[DEBUG] Script exiting with code 1"
+        exit 1
+    fi
+
+    echo "[DEBUG] Largo completed successfully"
+    echo "Largo პროექტი დასრულდა."
+    echo "----------------------------------------------------------"
+
+    echo "=========================================================="
+    echo "--- Largo დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
+    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
+    sleep 28800
+    echo "[DEBUG] 8-hour sleep done, starting JinoMusic ($(date))"
+    echo "=========================================================="
+
+    # --- ნაწილი 2: JINOMUSIC & ACOUSTIC (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 2: JinoMusic & Acoustic (VENV) ---"
+    echo "2. ვიწყებ JinoMusic პროექტს (VENV)..."
+    echo "[DEBUG] Changing directory to ~/Acoustic-JinoMusic"
+    cd ~/Acoustic-JinoMusic || exit
+
+    echo "[DEBUG] Current directory: $(pwd)"
+    echo "ვირტუალური გარემოს აქტივაცია..."
+    echo "[DEBUG] Activating virtual environment: venv/bin/activate"
+    source venv/bin/activate
+
+    echo "Auto-insuring dependencies for JinoMusic..."
+    pip install --upgrade pip
+    pip install -r requirements.txt || pip install pandas openpyxl requests rapidfuzz gspread gspread-formatting google-api-python-client google-auth-httplib2 google-auth-oauthlib flask beautifulsoup4 "camoufox[geoip]" pillow pytz
+    python -m camoufox fetch
+
+    echo "[DEBUG] Virtual environment activated"
+    echo "[DEBUG] Python version: $(python --version)"
+    echo "[DEBUG] Python path: $(which python)"
+
+    echo "Cleaning up stale Camoufox processes for JinoMusic..."
+    pkill -f "camoufox.*Acoustic-JinoMusic" 2>/dev/null || true
+    sleep 2
+    echo "[DEBUG] Camoufox cleanup completed"
+
+    echo "ვუშვებ JinoMusic სკრიპტს..."
+    echo "[DEBUG] Executing: python acjm/acjm_main.py"
+    python acjm/acjm_main.py
+    JINOMUSIC_EXIT_CODE=$?
+
+    echo "[DEBUG] JinoMusic script exit code: $JINOMUSIC_EXIT_CODE"
+    echo "გარემოს დეაქტივაცია..."
+    echo "[DEBUG] Deactivating virtual environment"
+    deactivate
+
+    echo "[DEBUG] Virtual environment deactivated"
+
+    if [ $JINOMUSIC_EXIT_CODE -ne 0 ]; then
+        echo "CRITICAL: JINOMUSIC_UPDATE_FAILED - Exit code: $JINOMUSIC_EXIT_CODE"
+        echo "Stopping entire pipeline. Will NOT proceed to Music House."
+        echo "[DEBUG] Script exiting with code 1"
+        exit 1
+    fi
+
+    echo "[DEBUG] JinoMusic completed successfully"
+    echo "JinoMusic პროექტი დასრულდა."
+    echo "----------------------------------------------------------"
+
+    echo "=========================================================="
+    echo "--- JinoMusic დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
+    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
+    sleep 28800
+    echo "[DEBUG] 8-hour sleep done, starting Music House ($(date))"
+    echo "=========================================================="
+
+    # --- ნაწილი 3: MUSIC HOUSE & ACOUSTIC (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 3: Music House & Acoustic (VENV) ---"
+    echo "3. ვიწყებ Music House პროექტს (VENV)..."
     echo "[DEBUG] Changing directory to ~/Acoustic-Musikissaxli"
     cd ~/Acoustic-Musikissaxli || exit
 
@@ -74,9 +178,9 @@ while true; do
     echo "[DEBUG] 8-hour sleep done, starting Musicroom ($(date))"
     echo "=========================================================="
 
-    # --- ნაწილი 2: MUSICROOM & ACOUSTIC (PYTHON VENV) ---
-    echo "[DEBUG] --- Starting Part 2: Musicroom & Acoustic (VENV) ---"
-    echo "2. ვიწყებ Musicroom პროექტს (VENV)..."
+    # --- ნაწილი 4: MUSICROOM & ACOUSTIC (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 4: Musicroom & Acoustic (VENV) ---"
+    echo "4. ვიწყებ Musicroom პროექტს (VENV)..."
     echo "[DEBUG] Changing directory to ~/Acoustic-Musicroom"
     cd ~/Acoustic-Musicroom || exit
 
@@ -131,9 +235,9 @@ while true; do
     echo "[DEBUG] 8-hour sleep done, starting Geovoice ($(date))"
     echo "=========================================================="
 
-    # --- ნაწილი 3: GEOVOICE & ACOUSTIC (PYTHON VENV) ---
-    echo "[DEBUG] --- Starting Part 3: Geovoice & Acoustic (VENV) ---"
-    echo "3. ვიწყებ Geovoice პროექტს (VENV)..."
+    # --- ნაწილი 5: GEOVOICE & ACOUSTIC (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 5: Geovoice & Acoustic (VENV) ---"
+    echo "5. ვიწყებ Geovoice პროექტს (VENV)..."
     echo "[DEBUG] Changing directory to ~/Acoustic-Geovoice"
     cd ~/Acoustic-Geovoice || exit
 
@@ -186,9 +290,9 @@ while true; do
     echo "[DEBUG] 8-hour sleep done, starting Mireli ($(date))"
     echo "=========================================================="
 
-    # --- ნაწილი 4: ACOUSTIC MIRELI (PYTHON VENV) ---
-    echo "[DEBUG] --- Starting Part 4: Acoustic Mireli (VENV) ---"
-    echo "4. ვიწყებ Mireli-ს პროექტს (VENV)..."
+    # --- ნაწილი 6: ACOUSTIC MIRELI (PYTHON VENV) ---
+    echo "[DEBUG] --- Starting Part 6: Acoustic Mireli (VENV) ---"
+    echo "6. ვიწყებ Mireli-ს პროექტს (VENV)..."
     echo "[DEBUG] Changing directory to ~/Acoustic-Mireli"
     cd ~/Acoustic-Mireli || exit
 
@@ -238,110 +342,6 @@ while true; do
 
     echo "=========================================================="
     echo "--- Mireli დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
-    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
-    sleep 28800
-    echo "[DEBUG] 8-hour sleep done, starting JinoMusic ($(date))"
-    echo "=========================================================="
-
-    # --- ნაწილი 5: JINOMUSIC & ACOUSTIC (PYTHON VENV) ---
-    echo "[DEBUG] --- Starting Part 5: JinoMusic & Acoustic (VENV) ---"
-    echo "5. ვიწყებ JinoMusic პროექტს (VENV)..."
-    echo "[DEBUG] Changing directory to ~/Acoustic-JinoMusic"
-    cd ~/Acoustic-JinoMusic || exit
-
-    echo "[DEBUG] Current directory: $(pwd)"
-    echo "ვირტუალური გარემოს აქტივაცია..."
-    echo "[DEBUG] Activating virtual environment: venv/bin/activate"
-    source venv/bin/activate
-
-    echo "Auto-insuring dependencies for JinoMusic..."
-    pip install --upgrade pip
-    pip install -r requirements.txt || pip install pandas openpyxl requests rapidfuzz gspread gspread-formatting google-api-python-client google-auth-httplib2 google-auth-oauthlib flask beautifulsoup4 "camoufox[geoip]" pillow pytz
-    python -m camoufox fetch
-
-    echo "[DEBUG] Virtual environment activated"
-    echo "[DEBUG] Python version: $(python --version)"
-    echo "[DEBUG] Python path: $(which python)"
-
-    echo "Cleaning up stale Camoufox processes for JinoMusic..."
-    pkill -f "camoufox.*Acoustic-JinoMusic" 2>/dev/null || true
-    sleep 2
-    echo "[DEBUG] Camoufox cleanup completed"
-
-    echo "ვუშვებ JinoMusic სკრიპტს..."
-    echo "[DEBUG] Executing: python acjm/acjm_main.py"
-    python acjm/acjm_main.py
-    JINOMUSIC_EXIT_CODE=$?
-
-    echo "[DEBUG] JinoMusic script exit code: $JINOMUSIC_EXIT_CODE"
-    echo "გარემოს დეაქტივაცია..."
-    echo "[DEBUG] Deactivating virtual environment"
-    deactivate
-
-    echo "[DEBUG] Virtual environment deactivated"
-
-    if [ $JINOMUSIC_EXIT_CODE -ne 0 ]; then
-        echo "CRITICAL: JINOMUSIC_UPDATE_FAILED - Exit code: $JINOMUSIC_EXIT_CODE"
-        echo "Stopping entire pipeline. Will NOT proceed to next cycle."
-        echo "[DEBUG] Script exiting with code 1"
-        exit 1
-    fi
-
-    echo "[DEBUG] JinoMusic completed successfully"
-    echo "JinoMusic პროექტი დასრულდა."
-    echo "----------------------------------------------------------"
-
-    echo "=========================================================="
-    echo "--- JinoMusic დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
-    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
-    sleep 28800
-    echo "[DEBUG] 8-hour sleep done, starting Largo ($(date))"
-    echo "=========================================================="
-
-    # --- ნაწილი 6: LARGO & ACOUSTIC (PYTHON VENV) ---
-    echo "[DEBUG] --- Starting Part 6: Largo & Acoustic (VENV) ---"
-    echo "6. ვიწყებ Largo პროექტს (VENV)..."
-    echo "[DEBUG] Changing directory to ~/Acoustic-Largo"
-    cd ~/Acoustic-Largo || exit
-
-    echo "[DEBUG] Current directory: $(pwd)"
-    echo "ვირტუალური გარემოს აქტივაცია..."
-    echo "[DEBUG] Activating virtual environment: venv/bin/activate"
-    source venv/bin/activate
-
-    echo "Auto-insuring dependencies for Largo..."
-    pip install --upgrade pip
-    pip install -r requirements.txt || pip install pandas openpyxl requests rapidfuzz gspread gspread-formatting google-api-python-client google-auth-httplib2 google-auth-oauthlib flask beautifulsoup4 pytz
-
-    echo "[DEBUG] Virtual environment activated"
-    echo "[DEBUG] Python version: $(python --version)"
-    echo "[DEBUG] Python path: $(which python)"
-
-    echo "ვუშვებ Largo სკრიპტს..."
-    echo "[DEBUG] Executing: python aclg/aclg_main.py"
-    python aclg/aclg_main.py
-    LARGO_EXIT_CODE=$?
-
-    echo "[DEBUG] Largo script exit code: $LARGO_EXIT_CODE"
-    echo "გარემოს დეაქტივაცია..."
-    echo "[DEBUG] Deactivating virtual environment"
-    deactivate
-
-    echo "[DEBUG] Virtual environment deactivated"
-
-    if [ $LARGO_EXIT_CODE -ne 0 ]; then
-        echo "CRITICAL: LARGO_UPDATE_FAILED - Exit code: $LARGO_EXIT_CODE"
-        echo "Stopping entire pipeline. Will NOT proceed to next cycle."
-        echo "[DEBUG] Script exiting with code 1"
-        exit 1
-    fi
-
-    echo "[DEBUG] Largo completed successfully"
-    echo "Largo პროექტი დასრულდა."
-    echo "----------------------------------------------------------"
-
-    echo "=========================================================="
-    echo "--- Largo დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
     echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
     sleep 28800
     echo "[DEBUG] 8-hour sleep done, starting next cycle ($(date))"
