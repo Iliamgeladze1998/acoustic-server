@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>აკუსტიკა - შეფასება</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f3f3f3;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        .container {
+            background: #ffffff;
+            max-width: 440px;
+            width: 92%;
+            text-align: center;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+        .header {
+            background: #008080;
+            padding: 36px 24px 28px;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+        .tagline {
+            font-size: 13px;
+            color: #dbefdd;
+            margin-top: 6px;
+            letter-spacing: 0.5px;
+        }
+        .body {
+            padding: 36px 28px 32px;
+        }
+        .question {
+            font-size: 21px;
+            font-weight: 600;
+            color: #008080;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .btn {
+            padding: 18px 24px;
+            border: none;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            letter-spacing: 0.3px;
+        }
+        .btn-positive {
+            background: #008080;
+            color: #ffffff;
+        }
+        .btn-positive:hover {
+            background: #006666;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0,128,128,0.3);
+        }
+        .btn-negative {
+            background: #ffffff;
+            color: #434343;
+            border: 2px solid #d9d9d9;
+        }
+        .btn-negative:hover {
+            background: #f3f3f3;
+            border-color: #b3b8af;
+        }
+        .thank-you {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+        .thank-you .icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+        }
+        .thank-you h2 {
+            font-size: 20px;
+            color: #008080;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        .thank-you p {
+            font-size: 15px;
+            color: #666;
+        }
+        .redirecting {
+            display: none;
+            text-align: center;
+            padding: 30px 0;
+        }
+        .redirecting .icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+        }
+        .redirecting h2 {
+            font-size: 19px;
+            color: #008080;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        .redirecting p {
+            font-size: 14px;
+            color: #666;
+        }
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #dbefdd;
+            border-top: 3px solid #008080;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .footer {
+            background: #f3f3f3;
+            padding: 16px 24px;
+            font-size: 12px;
+            color: #8e664f;
+            border-top: 1px solid #eee8de;
+        }
+        .footer a {
+            color: #008080;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">აკუსტიკა</div>
+            <div class="tagline">მუსიკალური ინსტრუმენტების მაღაზია</div>
+        </div>
+
+        <div class="body">
+            <div id="step-question">
+                <div class="question">როგორ შეაფასებდით აკუსტიკას?</div>
+                <div class="btn-group">
+                    <button class="btn btn-positive" onclick="goPositive()">😊 დადებითად</button>
+                    <button class="btn btn-negative" onclick="goNegative()">😞 უარყოფითად</button>
+                </div>
+            </div>
+
+            <div id="step-redirect" class="redirecting">
+                <div class="icon">⭐</div>
+                <h2>გმადლობთ!</h2>
+                <p>გადაყვანთ Google Maps-ის შეფასების გვერდზე...</p>
+                <div class="spinner"></div>
+            </div>
+
+            <div id="step-thanks" class="thank-you">
+                <div class="icon">🙏</div>
+                <h2>გმადლობთ შეფასებისთვის!</h2>
+                <p>თქვენი მოსაზრება ჩვენთვის მნიშვნელოვანია.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <a href="https://acoustic.ge">acoustic.ge</a> · აკაკი წერეთლის 142 · თბილისი
+        </div>
+    </div>
+
+    <script>
+        var GOOGLE_REVIEW_URL = "https://www.google.com/maps/place//data=!4m4!3m3!1s0x0:0x83d79660ac099e03!9m1!1b1";
+
+        function goPositive() {
+            document.getElementById('step-question').style.display = 'none';
+            document.getElementById('step-redirect').style.display = 'block';
+            setTimeout(function() {
+                window.location.href = GOOGLE_REVIEW_URL;
+            }, 1500);
+        }
+
+        function goNegative() {
+            document.getElementById('step-question').style.display = 'none';
+            document.getElementById('step-thanks').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
