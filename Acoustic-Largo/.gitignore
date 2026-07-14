@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+pw-browsers/
+scrapers/acoustic/*.xlsx
+scrapers/largo/*.xlsx
+reports/*.xlsx
