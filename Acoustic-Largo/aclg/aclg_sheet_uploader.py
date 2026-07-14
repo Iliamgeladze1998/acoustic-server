@@ -371,7 +371,13 @@ def _parse_alert_price(value):
     text = str(value).strip()
     if text.lower() in ('', 'nan', 'none', 'n/a', '-'):
         return None
-    cleaned = text.replace(',', '').replace(' ', '').replace('₾', '')
+    cleaned = text.replace(' ', '').replace('₾', '')
+    # Handle number format: if both comma and dot present, comma is thousands separator
+    # If only comma present, it's likely a decimal separator (European format)
+    if ',' in cleaned and '.' in cleaned:
+        cleaned = cleaned.replace(',', '')  # comma = thousands separator
+    elif ',' in cleaned and '.' not in cleaned:
+        cleaned = cleaned.replace(',', '.')  # comma = decimal separator
     cleaned = ''.join(ch for ch in cleaned if ch.isdigit() or ch in '.-')
     if cleaned in ('', '-', '.', '-.'):
         return None
