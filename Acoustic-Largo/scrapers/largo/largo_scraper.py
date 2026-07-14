@@ -209,7 +209,7 @@ def scrape_all_products():
             product["image_url"] = ""
             product["category"] = ""
 
-        time.sleep(0.5)  # Be polite
+        time.sleep(1.0)  # Be polite, avoid blocking
 
         # Save incrementally every 20 products
         if (i + 1) % 20 == 0:

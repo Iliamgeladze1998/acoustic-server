@@ -22,8 +22,18 @@ KNOWN_BRANDS = [
     'HARTKE', 'AMPEG', 'GALLIEN', 'MACKIE', 'SOUNDCRAFT', 'ALLEN',
     'DYNACORD', 'ELECTRO', 'JBL', 'QSC', 'ALTO', 'WHARFEDALE',
     'LINE6', 'LINE 6', 'BLACKSTAR', 'FRIEDMAN', 'ENGL', 'DIEZEL',
-    'BOSSENDORFER', 'BÖSENDORFER', 'STEINBERG', 'NEUTRIK', 'ROLAND',
+    'BOSSENDORFER', 'BÖSENDORFER', 'STEINBERG', 'NEUTRIK',
+    'SOUNDKING', 'WINCENT', 'SMIGER',
 ]
+
+# Color/finish suffixes commonly used by Yamaha and other brands
+# Only include suffixes that are clearly colors/finishes, not model variants
+COLOR_SUFFIXES = {
+    'TBS', 'NT', 'CS', 'BL', 'BK', 'WH', 'PE', 'PM', 'PWH',
+    'SAW', 'SBW', 'SDW', 'SM', 'OBB', 'CRB',
+    'TB', 'PB', 'DBM', 'RM', 'HM', 'FP', 'PAW', 'KG', 'BWH',
+    'CHROME', 'ENST', 'PACK',
+}
 
 
 def extract_brand(text):
@@ -42,25 +52,79 @@ def normalize_token(token):
     return re.sub(r'[\-_/\.]', '', token.upper())
 
 
+def strip_color_suffix(code):
+    """Strip color/finish suffix from a model code to get the base model.
+    e.g. CLP725WH -> CLP725, F310TBS -> F310, SLG200NNT -> SLG200N"""
+    for suffix in sorted(COLOR_SUFFIXES, key=len, reverse=True):
+        if code.endswith(suffix) and len(code) > len(suffix) + 1:
+            base = code[:-len(suffix)]
+            if re.search(r'[A-Z]', base) and re.search(r'\d', base):
+                return base
+    return code
+
+
 def extract_model_codes(text):
-    """Extract all candidate model codes from a product name.
-    A model code is a latin token containing both letters and digits,
-    normalized by removing separators (FK-310 -> FK310, GRX70QA_TRB -> GRX70QATRB)."""
+    """Extract all candidate model codes from a product name."""
     if pd.isna(text):
         return set()
     text = str(text).upper()
-    # Split on whitespace, keep latin/digit tokens
+    # Remove Georgian text first
+    text = re.sub(r'[\u10a0-\u10ff]+', ' ', text)
+    # Try to join split model codes: "HS8 B" -> "HS8B", "CLP 725" -> "CLP725"
+    # Pattern: letters+digits followed by space followed by 1-3 uppercase letters
+    text = re.sub(r'([A-Z]+\d[\w]*)\s+([A-Z]{1,3})\b', r'\1\2', text)
+    # Also join "CLP-725 WH" style: model followed by color suffix
+    text = re.sub(r'([A-Z]+[\-]?\d[\w]*)\s+([A-Z]{1,4})\b', r'\1\2', text)
     tokens = re.findall(r'[A-Z0-9][A-Z0-9\-_/\.]*[A-Z0-9]|[A-Z0-9]', text)
     codes = set()
     for tok in tokens:
         norm = normalize_token(tok)
-        # Must contain at least one letter AND one digit, length >= 3
         if len(norm) >= 3 and re.search(r'[A-Z]', norm) and re.search(r'\d', norm):
-            # Skip pure measurement patterns like 4/4, 1/2, sizes
             if re.fullmatch(r'\d+[/X]\d+', norm):
                 continue
             codes.add(norm)
     return codes
+
+
+def extract_base_model_codes(text):
+    """Extract model codes and also their color-stripped base versions."""
+    codes = extract_model_codes(text)
+    result = set()
+    for code in codes:
+        base = strip_color_suffix(code)
+        result.add(base)
+        if base != code:
+            result.add(code)
+    return result
+
+
+def clean_name_for_fuzzy(text):
+    """Clean product name for fuzzy matching: remove Georgian text, keep model-relevant parts."""
+    if pd.isna(text):
+        return ''
+    text = str(text).upper()
+    # Remove Georgian characters
+    text = re.sub(r'[\u10a0-\u10ff]+', ' ', text)
+    # Remove common generic words
+    remove_words = [
+        'YAMAHA', 'GUITAR', 'PIANO', 'DIGITAL', 'CLASSICAL', 'ACOUSTIC',
+        'ELECTRIC', 'KEYBOARD', 'SYNTHESIZER', 'DRUM', 'PEDAL', 'SPEAKER',
+        'MONITOR', 'MIXER', 'AMP', 'AMPLIFIER', 'USED', 'CLAVINOVA', 'ARIUS',
+        'PORTABLE', 'STAGEPAS', 'RECORDER', 'CLARINET', 'FLUTE', 'BASS',
+        'STRINGS', 'STRING', 'CAPO', 'TUNER', 'CABLE', 'STAND', 'CASE',
+        'BAG', 'PICKUP', 'EFFECTS', 'PROCESSOR', 'INTERFACE', 'AUDIO',
+        'POWERED', 'CHANNEL', 'WIRELESS', 'BLUETOOTH', 'CONCERT', 'GRAND',
+        'UPRIGHT', 'SILENT', 'TRANSACOUSTIC', 'GUITALELE', 'SOPRANO',
+        'BANJO', 'MANDOLIN', 'UKULELE', 'VIOLIN', 'CYMBAL', 'HIHAT',
+        'SNARE', 'CRASH', 'RIDE', 'SPLASH', 'CHINA', 'SHEET', 'MUSIC',
+        'BOOK', 'METRONOME', 'PICK', 'STRAP', 'MUTE', 'REED', 'KEY',
+        'PADS', 'VALVE', 'SLIDE', 'TUNING', 'FOR', 'WITH', 'AND', 'THE',
+        'IN', 'OF', 'TO', 'A', 'AN', 'IS', 'IT', 'ON', 'AT', 'BY', 'OR',
+    ]
+    for word in remove_words:
+        text = re.sub(r'\b' + word + r'\b', ' ', text)
+    text = ' '.join(text.split())
+    return text
 
 
 def main():
@@ -94,12 +158,10 @@ def main():
 
         for col in required_cols_ac:
             if col not in df_ac.columns:
-                print(f"Warning: Column '{col}' not found in Acoustic data. Using empty values.")
                 df_ac[col] = ''
 
         for col in required_cols_lg:
             if col not in df_lg.columns:
-                print(f"Warning: Column '{col}' not found in Largo data. Using empty values.")
                 df_lg[col] = ''
 
         print("Extracting brands and model codes...")
@@ -107,16 +169,22 @@ def main():
         df_lg['BRAND_X'] = df_lg['Product_Name'].apply(extract_brand)
         df_ac['MODEL_CODES'] = df_ac['NAME'].apply(extract_model_codes)
         df_lg['MODEL_CODES'] = df_lg['Product_Name'].apply(extract_model_codes)
+        df_ac['BASE_CODES'] = df_ac['NAME'].apply(extract_base_model_codes)
+        df_lg['BASE_CODES'] = df_lg['Product_Name'].apply(extract_base_model_codes)
+        df_ac['CLEAN_NAME'] = df_ac['NAME'].apply(clean_name_for_fuzzy)
+        df_lg['CLEAN_NAME'] = df_lg['Product_Name'].apply(clean_name_for_fuzzy)
 
         print(f"   Acoustic with model codes: {(df_ac['MODEL_CODES'].apply(len) > 0).sum()}")
         print(f"   Largo with model codes: {(df_lg['MODEL_CODES'].apply(len) > 0).sum()}")
 
-        print("Stage 1: Brand + Model code matching...")
         matches = []
         matched_ac_indices = set()
         matched_lg_indices = set()
 
-        # Build index: model_code -> list of ac indices
+        # ==========================================
+        # Stage 1: Exact model code matching
+        # ==========================================
+        print("\nStage 1: Exact model code matching...")
         ac_code_index = {}
         for ac_idx, ac_row in df_ac.iterrows():
             for code in ac_row['MODEL_CODES']:
@@ -139,14 +207,20 @@ def main():
                     ac_row = df_ac.loc[ac_idx]
                     ac_brand = ac_row['BRAND_X']
 
-                    # Brand check: if both have brands, they must match
                     if lg_brand and ac_brand and lg_brand != ac_brand:
                         continue
 
-                    # Score: prefer longer model codes (more specific) and matching brands
                     score = len(code) * 10
                     if lg_brand and ac_brand and lg_brand == ac_brand:
                         score += 50
+
+                    # Price ratio check for exact matches too
+                    ac_price = float(ac_row['PRICE']) if pd.notna(ac_row['PRICE']) else 0
+                    lg_price = float(lg_row['Price']) if pd.notna(lg_row['Price']) else 0
+                    if ac_price > 0 and lg_price > 0:
+                        ratio = max(ac_price, lg_price) / min(ac_price, lg_price)
+                        if ratio > 5:
+                            continue
 
                     if score > best_score:
                         best_score = score
@@ -156,7 +230,7 @@ def main():
             if best_ac_idx is not None:
                 ac_row = df_ac.loc[best_ac_idx]
                 matches.append({
-                    'Matching_Style': 'Brand+Model',
+                    'Matching_Style': 'Exact_Model',
                     'Match_Score': best_score,
                     'Match_Key': best_code,
                     'Product_Name_AC': ac_row['NAME'],
@@ -171,8 +245,155 @@ def main():
                 matched_ac_indices.add(best_ac_idx)
                 matched_lg_indices.add(lg_idx)
 
-        print(f"Found {len(matches)} brand+model matches")
+        print(f"   Found {len(matches)} exact model matches")
 
+        # ==========================================
+        # Stage 2: Base model code matching (color-stripped)
+        # ==========================================
+        print("\nStage 2: Base model code matching (color-stripped)...")
+        ac_base_index = {}
+        for ac_idx, ac_row in df_ac.iterrows():
+            if ac_idx in matched_ac_indices:
+                continue
+            for code in ac_row['BASE_CODES']:
+                ac_base_index.setdefault(code, []).append(ac_idx)
+
+        stage2_matches = 0
+        for lg_idx, lg_row in df_lg.iterrows():
+            if lg_idx in matched_lg_indices:
+                continue
+            lg_base_codes = lg_row['BASE_CODES']
+            lg_brand = lg_row['BRAND_X']
+            if not lg_base_codes:
+                continue
+
+            best_ac_idx = None
+            best_score = 0
+            best_code = ''
+
+            for code in lg_base_codes:
+                for ac_idx in ac_base_index.get(code, []):
+                    if ac_idx in matched_ac_indices:
+                        continue
+                    ac_row = df_ac.loc[ac_idx]
+                    ac_brand = ac_row['BRAND_X']
+
+                    if lg_brand and ac_brand and lg_brand != ac_brand:
+                        continue
+
+                    score = len(code) * 8
+                    if lg_brand and ac_brand and lg_brand == ac_brand:
+                        score += 50
+
+                    if score > best_score:
+                        best_score = score
+                        best_ac_idx = ac_idx
+                        best_code = code
+
+            if best_ac_idx is not None:
+                ac_row = df_ac.loc[best_ac_idx]
+                ac_price = float(ac_row['PRICE']) if pd.notna(ac_row['PRICE']) else 0
+                lg_price = float(lg_row['Price']) if pd.notna(lg_row['Price']) else 0
+                # Skip if price ratio is >5x (likely wrong match)
+                if ac_price > 0 and lg_price > 0:
+                    ratio = max(ac_price, lg_price) / min(ac_price, lg_price)
+                    if ratio > 5:
+                        continue
+                matches.append({
+                    'Matching_Style': 'Base_Model',
+                    'Match_Score': best_score,
+                    'Match_Key': best_code,
+                    'Product_Name_AC': ac_row['NAME'],
+                    'Product_Name_LG': lg_row['Product_Name'],
+                    'Price_AC': ac_row['PRICE'],
+                    'Price_LG': lg_row['Price'],
+                    'Price_Diff': lg_row['Price'] - ac_row['PRICE'],
+                    'Link_AC': ac_row['LINK'],
+                    'Link_LG': lg_row['Link'],
+                    'Last_Updated': last_updated
+                })
+                matched_ac_indices.add(best_ac_idx)
+                matched_lg_indices.add(lg_idx)
+                stage2_matches += 1
+
+        print(f"   Found {stage2_matches} base model matches")
+
+        # ==========================================
+        # Stage 3: Fuzzy name matching
+        # ==========================================
+        print("\nStage 3: Fuzzy name matching...")
+        unmatched_ac = df_ac[~df_ac.index.isin(matched_ac_indices)].copy()
+        unmatched_lg = df_lg[~df_lg.index.isin(matched_lg_indices)].copy()
+
+        unmatched_lg = unmatched_lg[unmatched_lg['CLEAN_NAME'].str.len() > 2]
+        unmatched_ac = unmatched_ac[unmatched_ac['CLEAN_NAME'].str.len() > 2]
+
+        print(f"   Unmatched Acoustic with clean names: {len(unmatched_ac)}")
+        print(f"   Unmatched Largo with clean names: {len(unmatched_lg)}")
+
+        ac_clean_names = unmatched_ac['CLEAN_NAME'].tolist()
+        ac_indices = unmatched_ac.index.tolist()
+
+        stage3_matches = 0
+        for lg_idx, lg_row in unmatched_lg.iterrows():
+            lg_clean = lg_row['CLEAN_NAME']
+            lg_brand = lg_row['BRAND_X']
+
+            if len(lg_clean) < 3:
+                continue
+
+            result = process.extractOne(
+                lg_clean,
+                ac_clean_names,
+                scorer=fuzz.token_sort_ratio,
+                score_cutoff=80
+            )
+
+            if result is None:
+                continue
+
+            best_match_name, best_score, best_list_idx = result
+            best_ac_idx = ac_indices[best_list_idx]
+
+            if best_ac_idx in matched_ac_indices:
+                continue
+
+            ac_row = df_ac.loc[best_ac_idx]
+            ac_brand = ac_row['BRAND_X']
+
+            if lg_brand and ac_brand and lg_brand != ac_brand:
+                continue
+
+            # Price ratio check for fuzzy matches
+            ac_price = float(ac_row['PRICE']) if pd.notna(ac_row['PRICE']) else 0
+            lg_price = float(lg_row['Price']) if pd.notna(lg_row['Price']) else 0
+            if ac_price > 0 and lg_price > 0:
+                ratio = max(ac_price, lg_price) / min(ac_price, lg_price)
+                if ratio > 5:
+                    continue
+
+            matches.append({
+                'Matching_Style': 'Fuzzy_Name',
+                'Match_Score': int(best_score),
+                'Match_Key': f'fuzzy:{best_score}',
+                'Product_Name_AC': ac_row['NAME'],
+                'Product_Name_LG': lg_row['Product_Name'],
+                'Price_AC': ac_row['PRICE'],
+                'Price_LG': lg_row['Price'],
+                'Price_Diff': lg_row['Price'] - ac_row['PRICE'],
+                'Link_AC': ac_row['LINK'],
+                'Link_LG': lg_row['Link'],
+                'Last_Updated': last_updated
+            })
+            matched_ac_indices.add(best_ac_idx)
+            matched_lg_indices.add(lg_idx)
+            stage3_matches += 1
+
+        print(f"   Found {stage3_matches} fuzzy name matches")
+
+        # ==========================================
+        # Save results
+        # ==========================================
         df_result = pd.DataFrame(matches)
 
         column_order = ['Matching_Style', 'Match_Score', 'Match_Key', 'Product_Name_AC', 'Product_Name_LG',
@@ -185,10 +406,13 @@ def main():
             df_result = pd.DataFrame(columns=column_order)
 
         df_result.to_excel(output_file, index=False, engine='openpyxl')
-        print(f"\n6. Results saved to: {output_file}")
+        print(f"\nResults saved to: {output_file}")
 
         print(f"\nSummary:")
-        print(f"  Brand+Model Matches: {len(matches)}")
+        print(f"  Stage 1 - Exact Model Matches: {len([m for m in matches if m['Matching_Style'] == 'Exact_Model'])}")
+        print(f"  Stage 2 - Base Model Matches:  {len([m for m in matches if m['Matching_Style'] == 'Base_Model'])}")
+        print(f"  Stage 3 - Fuzzy Name Matches:  {len([m for m in matches if m['Matching_Style'] == 'Fuzzy_Name'])}")
+        print(f"  Total Matches: {len(matches)}")
         print(f"  Acoustic unmatched: {len(df_ac) - len(matched_ac_indices)}")
         print(f"  Largo unmatched: {len(df_lg) - len(matched_lg_indices)}")
         return True
