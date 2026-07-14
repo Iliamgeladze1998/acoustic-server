@@ -1,0 +1,12 @@
+pandas
+openpyxl
+requests
+rapidfuzz
+gspread
+gspread-formatting
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+flask
+beautifulsoup4
+pytz
