@@ -54,10 +54,10 @@ while true; do
     echo "----------------------------------------------------------"
 
     echo "=========================================================="
-    echo "--- Largo დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
-    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
-    sleep 28800
-    echo "[DEBUG] 8-hour sleep done, starting JinoMusic ($(date))"
+    echo "--- Largo დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
+    echo "[DEBUG] Sleeping for 14400 seconds (4 hours)"
+    sleep 14400
+    echo "[DEBUG] 4-hour sleep done, starting JinoMusic ($(date))"
     echo "=========================================================="
 
     # --- ნაწილი 2: JINOMUSIC & ACOUSTIC (PYTHON VENV) ---
@@ -109,10 +109,10 @@ while true; do
     echo "----------------------------------------------------------"
 
     echo "=========================================================="
-    echo "--- JinoMusic დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
-    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
-    sleep 28800
-    echo "[DEBUG] 8-hour sleep done, starting Music House ($(date))"
+    echo "--- JinoMusic დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
+    echo "[DEBUG] Sleeping for 14400 seconds (4 hours)"
+    sleep 14400
+    echo "[DEBUG] 4-hour sleep done, starting Music House ($(date))"
     echo "=========================================================="
 
     # --- ნაწილი 3: MUSIC HOUSE & ACOUSTIC (PYTHON VENV) ---
@@ -172,10 +172,10 @@ while true; do
     echo "----------------------------------------------------------"
 
     echo "=========================================================="
-    echo "--- Music House დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
-    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
-    sleep 28800
-    echo "[DEBUG] 8-hour sleep done, starting Musicroom ($(date))"
+    echo "--- Music House დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
+    echo "[DEBUG] Sleeping for 14400 seconds (4 hours)"
+    sleep 14400
+    echo "[DEBUG] 4-hour sleep done, starting Musicroom ($(date))"
     echo "=========================================================="
 
     # --- ნაწილი 4: MUSICROOM & ACOUSTIC (PYTHON VENV) ---
@@ -229,10 +229,10 @@ while true; do
     echo "----------------------------------------------------------"
 
     echo "=========================================================="
-    echo "--- Musicroom დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
-    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
-    sleep 28800
-    echo "[DEBUG] 8-hour sleep done, starting Geovoice ($(date))"
+    echo "--- Musicroom დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
+    echo "[DEBUG] Sleeping for 14400 seconds (4 hours)"
+    sleep 14400
+    echo "[DEBUG] 4-hour sleep done, starting Geovoice ($(date))"
     echo "=========================================================="
 
     # --- ნაწილი 5: GEOVOICE & ACOUSTIC (PYTHON VENV) ---
@@ -284,10 +284,10 @@ while true; do
     echo "----------------------------------------------------------"
 
     echo "=========================================================="
-    echo "--- Geovoice დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
-    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
-    sleep 28800
-    echo "[DEBUG] 8-hour sleep done, starting Mireli ($(date))"
+    echo "--- Geovoice დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
+    echo "[DEBUG] Sleeping for 14400 seconds (4 hours)"
+    sleep 14400
+    echo "[DEBUG] 4-hour sleep done, starting Mireli ($(date))"
     echo "=========================================================="
 
     # --- ნაწილი 6: ACOUSTIC MIRELI (PYTHON VENV) ---
@@ -341,10 +341,10 @@ while true; do
     echo "----------------------------------------------------------"
 
     echo "=========================================================="
-    echo "--- Mireli დასრულდა. ვისვენებ 8 საათი... ($(date)) ---"
-    echo "[DEBUG] Sleeping for 28800 seconds (8 hours)"
-    sleep 28800
-    echo "[DEBUG] 8-hour sleep done, starting next cycle ($(date))"
+    echo "--- Mireli დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
+    echo "[DEBUG] Sleeping for 14400 seconds (4 hours)"
+    sleep 14400
+    echo "[DEBUG] 4-hour sleep done, starting next cycle ($(date))"
     cd ~
     echo "[DEBUG] Changed directory to: $(pwd)"
 done
