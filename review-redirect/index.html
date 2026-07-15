@@ -10,12 +10,24 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #f0f7f7 0%, #e8f0f0 100%);
+            background: linear-gradient(135deg, #eef5f5 0%, #e0eaea 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #333;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='%23008080' fill-opacity='0.025'%3E%3Cpath d='M80 20c-8 0-14 6-14 14v60c-4-2-9-3-14-3-12 0-22 8-22 18s10 18 22 18 22-8 22-18V56l40-12v36c-4-2-9-3-14-3-12 0-22 8-22 18s10 18 22 18 22-8 22-18V20l-12 0z'/%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            pointer-events: none;
+            z-index: 0;
         }
         .container {
             background: #ffffff;
@@ -25,10 +37,39 @@
             overflow: hidden;
             border-radius: 16px;
             box-shadow: 0 8px 40px rgba(0,128,128,0.10), 0 2px 8px rgba(0,0,0,0.04);
+            position: relative;
+            z-index: 1;
+        }
+        .lang-switcher {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            z-index: 2;
+            display: flex;
+            gap: 4px;
+        }
+        .lang-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .lang-btn:hover {
+            background: rgba(255,255,255,0.35);
+        }
+        .lang-btn.active {
+            background: rgba(255,255,255,0.9);
+            color: #008080;
         }
         .header {
             background: linear-gradient(135deg, #008080 0%, #006666 100%);
-            padding: 32px 24px 28px;
+            padding: 36px 24px 32px;
             position: relative;
         }
         .header::after {
@@ -45,29 +86,34 @@
             max-width: 160px;
             width: 70%;
             height: auto;
-            margin-bottom: 10px;
+            margin-bottom: 14px;
             filter: brightness(0) invert(1);
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
         .tagline {
-            font-size: 13px;
-            color: #b8e0e0;
-            margin-top: 4px;
-            letter-spacing: 0.5px;
+            font-size: 12px;
+            color: #a8d8d8;
+            margin-top: 6px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
         }
         .body {
-            padding: 28px 28px 36px;
+            padding: 32px 32px 40px;
         }
         .question {
-            font-size: 22px;
-            font-weight: 600;
+            font-size: 23px;
+            font-weight: 700;
             color: #008080;
-            margin-bottom: 8px;
-            line-height: 1.5;
+            margin-bottom: 6px;
+            line-height: 1.4;
         }
         .subtitle {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 32px;
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 36px;
+            font-weight: 400;
         }
         .btn-group {
             display: flex;
@@ -80,13 +126,14 @@
             font-size: 17px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
             letter-spacing: 0.3px;
             border-radius: 12px;
+            -webkit-tap-highlight-color: transparent;
         }
         .btn-positive {
             background: linear-gradient(135deg, #008080 0%, #006666 100%);
@@ -95,23 +142,28 @@
         }
         .btn-positive:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,128,128,0.35);
+            box-shadow: 0 8px 24px rgba(0,128,128,0.35);
+            filter: brightness(1.05);
         }
         .btn-positive:active {
             transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0,128,128,0.2);
         }
         .btn-negative {
-            background: #ffffff;
-            color: #555;
-            border: 2px solid #e0e0e0;
+            background: #f8f6f4;
+            color: #888;
+            border: 2px solid #ece8e4;
         }
         .btn-negative:hover {
-            background: #fafafa;
-            border-color: #c0c0c0;
+            background: #f3f0ed;
+            border-color: #d8d2cc;
             transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            color: #777;
         }
         .btn-negative:active {
             transform: translateY(0);
+            box-shadow: none;
         }
         .thank-you, .redirecting {
             display: none;
@@ -130,50 +182,7 @@
         }
         .thank-you p, .redirecting p {
             font-size: 15px;
-            color: #777;
-        }
-        .thank-you .feedback-form {
-            margin-top: 20px;
-            text-align: left;
-        }
-        .thank-you textarea {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-            font-family: inherit;
-            resize: none;
-            transition: border-color 0.2s;
-        }
-        .thank-you textarea:focus {
-            outline: none;
-            border-color: #008080;
-        }
-        .thank-you .send-btn {
-            margin-top: 12px;
-            width: 100%;
-            padding: 14px;
-            background: #008080;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .thank-you .send-btn:hover {
-            background: #006666;
-        }
-        .thank-you .sent-msg {
-            display: none;
-            margin-top: 16px;
-            padding: 12px;
-            background: #e8f5e9;
-            border-radius: 10px;
-            color: #2e7d32;
-            font-size: 14px;
+            color: #888;
         }
         .spinner {
             width: 40px;
@@ -186,11 +195,11 @@
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .footer {
-            background: #fafafa;
-            padding: 16px 24px;
+            background: #fafaf9;
+            padding: 18px 24px;
             font-size: 12px;
-            color: #999;
-            border-top: 1px solid #f0f0f0;
+            color: #b0aaa4;
+            border-top: 1px solid #f0eeec;
         }
         .footer a {
             color: #008080;
@@ -204,51 +213,111 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        @media (max-width: 480px) {
+            .container { width: 94%; border-radius: 12px; }
+            .body { padding: 28px 22px 34px; }
+            .question { font-size: 20px; }
+            .btn { padding: 16px 20px; font-size: 16px; min-height: 54px; }
+            .header { padding: 30px 20px 28px; }
+            .header-logo { max-width: 140px; }
+            .lang-btn { padding: 4px 10px; font-size: 11px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <img src="/acoustic_logo.png" alt="აკუსტიკა" class="header-logo">
-            <div class="tagline">მუსიკალური ინსტრუმენტების მაღაზია</div>
+            <div class="lang-switcher">
+                <button class="lang-btn active" onclick="switchLang('ka')">ქარ</button>
+                <button class="lang-btn" onclick="switchLang('en')">EN</button>
+            </div>
+            <img src="/acoustic_logo.png" alt="Acoustic" class="header-logo">
+            <div class="tagline" id="tagline">მუსიკალური ინსტრუმენტების მაღაზია</div>
         </div>
 
         <div class="body">
             <div id="step-question" class="fade-in">
-                <div class="question">როგორ შეაფასებდით აკუსტიკას?</div>
-                <div class="subtitle">თქვენი შეფასება ჩვენთვის მნიშვნელოვანია</div>
+                <div class="question" id="question">როგორ შეაფასებდით აკუსტიკას?</div>
+                <div class="subtitle" id="subtitle">თქვენი შეფასება ჩვენთვის მნიშვნელოვანია</div>
                 <div class="btn-group">
-                    <button class="btn btn-positive" onclick="goPositive()">&#128522; დადებითად</button>
-                    <button class="btn btn-negative" onclick="goNegative()">&#128532; უარყოფითად</button>
+                    <button class="btn btn-positive" onclick="goPositive()">&#128522; <span id="btn-positive">დადებითად</span></button>
+                    <button class="btn btn-negative" onclick="goNegative()">&#128532; <span id="btn-negative">უარყოფითად</span></button>
                 </div>
             </div>
 
             <div id="step-redirect" class="redirecting">
                 <div class="icon">&#11088;</div>
-                <h2>გმადლობთ!</h2>
-                <p>გადაყვანთ Google Maps-ის შეფასების გვერდზე...</p>
+                <h2 id="redirect-title">გმადლობთ!</h2>
+                <p id="redirect-text">გადაყვანთ Google Maps-ის შეფასების გვერდზე...</p>
                 <div class="spinner"></div>
             </div>
 
             <div id="step-thanks" class="thank-you">
                 <div class="icon">&#128591;</div>
-                <h2>გმადლობთ შეფასებისთვის!</h2>
-                <p>თქვენი მოსაზრება ჩვენთვის მნიშვნელოვანია.</p>
-                <div class="feedback-form">
-                    <textarea id="feedback-text" rows="3" placeholder="მოგვწერეთ რა შეგვიძლია გავაუმჯობესოთ..."></textarea>
-                    <button class="send-btn" onclick="sendFeedback()">გაგზავნა</button>
-                    <div class="sent-msg" id="sent-msg">&#10003; გმადლობთ! თქვენი შეფასება მიღებულია.</div>
-                </div>
+                <h2 id="thanks-title">გმადლობთ შეფასებისთვის!</h2>
+                <p id="thanks-text">თქვენი მოსაზრება ჩვენთვის მნიშვნელოვანია.</p>
             </div>
         </div>
 
         <div class="footer">
-            <a href="https://acoustic.ge">acoustic.ge</a> &middot; აკაკი წერეთლის 142 &middot; თბილისი
+            <a href="https://acoustic.ge">acoustic.ge</a> &middot; <span id="address">აკაკი წერეთლის 142</span> &middot; <span id="city">თბილისი</span>
         </div>
     </div>
 
     <script>
         var GOOGLE_REVIEW_URL = "https://www.google.com/maps/place/acoustic.ge/@41.750564,44.7736264,841m/data=!3m1!1e3!4m8!3m7!1s0x4044735287d07e21:0x83d79660ac099e03!8m2!3d41.75056!4d44.7762013!9m1!1b1!16s%2Fg%2F11ry2s60l9";
+
+        var translations = {
+            ka: {
+                tagline: 'მუსიკალური ინსტრუმენტების მაღაზია',
+                question: 'როგორ შეაფასებდით აკუსტიკას?',
+                subtitle: 'თქვენი შეფასება ჩვენთვის მნიშვნელოვანია',
+                btnPositive: 'დადებითად',
+                btnNegative: 'უარყოფითად',
+                redirectTitle: 'გმადლობთ!',
+                redirectText: 'გადაყვანთ Google Maps-ის შეფასების გვერდზე...',
+                thanksTitle: 'გმადლობთ შეფასებისთვის!',
+                thanksText: 'თქვენი მოსაზრება ჩვენთვის მნიშვნელოვანია.',
+                address: 'აკაკი წერეთლის 142',
+                city: 'თბილისი'
+            },
+            en: {
+                tagline: 'Music Instrument Store',
+                question: 'How would you rate Acoustic?',
+                subtitle: 'Your feedback is important to us',
+                btnPositive: 'Positive',
+                btnNegative: 'Negative',
+                redirectTitle: 'Thank you!',
+                redirectText: 'Redirecting to Google Maps review page...',
+                thanksTitle: 'Thank you for your feedback!',
+                thanksText: 'Your opinion is important to us.',
+                address: '142 Akaki Tsereteli Ave',
+                city: 'Tbilisi'
+            }
+        };
+
+        var currentLang = 'ka';
+
+        function switchLang(lang) {
+            currentLang = lang;
+            var t = translations[lang];
+            document.getElementById('tagline').textContent = t.tagline;
+            document.getElementById('question').textContent = t.question;
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('btn-positive').textContent = t.btnPositive;
+            document.getElementById('btn-negative').textContent = t.btnNegative;
+            document.getElementById('redirect-title').textContent = t.redirectTitle;
+            document.getElementById('redirect-text').textContent = t.redirectText;
+            document.getElementById('thanks-title').textContent = t.thanksTitle;
+            document.getElementById('thanks-text').textContent = t.thanksText;
+            document.getElementById('address').textContent = t.address;
+            document.getElementById('city').textContent = t.city;
+
+            document.querySelectorAll('.lang-btn').forEach(function(b) {
+                b.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
 
         function goPositive() {
             document.getElementById('step-question').style.display = 'none';
@@ -265,11 +334,6 @@
             var t = document.getElementById('step-thanks');
             t.style.display = 'block';
             t.classList.add('fade-in');
-        }
-
-        function sendFeedback() {
-            document.getElementById('sent-msg').style.display = 'block';
-            document.querySelector('.feedback-form').style.display = 'none';
         }
     </script>
 </body>
