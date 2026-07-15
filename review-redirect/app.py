@@ -13,4 +13,4 @@ def favicon():
     return send_from_directory('/root/review-redirect', 'logo_for_acoustic_browser_tab.png')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5555)
+    app.run(host='0.0.0.0', port=5556)
