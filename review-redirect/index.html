@@ -28,7 +28,7 @@
         }
         .header {
             background: linear-gradient(135deg, #008080 0%, #006666 100%);
-            padding: 40px 24px 32px;
+            padding: 40px 24px 36px;
             position: relative;
         }
         .header::after {
@@ -41,16 +41,17 @@
             background: #ffffff;
             border-radius: 24px 24px 0 0;
         }
-        .logo {
-            font-size: 34px;
-            font-weight: 800;
-            color: #ffffff;
-            letter-spacing: 1px;
+        .header-logo {
+            max-width: 220px;
+            width: 70%;
+            height: auto;
+            margin-bottom: 10px;
+            filter: brightness(0) invert(1);
         }
         .tagline {
             font-size: 13px;
             color: #b8e0e0;
-            margin-top: 6px;
+            margin-top: 4px;
             letter-spacing: 0.5px;
         }
         .body {
@@ -208,7 +209,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">აკუსტიკა</div>
+            <img src="/acoustic_logo.png" alt="აკუსტიკა" class="header-logo">
             <div class="tagline">მუსიკალური ინსტრუმენტების მაღაზია</div>
         </div>
 
