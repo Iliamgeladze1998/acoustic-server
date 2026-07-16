@@ -895,10 +895,46 @@ def upload_to_mymarket(page, product, photo_paths):
             time.sleep(1)
             print("    მდებარეობა არჩეულია (თბილისი)")
         else:
-            loc_selected = select_from_portal_menu(page, target_text="თბილისი")
-            if loc_selected:
-                print(f"    მდებარეობა არჩეულია ({loc_selected})")
-            else:
+            # Portal menu — ვეძებთ option-ს რომლის ტექსტიც ზუსტ "თბილისი" არის
+            loc_selected = False
+            menus = page.locator(".sg-selectbox__menu")
+            for i in range(menus.count()):
+                menu = menus.nth(i)
+                try:
+                    if not menu.is_visible():
+                        continue
+                    # ვეძებთ ყველა option-ს menu-ში
+                    opts = menu.locator("div[class*='sg-selectbox__option']")
+                    for j in range(opts.count()):
+                        opt = opts.nth(j)
+                        if opt.is_visible():
+                            txt = opt.inner_text().strip()
+                            if txt == "თბილისი" or txt.startswith("თბილისი"):
+                                opt.click()
+                                time.sleep(1)
+                                loc_selected = True
+                                print("    მდებარეობა არჩეულია (თბილისი)")
+                                break
+                    if loc_selected:
+                        break
+                    # Fallback: ყველა div-ის შემოწმება
+                    if not loc_selected:
+                        divs = menu.locator("div")
+                        for j in range(divs.count()):
+                            d = divs.nth(j)
+                            if d.is_visible():
+                                txt = d.inner_text().strip()
+                                if txt == "თბილისი":
+                                    d.click()
+                                    time.sleep(1)
+                                    loc_selected = True
+                                    print("    მდებარეობა არჩეულია (თბილისი)")
+                                    break
+                        if loc_selected:
+                            break
+                except:
+                    continue
+            if not loc_selected:
                 page.screenshot(path="/tmp/location_fail.png", full_page=True)
                 print("    მდებარეობა ვერ არჩეულა!")
 
