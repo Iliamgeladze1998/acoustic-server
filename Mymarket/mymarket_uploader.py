@@ -272,7 +272,7 @@ def read_pending_links(sheet):
     return pending
 
 
-def update_sheet_row(sheet, row_num, status="", mymarket_link="", temu_price="", mymarket_price=""):
+def update_sheet_row(sheet, row_num, status="", mymarket_link="", temu_price="", mymarket_price="", shipping="", stock="", delivery=""):
     """განაახლებს 'გამოსაწერი პროდუქცია' tab-ის მწკრივს."""
     if status:
         sheet.update(range_name=f"B{row_num}", values=[[status]])
@@ -282,6 +282,12 @@ def update_sheet_row(sheet, row_num, status="", mymarket_link="", temu_price="",
         sheet.update(range_name=f"D{row_num}", values=[[temu_price]])
     if mymarket_price:
         sheet.update(range_name=f"E{row_num}", values=[[mymarket_price]])
+    if shipping:
+        sheet.update(range_name=f"H{row_num}", values=[[shipping]])
+    if stock:
+        sheet.update(range_name=f"I{row_num}", values=[[stock]])
+    if delivery:
+        sheet.update(range_name=f"J{row_num}", values=[[delivery]])
     sheet.update(range_name=f"F{row_num}", values=[[time.strftime("%Y-%m-%d %H:%M")]])
 
 
@@ -289,7 +295,7 @@ def move_to_inventory(ss, pending_sheet, row_num):
     """გადაიტანს მწკრივს 'გამოსაწერი პროდუქცია'დან 'მარაგები' tab-ში და წაშლის პირველიდან."""
     inv_sheet = ss.worksheet(TAB_INVENTORY)
     row_data = pending_sheet.row_values(row_num)
-    # row_data: A=Temu link, B=status, C=MyMarket link, D=Temu price, E=MyMarket price, F=date, G=ვნახე
+    # row_data: A=Temu link, B=status, C=MyMarket link, D=Temu price, E=MyMarket price, F=date, G=ვნახე, H=shipping, I=stock, J=delivery
 
     if len(row_data) < 3:
         return False
@@ -298,6 +304,9 @@ def move_to_inventory(ss, pending_sheet, row_num):
     mymarket_link = row_data[2] if len(row_data) > 2 else ""
     temu_price = row_data[3] if len(row_data) > 3 else ""
     mymarket_price = row_data[4] if len(row_data) > 4 else ""
+    shipping = row_data[7] if len(row_data) > 7 else ""
+    stock = row_data[8] if len(row_data) > 8 else ""
+    delivery = row_data[9] if len(row_data) > 9 else ""
 
     # MyMarket ID ლინკიდან
     mymarket_id = ""
@@ -311,7 +320,7 @@ def move_to_inventory(ss, pending_sheet, row_num):
     if match:
         art_code = match.group(1)
 
-    # დასახელება MyMarket ლინკიდან ან Temu-დან
+    # დასახელება — ვცდილობთ MyMarket ლინკიდან ან Temu-დან
     title = ""
     # ვნახოთ მარაგებიში უკვე არის თუ არა ეს ID
     existing = inv_sheet.findall(mymarket_id) if mymarket_id else []
@@ -320,9 +329,15 @@ def move_to_inventory(ss, pending_sheet, row_num):
         r = existing[0].row
         inv_sheet.update(range_name=f"D{r}", values=[[temu_price]])
         inv_sheet.update(range_name=f"C{r}", values=[[mymarket_price]])
+        if shipping:
+            inv_sheet.update(range_name=f"E{r}", values=[[shipping]])
+        if stock:
+            inv_sheet.update(range_name=f"F{r}", values=[[stock]])
+        if delivery:
+            inv_sheet.update(range_name=f"G{r}", values=[[delivery]])
     else:
         # ახალი მწკრივი
-        new_row = [mymarket_id, title, mymarket_price, temu_price, "", "", "", "ახალი", art_code, temu_link, mymarket_link]
+        new_row = [mymarket_id, title, mymarket_price, temu_price, shipping, stock, delivery, "ახალი", art_code, temu_link, mymarket_link]
         inv_sheet.append_row(new_row)
 
     # წავშალოთ 'გამოსაწერი პროდუქცია'დან
@@ -455,6 +470,46 @@ def scrape_temu_product(page, url):
         except:
             pass
 
+        # Shipping
+        shipping = ""
+        for line in lines:
+            if 'Standard:' in line and ('FREE' in line or 'free' in line):
+                shipping = "უფასო"
+                break
+            elif 'Standard:' in line and re.search(r'(\d+\.\d{2})\s*₾', line):
+                ship_match = re.search(r'(\d+\.\d{2})\s*₾', line)
+                if ship_match:
+                    shipping = f"{ship_match.group(1)} ₾"
+                    break
+        if not shipping and 'Free shipping' in body:
+            shipping = "უფასო"
+
+        # Delivery time
+        delivery = ""
+        for line in lines:
+            if 'Delivery:' in line and 'business days' in line:
+                delivery_match = re.search(r'Delivery:\s*(.+?)(?:\.|$)', line)
+                if delivery_match:
+                    delivery = delivery_match.group(1).strip()
+                    break
+        if not delivery:
+            delivery_match = re.search(r'(\d+\s*-\s*\d+\s*business days)', body)
+            if delivery_match:
+                delivery = delivery_match.group(1)
+
+        # Stock
+        stock = ""
+        if 'sold out' in body.lower() or 'out of stock' in body.lower() or 'unavailable' in body.lower():
+            stock = "არ არის მარაგში"
+        elif 'low stock' in body.lower():
+            stock = "მცირე მარაგი"
+        else:
+            only_match = re.search(r'Only\s+(\d+)\s+left', body, re.IGNORECASE)
+            if only_match:
+                stock = f"მცირე მარაგი ({only_match.group(1)} ცალი)"
+            elif 'Add to cart' in body or 'Buy now' in body:
+                stock = "მარაგშია"
+
         # Art code URL-დან
         art_code = ""
         match = re.search(r"g-(\d+)", url)
@@ -472,6 +527,9 @@ def scrape_temu_product(page, url):
             "description": description,
             "art_code": art_code,
             "url": url,
+            "shipping": shipping,
+            "stock": stock,
+            "delivery": delivery,
         }
     except Exception as e:
         print(f"  Temu scrape error: {e}")
@@ -968,6 +1026,9 @@ def process_pending(p, browser, context, ss, pending_sheet):
                 mymarket_link=result.get("url", ""),
                 temu_price=product["price"],
                 mymarket_price=result.get("price", ""),
+                shipping=product.get("shipping", ""),
+                stock=product.get("stock", ""),
+                delivery=product.get("delivery", ""),
             )
             print(f"    Uploaded! URL: {result.get('url', '')}")
         else:
