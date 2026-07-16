@@ -46,6 +46,7 @@ SHEET_ID = "16VTT_nkGbuagwgpo1bWEtE0dxWzS00ZCZLfRCznwntk"
 CREDENTIALS_FILE = "/root/Mymarket/avid-keel-464403-k8-66dfded4aa4f.json"
 TEMU_COOKIES_FILE = "/root/Mymarket/temu_cookies.json"
 MYMARKET_COOKIES_FILE = "/root/Mymarket/mymarket_cookies.json"
+PRODUCT_CACHE_FILE = "/root/Mymarket/product_cache.json"
 
 # Temu cookies for authenticated access (from scraper.py)
 TEMU_COOKIES = [
@@ -272,7 +273,7 @@ def read_pending_links(sheet):
     return pending
 
 
-def update_sheet_row(sheet, row_num, status="", mymarket_link="", temu_price="", mymarket_price="", shipping="", stock="", delivery="", title=""):
+def update_sheet_row(sheet, row_num, status="", mymarket_link="", temu_price="", mymarket_price=""):
     """განაახლებს 'გამოსაწერი პროდუქცია' tab-ის მწკრივს."""
     if status:
         sheet.update(range_name=f"B{row_num}", values=[[status]])
@@ -282,15 +283,44 @@ def update_sheet_row(sheet, row_num, status="", mymarket_link="", temu_price="",
         sheet.update(range_name=f"D{row_num}", values=[[temu_price]])
     if mymarket_price:
         sheet.update(range_name=f"E{row_num}", values=[[mymarket_price]])
-    if shipping:
-        sheet.update(range_name=f"H{row_num}", values=[[shipping]])
-    if stock:
-        sheet.update(range_name=f"I{row_num}", values=[[stock]])
-    if delivery:
-        sheet.update(range_name=f"J{row_num}", values=[[delivery]])
-    if title:
-        sheet.update(range_name=f"K{row_num}", values=[[title]])
     sheet.update(range_name=f"F{row_num}", values=[[time.strftime("%Y-%m-%d %H:%M")]])
+
+
+def save_product_cache(product):
+    """შეინახავს scraped პროდუქტის მონაცემებს JSON cache-ში."""
+    cache = {}
+    if os.path.exists(PRODUCT_CACHE_FILE):
+        try:
+            with open(PRODUCT_CACHE_FILE) as f:
+                cache = json.load(f)
+        except:
+            pass
+    art_code = product.get("art_code", "")
+    if art_code:
+        cache[art_code] = {
+            "title": product.get("title", ""),
+            "shipping": product.get("shipping", ""),
+            "stock": product.get("stock", ""),
+            "delivery": product.get("delivery", ""),
+            "price": product.get("price", ""),
+        }
+        try:
+            with open(PRODUCT_CACHE_FILE, "w") as f:
+                json.dump(cache, f, ensure_ascii=False)
+        except:
+            pass
+
+
+def get_product_cache(art_code):
+    """წაიკითხავს პროდუქტის მონაცემებს JSON cache-დან."""
+    if not os.path.exists(PRODUCT_CACHE_FILE):
+        return {}
+    try:
+        with open(PRODUCT_CACHE_FILE) as f:
+            cache = json.load(f)
+        return cache.get(art_code, {})
+    except:
+        return {}
 
 
 def move_to_inventory(ss, pending_sheet, row_num):
@@ -306,16 +336,6 @@ def move_to_inventory(ss, pending_sheet, row_num):
     mymarket_link = row_data[2] if len(row_data) > 2 else ""
     temu_price = row_data[3] if len(row_data) > 3 else ""
     mymarket_price = row_data[4] if len(row_data) > 4 else ""
-    shipping = row_data[7] if len(row_data) > 7 else ""
-    stock = row_data[8] if len(row_data) > 8 else ""
-    delivery = row_data[9] if len(row_data) > 9 else ""
-    title = row_data[10] if len(row_data) > 10 else ""
-
-    # MyMarket ID ლინკიდან
-    mymarket_id = ""
-    match = re.search(r"/pr/(\d+)", mymarket_link)
-    if match:
-        mymarket_id = match.group(1)
 
     # Art code Temu ლინკიდან
     art_code = ""
@@ -323,7 +343,20 @@ def move_to_inventory(ss, pending_sheet, row_num):
     if match:
         art_code = match.group(1)
 
-    # დასახელება — შითიდან წამოღებული (K სვეტი)
+    # წავიკითხოთ cached მონაცემები (title, shipping, stock, delivery)
+    cached = get_product_cache(art_code)
+    title = cached.get("title", "")
+    shipping = cached.get("shipping", "")
+    stock = cached.get("stock", "")
+    delivery = cached.get("delivery", "")
+
+    # MyMarket ID ლინკიდან
+    mymarket_id = ""
+    match = re.search(r"/pr/(\d+)", mymarket_link)
+    if match:
+        mymarket_id = match.group(1)
+
+    # დასახელება — cache-დან
     # ვნახოთ მარაგებიში უკვე არის თუ არა ეს ID
     existing = inv_sheet.findall(mymarket_id) if mymarket_id else []
     if existing:
@@ -1030,11 +1063,9 @@ def process_pending(p, browser, context, ss, pending_sheet):
                 mymarket_link=result.get("url", ""),
                 temu_price=product["price"],
                 mymarket_price=result.get("price", ""),
-                shipping=product.get("shipping", ""),
-                stock=product.get("stock", ""),
-                delivery=product.get("delivery", ""),
-                title=product.get("title", ""),
             )
+            # შევინახოთ scraped მონაცემები cache-ში მარაგებში გადასატანად
+            save_product_cache(product)
             print(f"    Uploaded! URL: {result.get('url', '')}")
         else:
             update_sheet_row(pending_sheet, row_num, status=f"error: {result.get('error', '')[:50]}")
