@@ -1,15 +1,59 @@
 #!/bin/bash
 
-echo "[DEBUG] Starting run_scrapers.sh script"
-echo "[DEBUG] Current directory: $(pwd)"
-echo "[DEBUG] Current user: $(whoami)"
-echo "[DEBUG] Current time: $(date)"
+# ── Logging setup ────────────────────────────────────────────────────────
+LOG_FILE="/root/scrapers_detailed.log"
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOG_FILE"
+}
+
+log "Starting run_scrapers.sh script"
+log "Current directory: $(pwd)"
+log "Current user: $(whoami)"
+log "Current time: $(date)"
+log "Memory: $(free -h | grep Mem | awk '{print $3 "/" $2}')"
+
+# ── Signal trap — ლოგირება თუ სკრიპტს მოკლავენ ───────────────────────────
+trap 'log "WARNING: Received SIGTERM — script was killed externally"' SIGTERM
+trap 'log "WARNING: Received SIGHUP — terminal closed or disconnected"' SIGHUP
+trap 'log "WARNING: Received SIGINT — Ctrl+C pressed"' SIGINT
+
+# ── Error logger — თუ სკრიპტი გაჩერდება, ჩაიწეროს მიზეზი ──────────────────
+log_error_and_exit() {
+    local exit_code=$1
+    local project=$2
+    log "CRITICAL: $project FAILED with exit code $exit_code"
+    log "Memory at failure: $(free -h | grep Mem | awk '{print $3 "/" $2}')"
+    log "Running processes at failure:"
+    ps aux | grep -E 'python|chromium|camoufox|playwright' | grep -v grep >> "$LOG_FILE" 2>&1
+    log "=== Script stopped at $(date) ==="
+    exit $exit_code
+}
+
+# ── Memory-safe sleep — არ დაუშვებს OOM-ს sleep-ის დროს ─────────────────────
+safe_sleep() {
+    local total_seconds=$1
+    local elapsed=0
+    while [ $elapsed -lt $total_seconds ]; do
+        sleep 60
+        elapsed=$((elapsed + 60))
+        # თუ მეხსიერება ძალიან დაბალია, მოკვდება leftover პროცესები
+        local avail=$(free -m | grep Mem | awk '{print $7}')
+        if [ "$avail" -lt 500 ] 2>/dev/null; then
+            log "WARNING: Low memory during sleep (${avail}MB available). Killing leftover browsers."
+            pkill -f "chromium" 2>/dev/null || true
+            pkill -f "camoufox" 2>/dev/null || true
+            pkill -f "firefox" 2>/dev/null || true
+            sleep 5
+            log "Memory after cleanup: $(free -h | grep Mem | awk '{print $3 "/" $2}')"
+        fi
+    done
+}
 
 # უსასრულო ციკლი
 while true; do
-    echo "=========================================================="
-    echo "--- ახალი სრული ციკლის დასაწყისი: $(date) ---"
-    echo "=========================================================="
+    log "=========================================================="
+    log "--- ახალი სრული ციკლის დასაწყისი: $(date) ---"
+    log "=========================================================="
 
     # --- ნაწილი 1: LARGO & ACOUSTIC (PYTHON VENV) ---
     echo "[DEBUG] --- Starting Part 1: Largo & Acoustic (VENV) ---"
@@ -43,22 +87,17 @@ while true; do
     echo "[DEBUG] Virtual environment deactivated"
 
     if [ $LARGO_EXIT_CODE -ne 0 ]; then
-        echo "CRITICAL: LARGO_UPDATE_FAILED - Exit code: $LARGO_EXIT_CODE"
-        echo "Stopping entire pipeline. Will NOT proceed to JinoMusic."
-        echo "[DEBUG] Script exiting with code 1"
-        exit 1
+        log_error_and_exit $LARGO_EXIT_CODE "LARGO_UPDATE_FAILED"
     fi
 
-    echo "[DEBUG] Largo completed successfully"
-    echo "Largo პროექტი დასრულდა."
-    echo "----------------------------------------------------------"
+    log "Largo completed successfully"
+    log "Largo პროექტი დასრულდა."
+    log "----------------------------------------------------------"
 
-    echo "=========================================================="
-    echo "--- Largo დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
-    echo "[DEBUG] Sleeping for 14400 seconds (4 hours)"
-    sleep 14400
-    echo "[DEBUG] 4-hour sleep done, starting JinoMusic ($(date))"
-    echo "=========================================================="
+    log "--- Largo დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
+    safe_sleep 14400
+    log "4-hour sleep done, starting JinoMusic ($(date))"
+    log "=========================================================="
 
     # --- ნაწილი 2: JINOMUSIC & ACOUSTIC (PYTHON VENV) ---
     echo "[DEBUG] --- Starting Part 2: JinoMusic & Acoustic (VENV) ---"
@@ -98,22 +137,17 @@ while true; do
     echo "[DEBUG] Virtual environment deactivated"
 
     if [ $JINOMUSIC_EXIT_CODE -ne 0 ]; then
-        echo "CRITICAL: JINOMUSIC_UPDATE_FAILED - Exit code: $JINOMUSIC_EXIT_CODE"
-        echo "Stopping entire pipeline. Will NOT proceed to Music House."
-        echo "[DEBUG] Script exiting with code 1"
-        exit 1
+        log_error_and_exit $JINOMUSIC_EXIT_CODE "JINOMUSIC_UPDATE_FAILED"
     fi
 
-    echo "[DEBUG] JinoMusic completed successfully"
-    echo "JinoMusic პროექტი დასრულდა."
-    echo "----------------------------------------------------------"
+    log "JinoMusic completed successfully"
+    log "JinoMusic პროექტი დასრულდა."
+    log "----------------------------------------------------------"
 
-    echo "=========================================================="
-    echo "--- JinoMusic დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
-    echo "[DEBUG] Sleeping for 14400 seconds (4 hours)"
-    sleep 14400
-    echo "[DEBUG] 4-hour sleep done, starting Music House ($(date))"
-    echo "=========================================================="
+    log "--- JinoMusic დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
+    safe_sleep 14400
+    log "4-hour sleep done, starting Music House ($(date))"
+    log "=========================================================="
 
     # --- ნაწილი 3: MUSIC HOUSE & ACOUSTIC (PYTHON VENV) ---
     echo "[DEBUG] --- Starting Part 3: Music House & Acoustic (VENV) ---"
@@ -161,22 +195,17 @@ while true; do
     echo "[DEBUG] Virtual environment deactivated"
 
     if [ $MUSIC_HOUSE_EXIT_CODE -ne 0 ]; then
-        echo "CRITICAL: MUSIC_HOUSE_UPDATE_FAILED - Exit code: $MUSIC_HOUSE_EXIT_CODE"
-        echo "Stopping entire pipeline. Will NOT proceed to Musicroom."
-        echo "[DEBUG] Script exiting with code 1"
-        exit 1
+        log_error_and_exit $MUSIC_HOUSE_EXIT_CODE "MUSIC_HOUSE_UPDATE_FAILED"
     fi
 
-    echo "[DEBUG] Music House completed successfully"
-    echo "Music House პროექტი დასრულდა."
-    echo "----------------------------------------------------------"
+    log "Music House completed successfully"
+    log "Music House პროექტი დასრულდა."
+    log "----------------------------------------------------------"
 
-    echo "=========================================================="
-    echo "--- Music House დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
-    echo "[DEBUG] Sleeping for 14400 seconds (4 hours)"
-    sleep 14400
-    echo "[DEBUG] 4-hour sleep done, starting Musicroom ($(date))"
-    echo "=========================================================="
+    log "--- Music House დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
+    safe_sleep 14400
+    log "4-hour sleep done, starting Musicroom ($(date))"
+    log "=========================================================="
 
     # --- ნაწილი 4: MUSICROOM & ACOUSTIC (PYTHON VENV) ---
     echo "[DEBUG] --- Starting Part 4: Musicroom & Acoustic (VENV) ---"
@@ -218,22 +247,17 @@ while true; do
     echo "[DEBUG] Virtual environment deactivated"
 
     if [ $MUSICROOM_EXIT_CODE -ne 0 ]; then
-        echo "CRITICAL: MUSICROOM_UPDATE_FAILED - Exit code: $MUSICROOM_EXIT_CODE"
-        echo "Stopping entire pipeline. Will NOT proceed to Geovoice."
-        echo "[DEBUG] Script exiting with code 1"
-        exit 1
+        log_error_and_exit $MUSICROOM_EXIT_CODE "MUSICROOM_UPDATE_FAILED"
     fi
 
-    echo "[DEBUG] Musicroom completed successfully"
-    echo "Musicroom პროექტი დასრულდა."
-    echo "----------------------------------------------------------"
+    log "Musicroom completed successfully"
+    log "Musicroom პროექტი დასრულდა."
+    log "----------------------------------------------------------"
 
-    echo "=========================================================="
-    echo "--- Musicroom დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
-    echo "[DEBUG] Sleeping for 14400 seconds (4 hours)"
-    sleep 14400
-    echo "[DEBUG] 4-hour sleep done, starting Geovoice ($(date))"
-    echo "=========================================================="
+    log "--- Musicroom დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
+    safe_sleep 14400
+    log "4-hour sleep done, starting Geovoice ($(date))"
+    log "=========================================================="
 
     # --- ნაწილი 5: GEOVOICE & ACOUSTIC (PYTHON VENV) ---
     echo "[DEBUG] --- Starting Part 5: Geovoice & Acoustic (VENV) ---"
@@ -273,22 +297,17 @@ while true; do
     echo "[DEBUG] Virtual environment deactivated"
 
     if [ $GEOVOICE_EXIT_CODE -ne 0 ]; then
-        echo "CRITICAL: GEOVOICE_UPDATE_FAILED - Exit code: $GEOVOICE_EXIT_CODE"
-        echo "Stopping entire pipeline. Will NOT proceed to Mireli."
-        echo "[DEBUG] Script exiting with code 1"
-        exit 1
+        log_error_and_exit $GEOVOICE_EXIT_CODE "GEOVOICE_UPDATE_FAILED"
     fi
 
-    echo "[DEBUG] Geovoice completed successfully"
-    echo "Geovoice პროექტი დასრულდა."
-    echo "----------------------------------------------------------"
+    log "Geovoice completed successfully"
+    log "Geovoice პროექტი დასრულდა."
+    log "----------------------------------------------------------"
 
-    echo "=========================================================="
-    echo "--- Geovoice დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
-    echo "[DEBUG] Sleeping for 14400 seconds (4 hours)"
-    sleep 14400
-    echo "[DEBUG] 4-hour sleep done, starting Mireli ($(date))"
-    echo "=========================================================="
+    log "--- Geovoice დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
+    safe_sleep 14400
+    log "4-hour sleep done, starting Mireli ($(date))"
+    log "=========================================================="
 
     # --- ნაწილი 6: ACOUSTIC MIRELI (PYTHON VENV) ---
     echo "[DEBUG] --- Starting Part 6: Acoustic Mireli (VENV) ---"
@@ -330,21 +349,15 @@ while true; do
     echo "[DEBUG] Virtual environment deactivated"
 
     if [ $MIRELI_EXIT_CODE -ne 0 ]; then
-        echo "CRITICAL: MIRELI_UPDATE_FAILED - Exit code: $MIRELI_EXIT_CODE"
-        echo "Stopping entire pipeline. Will NOT proceed to next cycle."
-        echo "[DEBUG] Script exiting with code 1"
-        exit 1
+        log_error_and_exit $MIRELI_EXIT_CODE "MIRELI_UPDATE_FAILED"
     fi
 
-    echo "[DEBUG] Mireli completed successfully"
-    echo "Mireli პროექტი დასრულდა."
-    echo "----------------------------------------------------------"
+    log "Mireli completed successfully"
+    log "Mireli პროექტი დასრულდა."
+    log "----------------------------------------------------------"
 
-    echo "=========================================================="
-    echo "--- Mireli დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
-    echo "[DEBUG] Sleeping for 14400 seconds (4 hours)"
-    sleep 14400
-    echo "[DEBUG] 4-hour sleep done, starting next cycle ($(date))"
+    log "--- Mireli დასრულდა. ვისვენებ 4 საათი... ($(date)) ---"
+    safe_sleep 14400
+    log "4-hour sleep done, starting next cycle ($(date))"
     cd ~
-    echo "[DEBUG] Changed directory to: $(pwd)"
 done
