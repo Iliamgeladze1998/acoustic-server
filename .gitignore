@@ -57,6 +57,18 @@ Acoustic-Invoice-Bot/
 **/full_logs.txt
 .devin-server/
 scraping-project
+
+# npm cache
+.npm/
+
+# Screen logs
+scrapers_detailed.log
+scrapers_wrapper.log
+
+# Backup files
+*.bak
+
+# Acoustic project venvs and generated data
 Acoustic-JinoMusic/venv/
 Acoustic-JinoMusic/scrapers/jinomusic/category_links_backup.txt
 Acoustic-JinoMusic/scrapers/jinomusic/all_product_links.txt
