@@ -73,3 +73,10 @@ Acoustic-JinoMusic/venv/
 Acoustic-JinoMusic/scrapers/jinomusic/category_links_backup.txt
 Acoustic-JinoMusic/scrapers/jinomusic/all_product_links.txt
 Acoustic-JinoMusic/scrapers/jinomusic/category_links.txt
+.netrc
+*.json
+.windsurf/
+Mymarket/avid-keel*
+Mymarket/mymarket_cookies.json
+Mymarket/listings.json
+Mymarket/temu_cookies.json
