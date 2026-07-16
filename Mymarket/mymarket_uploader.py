@@ -272,7 +272,7 @@ def read_pending_links(sheet):
     return pending
 
 
-def update_sheet_row(sheet, row_num, status="", mymarket_link="", temu_price="", mymarket_price="", shipping="", stock="", delivery=""):
+def update_sheet_row(sheet, row_num, status="", mymarket_link="", temu_price="", mymarket_price="", shipping="", stock="", delivery="", title=""):
     """განაახლებს 'გამოსაწერი პროდუქცია' tab-ის მწკრივს."""
     if status:
         sheet.update(range_name=f"B{row_num}", values=[[status]])
@@ -288,6 +288,8 @@ def update_sheet_row(sheet, row_num, status="", mymarket_link="", temu_price="",
         sheet.update(range_name=f"I{row_num}", values=[[stock]])
     if delivery:
         sheet.update(range_name=f"J{row_num}", values=[[delivery]])
+    if title:
+        sheet.update(range_name=f"K{row_num}", values=[[title]])
     sheet.update(range_name=f"F{row_num}", values=[[time.strftime("%Y-%m-%d %H:%M")]])
 
 
@@ -307,6 +309,7 @@ def move_to_inventory(ss, pending_sheet, row_num):
     shipping = row_data[7] if len(row_data) > 7 else ""
     stock = row_data[8] if len(row_data) > 8 else ""
     delivery = row_data[9] if len(row_data) > 9 else ""
+    title = row_data[10] if len(row_data) > 10 else ""
 
     # MyMarket ID ლინკიდან
     mymarket_id = ""
@@ -320,8 +323,7 @@ def move_to_inventory(ss, pending_sheet, row_num):
     if match:
         art_code = match.group(1)
 
-    # დასახელება — ვცდილობთ MyMarket ლინკიდან ან Temu-დან
-    title = ""
+    # დასახელება — შითიდან წამოღებული (K სვეტი)
     # ვნახოთ მარაგებიში უკვე არის თუ არა ეს ID
     existing = inv_sheet.findall(mymarket_id) if mymarket_id else []
     if existing:
@@ -329,6 +331,8 @@ def move_to_inventory(ss, pending_sheet, row_num):
         r = existing[0].row
         inv_sheet.update(range_name=f"D{r}", values=[[temu_price]])
         inv_sheet.update(range_name=f"C{r}", values=[[mymarket_price]])
+        if title:
+            inv_sheet.update(range_name=f"B{r}", values=[[title]])
         if shipping:
             inv_sheet.update(range_name=f"E{r}", values=[[shipping]])
         if stock:
@@ -1029,6 +1033,7 @@ def process_pending(p, browser, context, ss, pending_sheet):
                 shipping=product.get("shipping", ""),
                 stock=product.get("stock", ""),
                 delivery=product.get("delivery", ""),
+                title=product.get("title", ""),
             )
             print(f"    Uploaded! URL: {result.get('url', '')}")
         else:
