@@ -24,7 +24,8 @@ SHEET_ID = "16VTT_nkGbuagwgpo1bWEtE0dxWzS00ZCZLfRCznwntk"
 CREDENTIALS_FILE = "/root/Mymarket/avid-keel-464403-k8-66dfded4aa4f.json"
 MYMARKET_COOKIES_FILE = "/root/Mymarket/mymarket_cookies.json"
 TAB_INVENTORY = "მარაგები"
-POLL_INTERVAL = 60  # წამები
+POLL_INTERVAL = 60  # წამები — MyMarket-ის შემოწმება
+TEMU_REFRESH_INTERVAL = 600  # წამები — Temu ინფორმაციის განახლება (10 წუთი)
 
 # Temu cookies for authenticated access
 TEMU_COOKIES = [
@@ -375,6 +376,41 @@ def sync_to_sheet(ss, context, products):
     return new_count
 
 
+def refresh_temu_info(ss, context):
+    """არსებული პროდუქტების Temu ინფორმაციის განახლება (ფასი, მარაგი, შიპინგი, მიწოდება)."""
+    inv_sheet = ss.worksheet(TAB_INVENTORY)
+    records = inv_sheet.get_all_records()
+    
+    temu_page = context.new_page()
+    updated = 0
+    
+    for i, row in enumerate(records, start=2):
+        art_code = str(row.get("Art Code", "")).strip()
+        if not art_code:
+            continue
+        
+        temu_info = scrape_temu_info(temu_page, art_code)
+        if not temu_info or not temu_info.get("price"):
+            continue
+        
+        temu_price = temu_info["price"]
+        shipping = temu_info["shipping"]
+        stock = temu_info["stock"]
+        delivery = temu_info["delivery"]
+        
+        # განახლება შიტში
+        inv_sheet.update(range_name=f"D{i}", values=[[temu_price]])
+        inv_sheet.update(range_name=f"E{i}", values=[[shipping]])
+        inv_sheet.update(range_name=f"F{i}", values=[[stock]])
+        inv_sheet.update(range_name=f"G{i}", values=[[delivery]])
+        
+        updated += 1
+        print(f"  განახლდა: Row {i} | Art={art_code} | Temu={temu_price} | მარაგი={stock}")
+    
+    temu_page.close()
+    return updated
+
+
 def remove_deleted_products(ss, mymarket_ids):
     """შიტიდან წაშლის პროდუქტებს რომლებიც MyMarket-ზე აღარ არის."""
     inv_sheet = ss.worksheet(TAB_INVENTORY)
@@ -422,8 +458,9 @@ def main():
         context.add_cookies(mymarket_cookies)
         context.add_cookies(TEMU_COOKIES)
 
-        print(f"  სინქრონიზაციის ლუპი დაიწყო (ყოველ {POLL_INTERVAL} წამში)")
+        print(f"  სინქრონიზაციის ლუპი დაიწყო (ყოველ {POLL_INTERVAL}წმ MyMarket, ყოველ {TEMU_REFRESH_INTERVAL}წმ Temu განახლება)")
 
+        temu_timer = 0
         while True:
             print(f"\n[{time.strftime('%H:%M:%S')}] სინქრონიზაცია...")
 
@@ -446,6 +483,14 @@ def main():
                         print(f"  წაიშალა {deleted_count} პროდუქტი (MyMarket-ზე აღარ არის)")
                 else:
                     print(f"  პროდუქტები ვერ მოიძებნა")
+
+                # 3. Temu ინფორმაციის პერიოდული განახლება
+                temu_timer += POLL_INTERVAL
+                if temu_timer >= TEMU_REFRESH_INTERVAL:
+                    temu_timer = 0
+                    print(f"  Temu ინფორმაციის განახლება...")
+                    refreshed = refresh_temu_info(ss, context)
+                    print(f"  განახლდა {refreshed} პროდუქტის Temu ინფორმაცია")
 
             except Exception as e:
                 print(f"  შეცდომა: {e}")
