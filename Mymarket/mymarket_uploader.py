@@ -673,7 +673,7 @@ def upload_to_mymarket(page, product, photo_paths):
 
         # 4. კატეგორია — ვხსნით dropdown-ს, ვკითხულობთ options-ს, AI ირჩევს
         print("    კატეგორიის არჩევა...")
-        page.locator("#CatID .sg-selectbox__input-container").first.click()
+        page.locator("#CatID .sg-selectbox__control").first.click(force=True)
         time.sleep(2)
         # ვკითხულობთ ყველა option-ს
         cat_opts = page.locator("[role='option']")
@@ -686,31 +686,13 @@ def upload_to_mymarket(page, product, photo_paths):
         # AI ირჩევს
         ai_category = ai_select_from_options(product, cat_options, "კატეგორია")
         print(f"    AI აირჩია: {ai_category}")
-        # ვაკლიკებთ JavaScript-ით — რეგულარი click ხანდახან ვერ ანახლებს hidden input-ს
-        page.evaluate(f"""() => {{
-            const opts = document.querySelectorAll("[role='option']");
-            for (const opt of opts) {{
-                if (opt.innerText.trim().includes('{ai_category}')) {{
-                    opt.click();
-                    return true;
-                }}
-            }}
-            return false;
-        }}""")
+        # Playwright click — ეს მუშაობდა პირველ პროდუქტზე
+        try:
+            page.locator(f"[role='option']:has-text('{ai_category}')").first.click()
+            print(f"    კატეგორია არჩეულია: {ai_category}")
+        except:
+            print(f"    კატეგორია ვერ დავაკლიკე")
         time.sleep(3)
-        # ვერიფიკაცია — შევამოწმოთ დაისეტა თუ არა
-        cat_val = page.evaluate("""() => {{
-            const el = document.querySelector('#CatID input[type="hidden"], #CatID select');
-            return el ? el.value : 'not found';
-        }}""")
-        print(f"    CatID hidden value: {cat_val}")
-        if not cat_val or cat_val == 'not found' or cat_val == '':
-            # Fallback: Playwright click
-            try:
-                page.locator(f"[role='option']:has-text('{ai_category}')").click()
-                time.sleep(2)
-            except:
-                pass
 
         # ქვეკატეგორია — ვხსნით, ვკითხულობთ, AI ირჩევს
         print("    ქვეკატეგორიის არჩევა...")
@@ -727,16 +709,7 @@ def upload_to_mymarket(page, product, photo_paths):
         for i in range(sub_opts.count()):
             txt = sub_opts.nth(i).inner_text().strip()
             if txt == ai_subcategory or ai_subcategory in txt:
-                # JavaScript click for reliability
-                page.evaluate(f"""() => {{
-                    const opts = document.querySelectorAll("[role='option']");
-                    for (const opt of opts) {{
-                        if (opt.innerText.trim().includes('{ai_subcategory}')) {{
-                            opt.click();
-                            return;
-                        }}
-                    }}
-                }}""")
+                sub_opts.nth(i).click()
                 selected_sub = True
                 print(f"    ქვეკატეგორია არჩეულია: {txt[:40]}")
                 break
@@ -861,19 +834,23 @@ def upload_to_mymarket(page, product, photo_paths):
                     # AI ირჩევს
                     ai_attr = ai_select_from_options(product, attr_options, "პროდუქტის სახეობა")
                     print(f"    AI აირჩია: {ai_attr}")
-                    # JavaScript click
-                    page.evaluate(f"""() => {{
-                        const opts = document.querySelectorAll("[role='option']");
-                        for (const opt of opts) {{
-                            if (opt.innerText.trim().includes('{ai_attr}')) {{
-                                opt.click();
-                                return;
-                            }}
-                        }}
-                    }}""")
-                    time.sleep(2)
-                    print(f"    სახეობა არჩეულია: {ai_attr[:40]}")
-                    attr_selected = True
+                    for i in range(attr_opts.count()):
+                        txt = attr_opts.nth(i).inner_text().strip()
+                        if txt == ai_attr or ai_attr in txt:
+                            attr_opts.nth(i).click()
+                            time.sleep(1)
+                            print(f"    სახეობა არჩეულია: {txt[:40]}")
+                            attr_selected = True
+                            break
+                    if not attr_selected:
+                        for i in range(attr_opts.count()):
+                            txt = attr_opts.nth(i).inner_text().strip()
+                            if txt and "უკან" not in txt:
+                                attr_opts.nth(i).click()
+                                time.sleep(1)
+                                print(f"    სახეობა (fallback): {txt[:40]}")
+                                attr_selected = True
+                                break
                 if not attr_selected:
                     # Portal menu
                     selected_attr = select_from_portal_menu(page, skip_back=True)
@@ -910,67 +887,20 @@ def upload_to_mymarket(page, product, photo_paths):
         time.sleep(2)
         page.locator("#LocID .sg-selectbox__control").first.click(force=True)
         time.sleep(3)
-        # ვეძებთ თბილისს — JavaScript click
-        loc_clicked = page.evaluate("""() => {
-            const opts = document.querySelectorAll("[role='option']");
-            for (const opt of opts) {
-                if (opt.innerText.trim() === 'თბილისი' || opt.innerText.trim().startsWith('თბილისი')) {
-                    opt.click();
-                    return true;
-                }
-            }
-            return false;
-        }""")
-        if loc_clicked:
+        # ვეძებთ თბილისს — Playwright click (იგივე მიდგომა რაც კატეგორიაზე)
+        loc_opts = page.locator("[role='option']:has-text('თბილისი')")
+        if loc_opts.count() > 0:
+            loc_opts.first.click()
             time.sleep(1)
             print("    მდებარეობა არჩეულია (თბილისი)")
         else:
-            # Portal menu fallback
-            loc_selected = False
-            menus = page.locator(".sg-selectbox__menu")
-            for i in range(menus.count()):
-                menu = menus.nth(i)
-                try:
-                    if not menu.is_visible():
-                        continue
-                    opts = menu.locator("div[class*='sg-selectbox__option']")
-                    for j in range(opts.count()):
-                        opt = opts.nth(j)
-                        if opt.is_visible():
-                            txt = opt.inner_text().strip()
-                            if txt == "თბილისი" or txt.startswith("თბილისი"):
-                                opt.click()
-                                time.sleep(1)
-                                loc_selected = True
-                                print("    მდებარეობა არჩეულია (თბილისი)")
-                                break
-                    if loc_selected:
-                        break
-                    if not loc_selected:
-                        divs = menu.locator("div")
-                        for j in range(divs.count()):
-                            d = divs.nth(j)
-                            if d.is_visible():
-                                txt = d.inner_text().strip()
-                                if txt == "თბილისი":
-                                    d.click()
-                                    time.sleep(1)
-                                    loc_selected = True
-                                    print("    მდებარეობა არჩეულია (თბილისი)")
-                                    break
-                        if loc_selected:
-                            break
-                except:
-                    continue
-            if not loc_selected:
+            # Fallback: portal menu
+            loc_selected = select_from_portal_menu(page, target_text="თბილისი")
+            if loc_selected:
+                print(f"    მდებარეობა არჩეულია (თბილისი)")
+            else:
                 page.screenshot(path="/tmp/location_fail.png", full_page=True)
                 print("    მდებარეობა ვერ არჩეულა!")
-        # ვერიფიკაცია
-        loc_val = page.evaluate("""() => {
-            const el = document.querySelector('#LocID input[type="hidden"], #LocID select');
-            return el ? el.value : 'not found';
-        }""")
-        print(f"    LocID hidden value: {loc_val}")
 
         # 13. გამოქვეყნება — XPath-ით შენი მითითებული მისამართიდან
         submit_btn = page.locator("xpath=/html/body/div[2]/main/div/div/div/div[2]/form/div[1]/div[1]/div[9]/div/button[2]")
@@ -1104,7 +1034,7 @@ def upload_to_mymarket(page, product, photo_paths):
 
 
 # ── Main ────────────────────────────────────────────────────────────────
-POLL_INTERVAL = 30  # წამები შითს შემოწმების ინტერვალი
+POLL_INTERVAL = 5  # წამები შითს შემოწმების ინტერვალი
 
 
 def process_pending(p, browser, context, ss, pending_sheet):
