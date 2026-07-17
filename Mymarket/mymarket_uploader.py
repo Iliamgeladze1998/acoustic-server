@@ -673,7 +673,7 @@ def upload_to_mymarket(page, product, photo_paths):
 
         # 4. კატეგორია — ვხსნით dropdown-ს, ვკითხულობთ options-ს, AI ირჩევს
         print("    კატეგორიის არჩევა...")
-        page.locator("#CatID .sg-selectbox__control").first.click(force=True)
+        page.locator("#CatID .sg-selectbox__input-container").first.click()
         time.sleep(2)
         # ვკითხულობთ ყველა option-ს
         cat_opts = page.locator("[role='option']")
@@ -885,7 +885,7 @@ def upload_to_mymarket(page, product, photo_paths):
         print("    მდებარეობა...")
         page.evaluate("() => document.querySelector('#LocID')?.scrollIntoView({block: 'center'})")
         time.sleep(2)
-        page.locator("#LocID .sg-selectbox__control").first.click(force=True)
+        page.locator("#LocID .sg-selectbox__input-container").first.click()
         time.sleep(3)
         # ვეძებთ თბილისს — Playwright click (იგივე მიდგომა რაც კატეგორიაზე)
         loc_opts = page.locator("[role='option']:has-text('თბილისი')")
