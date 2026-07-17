@@ -375,6 +375,25 @@ def sync_to_sheet(ss, context, products):
     return new_count
 
 
+def remove_deleted_products(ss, mymarket_ids):
+    """შიტიდან წაშლის პროდუქტებს რომლებიც MyMarket-ზე აღარ არის."""
+    inv_sheet = ss.worksheet(TAB_INVENTORY)
+    records = inv.get_all_records()
+    
+    rows_to_delete = []
+    for i, row in enumerate(records, start=2):  # row 1 = headers
+        pid = str(row.get("MyMarket ID", "")).strip()
+        if pid and pid not in mymarket_ids:
+            rows_to_delete.append((i, pid, row.get("დასახელება", "")[:30]))
+    
+    # წაშლა ქვედა რიგიდან ზედაზე (რომ row numbers არ შეიცვალოს)
+    for row_num, pid, title in reversed(rows_to_delete):
+        inv_sheet.delete_rows(row_num)
+        print(f"  წაიშალა: ID={pid} | {title} (MyMarket-ზე აღარ არის)")
+    
+    return len(rows_to_delete)
+
+
 def main():
     print(f"[{time.strftime('%H:%M:%S')}] MyMarket Sync დაიწყო")
 
@@ -413,11 +432,18 @@ def main():
                 print(f"  MyMarket-ზე ნაპოვნია {len(products)} განცხადება")
 
                 if products:
+                    # 1. ახალი პროდუქტების დამატება
                     new_count = sync_to_sheet(ss, context, products)
                     if new_count > 0:
                         print(f"  დაემატა {new_count} ახალი პროდუქტი 'მარაგები'ში")
                     else:
                         print(f"  ახალი პროდუქტი არ არის")
+
+                    # 2. წაშლილი პროდუქტების მოცილება შიტიდან
+                    mymarket_ids = {pr["id"] for pr in products}
+                    deleted_count = remove_deleted_products(ss, mymarket_ids)
+                    if deleted_count > 0:
+                        print(f"  წაიშალა {deleted_count} პროდუქტი (MyMarket-ზე აღარ არის)")
                 else:
                     print(f"  პროდუქტები ვერ მოიძებნა")
 
