@@ -686,13 +686,31 @@ def upload_to_mymarket(page, product, photo_paths):
         # AI ირჩევს
         ai_category = ai_select_from_options(product, cat_options, "კატეგორია")
         print(f"    AI აირჩია: {ai_category}")
-        try:
-            page.locator(f"[role='option']:has-text('{ai_category}')").click()
-        except:
-            print(f"    კატეგორია ვერ დავაკლიკე, ვცდილობთ პირველს")
-            if cat_opts.count() > 0:
-                cat_opts.first.click()
+        # ვაკლიკებთ JavaScript-ით — რეგულარი click ხანდახან ვერ ანახლებს hidden input-ს
+        page.evaluate(f"""() => {{
+            const opts = document.querySelectorAll("[role='option']");
+            for (const opt of opts) {{
+                if (opt.innerText.trim().includes('{ai_category}')) {{
+                    opt.click();
+                    return true;
+                }}
+            }}
+            return false;
+        }}""")
         time.sleep(3)
+        # ვერიფიკაცია — შევამოწმოთ დაისეტა თუ არა
+        cat_val = page.evaluate("""() => {{
+            const el = document.querySelector('#CatID input[type="hidden"], #CatID select');
+            return el ? el.value : 'not found';
+        }}""")
+        print(f"    CatID hidden value: {cat_val}")
+        if not cat_val or cat_val == 'not found' or cat_val == '':
+            # Fallback: Playwright click
+            try:
+                page.locator(f"[role='option']:has-text('{ai_category}')").click()
+                time.sleep(2)
+            except:
+                pass
 
         # ქვეკატეგორია — ვხსნით, ვკითხულობთ, AI ირჩევს
         print("    ქვეკატეგორიის არჩევა...")
@@ -709,7 +727,16 @@ def upload_to_mymarket(page, product, photo_paths):
         for i in range(sub_opts.count()):
             txt = sub_opts.nth(i).inner_text().strip()
             if txt == ai_subcategory or ai_subcategory in txt:
-                sub_opts.nth(i).click()
+                # JavaScript click for reliability
+                page.evaluate(f"""() => {{
+                    const opts = document.querySelectorAll("[role='option']");
+                    for (const opt of opts) {{
+                        if (opt.innerText.trim().includes('{ai_subcategory}')) {{
+                            opt.click();
+                            return;
+                        }}
+                    }}
+                }}""")
                 selected_sub = True
                 print(f"    ქვეკატეგორია არჩეულია: {txt[:40]}")
                 break
@@ -834,24 +861,19 @@ def upload_to_mymarket(page, product, photo_paths):
                     # AI ირჩევს
                     ai_attr = ai_select_from_options(product, attr_options, "პროდუქტის სახეობა")
                     print(f"    AI აირჩია: {ai_attr}")
-                    for i in range(attr_opts.count()):
-                        txt = attr_opts.nth(i).inner_text().strip()
-                        if txt == ai_attr or ai_attr in txt:
-                            attr_opts.nth(i).click()
-                            time.sleep(1)
-                            print(f"    სახეობა არჩეულია: {txt[:40]}")
-                            attr_selected = True
-                            break
-                    if not attr_selected:
-                        # Fallback: first non-back
-                        for i in range(attr_opts.count()):
-                            txt = attr_opts.nth(i).inner_text().strip()
-                            if txt and "უკან" not in txt:
-                                attr_opts.nth(i).click()
-                                time.sleep(1)
-                                print(f"    სახეობა (fallback): {txt[:40]}")
-                                attr_selected = True
-                                break
+                    # JavaScript click
+                    page.evaluate(f"""() => {{
+                        const opts = document.querySelectorAll("[role='option']");
+                        for (const opt of opts) {{
+                            if (opt.innerText.trim().includes('{ai_attr}')) {{
+                                opt.click();
+                                return;
+                            }}
+                        }}
+                    }}""")
+                    time.sleep(2)
+                    print(f"    სახეობა არჩეულია: {ai_attr[:40]}")
+                    attr_selected = True
                 if not attr_selected:
                     # Portal menu
                     selected_attr = select_from_portal_menu(page, skip_back=True)
@@ -888,14 +910,22 @@ def upload_to_mymarket(page, product, photo_paths):
         time.sleep(2)
         page.locator("#LocID .sg-selectbox__control").first.click(force=True)
         time.sleep(3)
-        # ვეძებთ თბილისს [role='option'] ან portal menu-ში
-        loc_opts = page.locator("[role='option']:has-text('თბილისი')")
-        if loc_opts.count() > 0:
-            loc_opts.first.click()
+        # ვეძებთ თბილისს — JavaScript click
+        loc_clicked = page.evaluate("""() => {
+            const opts = document.querySelectorAll("[role='option']");
+            for (const opt of opts) {
+                if (opt.innerText.trim() === 'თბილისი' || opt.innerText.trim().startsWith('თბილისი')) {
+                    opt.click();
+                    return true;
+                }
+            }
+            return false;
+        }""")
+        if loc_clicked:
             time.sleep(1)
             print("    მდებარეობა არჩეულია (თბილისი)")
         else:
-            # Portal menu — ვეძებთ option-ს რომლის ტექსტიც ზუსტ "თბილისი" არის
+            # Portal menu fallback
             loc_selected = False
             menus = page.locator(".sg-selectbox__menu")
             for i in range(menus.count()):
@@ -903,7 +933,6 @@ def upload_to_mymarket(page, product, photo_paths):
                 try:
                     if not menu.is_visible():
                         continue
-                    # ვეძებთ ყველა option-ს menu-ში
                     opts = menu.locator("div[class*='sg-selectbox__option']")
                     for j in range(opts.count()):
                         opt = opts.nth(j)
@@ -917,7 +946,6 @@ def upload_to_mymarket(page, product, photo_paths):
                                 break
                     if loc_selected:
                         break
-                    # Fallback: ყველა div-ის შემოწმება
                     if not loc_selected:
                         divs = menu.locator("div")
                         for j in range(divs.count()):
@@ -937,6 +965,12 @@ def upload_to_mymarket(page, product, photo_paths):
             if not loc_selected:
                 page.screenshot(path="/tmp/location_fail.png", full_page=True)
                 print("    მდებარეობა ვერ არჩეულა!")
+        # ვერიფიკაცია
+        loc_val = page.evaluate("""() => {
+            const el = document.querySelector('#LocID input[type="hidden"], #LocID select');
+            return el ? el.value : 'not found';
+        }""")
+        print(f"    LocID hidden value: {loc_val}")
 
         # 13. გამოქვეყნება — XPath-ით შენი მითითებული მისამართიდან
         submit_btn = page.locator("xpath=/html/body/div[2]/main/div/div/div/div[2]/form/div[1]/div[1]/div[9]/div/button[2]")
@@ -979,16 +1013,48 @@ def upload_to_mymarket(page, product, photo_paths):
 
         # შეცდომები — ვეძებთ ყველა შესაძლო შეცდომის შეტყობინებას
         page.screenshot(path="/tmp/mymarket_submit_error.png")
+        
+        # ვამოწმებთ ყველა form-group-ს და ვნახულობთ რა არის ცარიელი
+        form_debug = page.evaluate("""
+        () => {
+            const results = [];
+            const groups = document.querySelectorAll('.form-group');
+            for (const g of groups) {
+                const label = g.querySelector('label');
+                const labelText = label ? label.innerText.trim() : 'no-label';
+                const input = g.querySelector('input, textarea');
+                const selectbox = g.querySelector('.sg-selectbox__control');
+                const placeholder = g.querySelector('.sg-selectbox__placeholder');
+                const selected = g.querySelector('.sg-selectbox__selected');
+                
+                let value = '';
+                if (input) value = 'input: ' + (input.value || 'EMPTY');
+                else if (selectbox) {
+                    if (selected) value = 'selected: ' + selected.innerText.trim();
+                    else if (placeholder) value = 'placeholder: ' + placeholder.innerText.trim();
+                    else value = 'selectbox: no value';
+                }
+                
+                const isRequired = labelText.includes('*');
+                if (isRequired || value.includes('EMPTY') || value.includes('placeholder')) {
+                    results.push(labelText + ' => ' + value);
+                }
+            }
+            return results;
+        }
+        """)
+        print(f"    Form fields debug:")
+        for fd in form_debug:
+            print(f"      {fd}")
+        
         errors = page.evaluate("""
         () => {
             const results = [];
-            // Error/danger/invalid classes
             const errs = document.querySelectorAll('[class*="error"], [class*="danger"], .alert, [class*="Error"], [class*="invalid"], [class*="required"]');
             for (const e of errs) {
                 const t = (e.innerText || '').trim();
                 if (t && t.length < 200) results.push(t);
             }
-            // Toast/notification messages
             const toasts = document.querySelectorAll('[class*="toast"], [class*="notification"], [class*="alert"]');
             for (const e of toasts) {
                 const t = (e.innerText || '').trim();
