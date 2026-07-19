@@ -32,18 +32,32 @@ def _renew_tor_circuit():
         print(f"   ⚠️  Tor circuit renewal failed: {e}")
 
 
-def init_browser():
-    """Initialize Camoufox browser with Tor proxy."""
+def init_browser(max_attempts=3):
+    """Initialize Camoufox browser with Tor proxy. Retries on failure."""
     global BROWSER, PAGE, _cm
     if BROWSER is not None:
         return
-    print("🌐 Starting Camoufox with Tor proxy...")
-    _cm = Camoufox(headless='virtual', proxy={"server": TOR_PROXY}, geoip=True, humanize=True, locale='en-US')
-    BROWSER = _cm.__enter__()
-    context = BROWSER.new_context()
-    PAGE = context.new_page()
-    PAGE.set_default_timeout(60000)
-    print("   ✅ Browser ready")
+    for attempt in range(1, max_attempts + 1):
+        try:
+            print(f"🌐 Starting Camoufox with Tor proxy (attempt {attempt}/{max_attempts})...")
+            _cm = Camoufox(headless='virtual', proxy={"server": TOR_PROXY}, geoip=True, humanize=True, locale='en-US')
+            BROWSER = _cm.__enter__()
+            context = BROWSER.new_context()
+            PAGE = context.new_page()
+            PAGE.set_default_timeout(60000)
+            print("   ✅ Browser ready")
+            return
+        except Exception as e:
+            print(f"   ❌ Camoufox launch failed (attempt {attempt}/{max_attempts}): {str(e)[:200]}")
+            try:
+                close_browser()
+            except Exception:
+                pass
+            if attempt < max_attempts:
+                wait = 10 * attempt
+                print(f"   Waiting {wait}s before retry...")
+                time.sleep(wait)
+    raise RuntimeError(f"Camoufox failed to launch after {max_attempts} attempts")
 
 
 def close_browser():

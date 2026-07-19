@@ -10,6 +10,46 @@ import os
 
 import logging
 
+import json
+
+import urllib.request
+
+
+FLARESOLVERR_URL = 'http://127.0.0.1:8191/v1'
+
+
+def flaresolverr_available():
+    """Check if FlareSolverr is running."""
+    try:
+        r = requests.get('http://127.0.0.1:8191/', timeout=5)
+        return r.status_code == 200
+    except Exception:
+        return False
+
+
+def fetch_via_flaresolverr(url, timeout_ms=60000):
+    """Fetch a page through FlareSolverr to bypass Cloudflare. Returns HTML or None."""
+    try:
+        payload = json.dumps({
+            'cmd': 'request.get',
+            'url': url,
+            'maxTimeout': timeout_ms,
+        }).encode()
+        req = urllib.request.Request(
+            FLARESOLVERR_URL,
+            data=payload,
+            headers={'Content-Type': 'application/json'},
+        )
+        with urllib.request.urlopen(req, timeout=timeout_ms // 1000 + 10) as resp:
+            data = json.loads(resp.read())
+        if data.get('status') == 'ok':
+            return data.get('solution', {}).get('response', '')
+        logger.error(f"FlareSolverr error: {data.get('message', 'unknown')}")
+        return None
+    except Exception as e:
+        logger.error(f"FlareSolverr request failed: {str(e)[:80]}")
+        return None
+
 
 
 # Configure logging
@@ -72,6 +112,18 @@ class GeovoiceLinkCollector:
 
         
 
+        use_flaresolverr = flaresolverr_available()
+
+        if use_flaresolverr:
+
+            logger.info("FlareSolverr available — using it for Cloudflare bypass")
+
+        else:
+
+            logger.info("FlareSolverr not available — falling back to cloudscraper")
+
+        
+
         all_category_pages = []
 
         
@@ -108,31 +160,32 @@ class GeovoiceLinkCollector:
 
                 try:
 
-                    response = self.session.get(page_url, timeout=10)
+                    html = None
 
-                    
+                    if use_flaresolverr:
+                        html = fetch_via_flaresolverr(page_url)
 
-                    # Check if page exists
-
-                    if response.status_code == 404:
-
-                        logger.info(f"Page {page} not found (404). Category finished.")
-
-                        break
-
-                    elif response.status_code != 200:
-
-                        logger.error(f"Page {page} returned status {response.status_code}. Category finished.")
-
-                        break
+                    if html is None:
+                        response = self.session.get(page_url, timeout=10)
+                        html = response.text
 
                     
 
                     # Check if page has actual content (not empty or error page)
 
-                    if len(response.text) < 1000:  # Basic content check
+                    if len(html) < 1000:  # Basic content check
 
                         logger.info(f"Page {page} appears empty. Category finished.")
+
+                        break
+
+                    
+
+                    # Check for Cloudflare challenge (blocked page, not just footer script)
+
+                    if 'Just a moment' in html and len(html) < 5000:
+
+                        logger.error(f"Page {page} returned Cloudflare challenge. Category finished.")
 
                         break
 
