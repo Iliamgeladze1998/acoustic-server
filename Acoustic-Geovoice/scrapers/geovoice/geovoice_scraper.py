@@ -169,7 +169,7 @@ async def scrape_geovoice_full():
                 print(f"  ERROR: Failed to fetch {product_url}, skipping", flush=True)
                 continue
             
-            if 'Just a moment' in html or 'Checking your browser' in html:
+            if 'Just a moment' in html and len(html) < 5000:
                 print(f"  ERROR: Cloudflare challenge not solved by FlareSolverr for {product_url}", flush=True)
                 if no_delay:
                     print("  [SMOKE TEST] Fail-fast: aborting on Cloudflare detection", flush=True)

@@ -37,7 +37,7 @@ from google.oauth2.service_account import Credentials
 
 # Gemini AI
 import google.generativeai as genai
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyBIK5j7j0wiOhmHMCadmeTWlMwhZgp0qH4")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 genai.configure(api_key=GEMINI_API_KEY)
 _gemini_model = genai.GenerativeModel("gemini-flash-lite-latest")
 
@@ -572,28 +572,9 @@ def upload_to_mymarket(page, product, photo_paths):
         time.sleep(5)
 
         # 3. ავირჩიოთ გაყიდვა (არა შეძენა)
-        # radio-AdTypeID-0 = გაყიდვა (Sell), radio-AdTypeID-1 = შეძენა (Buy)
-        # React radio — native setter + change event
-        page.evaluate("""
-        () => {
-            const radio = document.getElementById('radio-AdTypeID-0');
-            if (radio) {
-                const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'checked').set;
-                setter.call(radio, true);
-                radio.dispatchEvent(new Event('input', {bubbles: true}));
-                radio.dispatchEvent(new Event('change', {bubbles: true}));
-            }
-        }
-        """)
+        # radio-AdTypeID-1 = გაყიდვა, radio-AdTypeID-2 = შეძენა
+        page.locator("label[for='radio-AdTypeID-1']").click()
         time.sleep(2)
-        checked = page.evaluate("() => document.getElementById('radio-AdTypeID-0')?.checked")
-        print(f"    გაყიდვა radio: {checked}")
-        if not checked:
-            try:
-                page.locator("label[for='radio-AdTypeID-0']").click(force=True, timeout=5000)
-                time.sleep(2)
-            except:
-                pass
 
         # 4. კატეგორია — ვხსნით dropdown-ს, ვკითხულობთ options-ს, AI ირჩევს
         print("    კატეგორიის არჩევა...")
@@ -674,13 +655,6 @@ def upload_to_mymarket(page, product, photo_paths):
         mymarket_price = int(temu_price + PRICE_MARKUP)
         page.locator("input[name='Price']").fill(str(mymarket_price))
         time.sleep(1)
-
-        # 7b. წონა (სავალდებულო ველი)
-        weight_input = page.locator("input[name='Weight']")
-        if weight_input.count() > 0:
-            weight_input.fill("0.5")
-            time.sleep(0.5)
-            print("    წონა: 0.5")
 
         # 8. ვალუტა — უკვე "ლარი" არჩეულია by default, მაგრამ შევამოწმოთ
         curr_text = page.evaluate("""
@@ -813,134 +787,58 @@ def upload_to_mymarket(page, product, photo_paths):
         if not attr_selected:
             print("    სახეობა ვერ არჩეულა!")
 
-        # 12. მდებარეობა — UI მცდელობა + API fallback
+        # 12. მდებარეობა — ვირჩევთ თბილისს
         print("    მდებარეობა...")
         page.evaluate("() => document.querySelector('#LocID')?.scrollIntoView({block: 'center'})")
         time.sleep(2)
-        try:
-            page.locator("#LocID .sg-selectbox__dropdown-indicator").first.click()
-            time.sleep(3)
-            loc_selected = page.evaluate("""
-            () => {
-                const walk = (node) => {
-                    if (node.children.length === 0) return [node];
-                    const leaves = [];
-                    for (const child of node.children) leaves.push(...walk(child));
-                    return leaves;
-                };
-                const items = document.querySelectorAll('.flat-virtualized-item, .fast-option');
-                for (const item of items) {
-                    const rect = item.getBoundingClientRect();
-                    const visible = rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.bottom <= window.innerHeight;
-                    if (visible && item.innerText.trim() === 'თბილისი') {
-                        const leaves = walk(item);
-                        const target = leaves.find(l => l.classList && (l.classList.contains('fast-option') || l.classList.contains('fast-option-focused'))) || item;
-                        target.click();
-                        return true;
-                    }
-                }
-                return false;
-            }
-            """)
-            time.sleep(2)
-            if loc_selected:
-                loc_val = page.evaluate("() => document.querySelector('input[name=\"LocID\"]')?.value")
-                print(f"    მდებარეობა არჩეულია UI-ით [ID={loc_val}]")
-        except Exception as e:
-            print(f"    UI location click failed: {e}")
-            loc_selected = False
-
-        # 13. მიწოდების მეთოდის არჩევა (სავალდებულოა)
-        print("    მიწოდების მეთოდი...")
-        try:
-            delivery_btn = page.locator("xpath=/html/body/div[2]/main/div/div/div/div[2]/form/div[1]/div[1]/div[4]/div[2]/div/div[3]/button[1]/div[3]/div[1]/div")
-            if delivery_btn.count() > 0:
-                delivery_btn.first.click()
-                time.sleep(3)
-                # Modal გამოჩნდა — ვაჭერთ "დათანხმება" ღილაკს
-                confirm_delivery = page.locator("button:has-text('დათანხმება')")
-                if confirm_delivery.count() > 0:
-                    confirm_delivery.first.click()
-                    time.sleep(2)
-                    print("    მიწოდების მეთოდი არჩეულია (დათანხმება)")
-                else:
-                    print("    დათანხმების ღილაკი ვერ ნაპოვნა")
-            else:
-                # Fallback: ტექსტით
-                delivery_btn2 = page.locator("button:has-text('მიწოდება'), button:has-text('თვითმიწოდება')")
-                if delivery_btn2.count() > 0:
-                    delivery_btn2.first.click()
-                    time.sleep(3)
-                    confirm_delivery = page.locator("button:has-text('დათანხმება')")
-                    if confirm_delivery.count() > 0:
-                        confirm_delivery.first.click()
-                        time.sleep(2)
-                        print("    მიწოდების მეთოდი არჩეულია (fallback)")
-                else:
-                    print("    მიწოდების მეთოდი ვერ ნაპოვნა!")
-        except Exception as e:
-            print(f"    მიწოდების მეთოდის შეცდომა: {e}")
-
-        # 14. გამოქვეყნება — პირდაპირ ღილაკზე დაჭერა
-        print("    ფორმის მონაცემების შემოწმება...")
-
-        # ვასწორებთ AdTypeID-ს ფორმაში თუ არ არის მონიშნული (0 = გაყიდვა)
-        page.evaluate("""() => {
-            const radio = document.getElementById('radio-AdTypeID-0');
-            if (radio && !radio.checked) {
-                const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'checked').set;
-                setter.call(radio, true);
-                radio.dispatchEvent(new Event('input', {bubbles: true}));
-                radio.dispatchEvent(new Event('change', {bubbles: true}));
-            }
-        }""")
-        time.sleep(2)
-
-        # ვცდით პირდაპირ CSS selector-ით — JS click (modal-მა არ დაბლოკოს)
-        submit_clicked = page.evaluate("""() => {
-            const btn = document.querySelector('button[type="submit"].btn.bg-gradient');
-            if (btn) { btn.click(); return true; }
-            return false;
-        }""")
-        if submit_clicked:
-            print("    ღილაკი დაჭერილია (JS click)")
-        else:
-            # Fallback: Playwright click
-            print("    JS click ვერ იპოვა — ვცდით Playwright click...")
-            btn = page.locator("button:has-text('გამოქვეყნება')")
-            if btn.count() > 0:
-                btn.first.click(force=True)
-            else:
-                btn = page.locator("button.btn.bg-gradient")
-                if btn.count() > 0:
-                    btn.last.click(force=True)
-                else:
-                    return {"success": False, "error": "Submit button not found"}
-
+        page.locator("#LocID .sg-selectbox__control").first.click(force=True)
         time.sleep(3)
-
-        # Confirmation dialog — "დათანხმება" ღილაკი (წესებზე თანხმობა)
-        confirm_btn = page.locator("button:has-text('დათანხმება')")
-        if confirm_btn.count() > 0:
-            print("    Confirmation dialog — ვაჭერთ 'დათანხმება'...")
-            confirm_btn.first.click()
-            time.sleep(10)
+        # ვეძებთ თბილისს [role='option'] ან portal menu-ში
+        loc_opts = page.locator("[role='option']:has-text('თბილისი')")
+        if loc_opts.count() > 0:
+            loc_opts.first.click()
+            time.sleep(1)
+            print("    მდებარეობა არჩეულია (თბილისი)")
         else:
-            # შესაძლოა modal არ გამოჩნდა — ველოდებთ
-            time.sleep(7)
+            loc_selected = select_from_portal_menu(page, target_text="თბილისი")
+            if loc_selected:
+                print(f"    მდებარეობა არჩეულია ({loc_selected})")
+            else:
+                page.screenshot(path="/tmp/location_fail.png", full_page=True)
+                print("    მდებარეობა ვერ არჩეულა!")
+
+        # 13. გამოქვეყნება — XPath-ით შენი მითითებული მისამართიდან
+        submit_btn = page.locator("xpath=/html/body/div[2]/main/div/div/div/div[2]/form/div[1]/div[1]/div[9]/div/button[2]")
+        if submit_btn.count() > 0:
+            submit_btn.first.click()
+        else:
+            # Fallback
+            page.locator("button:has-text('გამოქვეყნება')").click()
+        time.sleep(8)
 
         # შედეგის შემოწმება
         current_url = page.url
-        body_text = page.inner_text("body")
+        body = page.inner_text("body")
         print(f"    Submit URL: {current_url}")
-        print(f"    Body: {body_text[:200]}")
+        print(f"    Body (first 200): {body[:200]}")
 
-        # წარმატება — URL შეიცვალა pr-form-დან
+        # შემოწმება — წარმატებულია თუ არა
+        # წარმატების შემთხვევაში URL იცვლება pr-form-დან
+        # ან გვერდზე ჩნდება წარმატების შეტყობინება / პროდუქტის ლინკი
+        success = False
         if "pr-form" not in current_url and "pr_form" not in current_url:
+            success = True
+        elif "წარმატებ" in body or "გამოქვეყნდა" in body or "წარმატებით დაემატა" in body:
+            success = True
+        elif page.locator("a[href*='/ka/pr/']").count() > 0:
+            success = True
+        
+        if success:
+            # ვეძებთ პროდუქტის ლინკს
             product_link = ""
             try:
                 link_el = page.locator("a[href*='/ka/pr/']").first
-                if link_el.count() > 0 and link_el.is_visible():
+                if link_el.is_visible():
                     product_link = link_el.get_attribute("href")
                     if product_link and not product_link.startswith("http"):
                         product_link = "https://mymarket.ge" + product_link
@@ -948,11 +846,40 @@ def upload_to_mymarket(page, product, photo_paths):
                 pass
             return {"success": True, "url": product_link or current_url, "price": str(mymarket_price)}
 
-        # შეცდომები — ვეძებთ ცარიელ სავალდებულო ველებს
+        # შეცდომები — ვეძებთ ყველა შესაძლო შეცდომის შეტყობინებას
         page.screenshot(path="/tmp/mymarket_submit_error.png")
+        errors = page.evaluate("""
+        () => {
+            const results = [];
+            // Error/danger/invalid classes
+            const errs = document.querySelectorAll('[class*="error"], [class*="danger"], .alert, [class*="Error"], [class*="invalid"], [class*="required"]');
+            for (const e of errs) {
+                const t = (e.innerText || '').trim();
+                if (t && t.length < 200) results.push(t);
+            }
+            // Toast/notification messages
+            const toasts = document.querySelectorAll('[class*="toast"], [class*="notification"], [class*="alert"]');
+            for (const e of toasts) {
+                const t = (e.innerText || '').trim();
+                if (t && t.length < 200) results.push('TOAST: ' + t);
+            }
+            return results.slice(0, 15);
+        }
+        """)
+        
+        # შევამოწმოთ ცარიელი სავალდებულო ველები
         missing = page.evaluate("""
         () => {
             const results = [];
+            // Check required inputs
+            const required = document.querySelectorAll('[required], [aria-required="true"]');
+            required.forEach(el => {
+                if (el.tagName === 'INPUT' && !el.value) {
+                    const name = el.name || el.id || el.placeholder || 'unknown';
+                    results.push(name);
+                }
+            });
+            // Check required selectboxes (sg-selectbox with * in label)
             const groups = document.querySelectorAll('.form-group');
             for (const g of groups) {
                 const label = g.querySelector('label');
@@ -966,9 +893,13 @@ def upload_to_mymarket(page, product, photo_paths):
             return results;
         }
         """)
-        error_msg = f"UI submit failed (URL: {current_url})"
+        
+        error_msg = "; ".join(errors) if errors else ""
         if missing:
-            error_msg += f" Missing: {', '.join(missing)}"
+            error_msg += f" Missing fields: {', '.join(missing)}" if error_msg else f"Missing fields: {', '.join(missing)}"
+        if not error_msg:
+            error_msg = f"Form not submitted (URL: {current_url})"
+        
         return {"success": False, "error": error_msg[:200]}
 
     except Exception as e:
@@ -1064,8 +995,7 @@ def main():
     mymarket_cookies = load_mymarket_cookies()
 
     with sync_playwright() as p:
-        headless_mode = os.environ.get("HEADED", "0") != "1"
-        browser = p.chromium.launch(headless=headless_mode, args=[
+        browser = p.chromium.launch(headless=True, args=[
             "--no-sandbox",
             "--disable-setuid-sandbox",
             "--disable-dev-shm-usage",

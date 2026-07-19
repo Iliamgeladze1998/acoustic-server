@@ -13,8 +13,22 @@
 .selected_editor
 .ssh/
 .windsurf-server/
+.android/
+.camoufox/
+.gradle/
+.pm2/
+.snap/
+snap/
+ai-sdk-audit/
+nba-audit/
+ssrf-backup/
+ssrf-real-poc/
+review-redirect-dev/
+CascadeProjects/
+Downloads/
 
 # Downloaded/generated files
+.env_mymarket
 .wget-hsts
 get-pip.py
 products.json
@@ -45,7 +59,7 @@ music-store-product-links.txt
 **/venv/
 
 # Sub-repos (managed separately)
-Acoustic-Invoice-Bot/
+# Acoustic-Invoice-Bot is now tracked in this repo
 
 # Credentials
 **/credentials.json

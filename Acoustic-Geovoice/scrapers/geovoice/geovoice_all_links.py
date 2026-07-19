@@ -5,6 +5,8 @@ import time
 import random
 import re
 import os
+import json
+import urllib.request
 from bs4 import BeautifulSoup
 import logging
 
@@ -14,6 +16,41 @@ logger = logging.getLogger(__name__)
 
 # Get the directory where this script is located
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+FLARESOLVERR_URL = 'http://127.0.0.1:8191/v1'
+
+
+def flaresolverr_available():
+    """Check if FlareSolverr is running."""
+    try:
+        r = requests.get('http://127.0.0.1:8191/', timeout=5)
+        return r.status_code == 200
+    except Exception:
+        return False
+
+
+def fetch_via_flaresolverr(url, timeout_ms=60000):
+    """Fetch a page through FlareSolverr to bypass Cloudflare. Returns HTML or None."""
+    try:
+        payload = json.dumps({
+            'cmd': 'request.get',
+            'url': url,
+            'maxTimeout': timeout_ms,
+        }).encode()
+        req = urllib.request.Request(
+            FLARESOLVERR_URL,
+            data=payload,
+            headers={'Content-Type': 'application/json'},
+        )
+        with urllib.request.urlopen(req, timeout=timeout_ms // 1000 + 10) as resp:
+            data = json.loads(resp.read())
+        if data.get('status') == 'ok':
+            return data.get('solution', {}).get('response', '')
+        logger.error(f"FlareSolverr error: {data.get('message', 'unknown')}")
+        return None
+    except Exception as e:
+        logger.error(f"FlareSolverr request failed: {str(e)[:80]}")
+        return None
 
 class GeovoiceProductLinkCollector:
     def __init__(self):
@@ -39,18 +76,31 @@ class GeovoiceProductLinkCollector:
             logger.error("No category page links found!")
             return False
         
+        use_flaresolverr = flaresolverr_available()
+        if use_flaresolverr:
+            logger.info("FlareSolverr available — using it for Cloudflare bypass")
+        else:
+            logger.info("FlareSolverr not available — falling back to cloudscraper")
+        
         all_product_links = []
         
         for i, category_page_url in enumerate(category_page_links, 1):
             logger.info(f"Processing category page {i}/{len(category_page_links)}: {category_page_url}")
             
             try:
-                response = self.session.get(category_page_url, timeout=10)
-                if response.status_code != 200:
-                    logger.error(f"Failed to access {category_page_url}: {response.status_code}")
+                html = None
+                if use_flaresolverr:
+                    html = fetch_via_flaresolverr(category_page_url)
+                if html is None:
+                    response = self.session.get(category_page_url, timeout=10)
+                    html = response.text
+                
+                # Check for Cloudflare challenge (blocked page, not just footer script)
+                if 'Just a moment' in html and len(html) < 5000:
+                    logger.error(f"Cloudflare challenge on {category_page_url}, skipping")
                     continue
-                    
-                soup = BeautifulSoup(response.content, 'html.parser')
+                
+                soup = BeautifulSoup(html, 'html.parser')
                 
                 # Find product containers using specific selector: div.ty-column4
                 product_containers = soup.find_all('div', class_='ty-column4')
