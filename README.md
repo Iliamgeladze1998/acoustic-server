@@ -1,389 +1,383 @@
-# Multi-Project E-Commerce Price Comparison & Scraping System
+# Acoustic Server — Automated Price Comparison System
 
-A comprehensive automated scraping pipeline that compares product prices across multiple e-commerce websites and uploads the results to Google Sheets for monitoring and analysis.
+An automated scraping and price comparison platform that monitors **7 music instrument stores** in Georgia. The system scrapes product data (prices, stock availability, SKUs) from each store, compares them against the baseline (Acoustic), and uploads results to Google Sheets with real-time Telegram alerts for price changes and promotions.
 
-## 🏗️ Architecture Overview
+## Overview
 
-This system consists of four independent comparison projects that follow a consistent architecture pattern:
+The system tracks **Acoustic** (baseline store) against **6 competitors**:
 
-1. **ACGV (Acoustic-Geovoice)** - Compares Acoustic vs Geovoice prices
-2. **ACMR (Acoustic-Musicroom)** - Compares Acoustic vs Musicroom prices
-3. **ACMI (Acoustic-Mireli)** - Compares Acoustic vs Mireli prices
-4. **ACMS (Acoustic-Musikis-Saxli)** - Compares Acoustic vs Musikis-Saxli (Music House) prices
+| # | Project | Competitor Store | Directory | Orchestrator |
+|---|---------|-----------------|-----------|--------------|
+| 1 | ACLG | Largo | `Acoustic-Largo` | `aclg/aclg_main.py` |
+| 2 | ACJM | JinoMusic | `Acoustic-JinoMusic` | `acjm/acjm_main.py` |
+| 3 | ACMS | Musikis-Saxli (Music House) | `Acoustic-Musikissaxli` | `acms/acms_main.py` |
+| 4 | ACMR | Musicroom | `Acoustic-Musicroom` | `acmr/acmr_main.py` |
+| 5 | ACGV | Geovoice | `Acoustic-Geovoice` | `acgv/acgv_main.py` |
+| 6 | ACMI | Mireli | `Acoustic-Mireli` | `acmi/acmi_main.py` |
 
-Each project follows the same data flow:
+Each project is an independent pipeline that runs in its own `screen` session, looping every 8 hours:
 
 ```
-Scraper → Fresh Excel → Merger → Fresh Merged Excel → Uploader → Google Sheets
+Scraper (Acoustic + Competitor) → Fresh Excel → Data Merger → Merged Excel → Google Sheets Uploader → Telegram Alerts
 ```
 
-> **Note:** The current `run_scrapers.sh` master script runs **ACGV → ACMI → ACMS** in sequence with 8-hour sleeps between projects. ACMR (Acoustic-Musicroom) is configured in the same way but currently must be run manually (see below).
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 /root/
-├── Acoustic-Geovoice/           # ACGV Project
-│   ├── acgv/
-│   │   ├── acgv_main.py         # Main orchestrator
-│   │   ├── acgv_data_merger.py  # Merges acoustic + geovoice data
-│   │   └── acgv_sheet_uploader.py # Uploads to Google Sheets
+├── Acoustic-Largo/                # ACLG — Acoustic vs Largo
+│   ├── aclg/
+│   │   ├── aclg_main.py           # Pipeline orchestrator
+│   │   ├── aclg_data_merger.py    # Fuzzy match & price comparison
+│   │   └── aclg_sheet_uploader.py # Google Sheets upload + Telegram alerts
 │   ├── scrapers/
-│   │   ├── acoustic/            # Acoustic website scraper
-│   │   └── geovoice/            # Geovoice website scraper
-│   ├── reports/                 # Generated Excel reports
+│   │   ├── acoustic/              # Acoustic store scraper
+│   │   └── largo/                 # Largo store scraper
+│   ├── reports/                   # Generated Excel reports
+│   ├── credentials.json           # Google Sheets API credentials
 │   └── requirements.txt
 │
-├── Acoustic-Musicroom/          # ACMR Project
-│   ├── acmr/
-│   │   ├── acmr_main.py         # Main orchestrator
-│   │   ├── acmr_data_merger.py  # Merges acoustic + musicroom data
-│   │   └── acmr_sheet_uploader.py # Uploads to Google Sheets
+├── Acoustic-JinoMusic/            # ACJM — Acoustic vs JinoMusic
+│   ├── acjm/
+│   │   ├── acjm_main.py
+│   │   ├── acjm_data_merger.py
+│   │   └── acjm_sheet_uploader.py
 │   ├── scrapers/
-│   │   ├── acoustic/            # Acoustic website scraper
-│   │   └── musicroom/           # Musicroom website scraper
-│   ├── reports/                 # Generated Excel reports
+│   │   ├── acoustic/
+│   │   └── jinomusic/
+│   ├── reports/
+│   ├── credentials.json
 │   └── requirements.txt
 │
-├── Acoustic-Mireli/             # ACMI Project
-│   ├── acmi/
-│   │   ├── acmi_main.py         # Main orchestrator
-│   │   ├── acmi_data_merger.py  # Merges acoustic + mireli data
-│   │   └── acmi_sheet_uploader.py # Uploads to Google Sheets
-│   ├── scrapers/
-│   │   ├── acoustic/            # Acoustic website scraper
-│   │   └── mireli/              # Mireli website scraper
-│   ├── reports/                 # Generated Excel reports
-│   └── requirements.txt
-│
-├── Acoustic-Musikissaxli/            # ACMS Project
+├── Acoustic-Musikissaxli/         # ACMS — Acoustic vs Musikis-Saxli
 │   ├── acms/
-│   │   ├── acms_main.py         # Main orchestrator
-│   │   ├── acms_data_merger.py  # Merges acoustic + musikis data
-│   │   └── acms_sheet_uploader.py # Uploads to Google Sheets
+│   │   ├── acms_main.py
+│   │   ├── acms_data_merger.py
+│   │   ├── acms_sheet_uploader.py
+│   │   └── cleaners.py            # Data cleaning utilities
 │   ├── scrapers/
-│   │   ├── acoustic/            # Acoustic website scraper
-│   │   └── musikis-saxli/       # Musikis-Saxli website scraper
-│   ├── reports/                 # Generated Excel reports
+│   │   ├── acoustic/
+│   │   └── musikis-saxli/
+│   ├── reports/
+│   ├── credentials.json
 │   └── requirements.txt
 │
-└── run_scrapers.sh              # Master orchestration script
+├── Acoustic-Musicroom/            # ACMR — Acoustic vs Musicroom
+│   ├── acmr/
+│   │   ├── acmr_main.py
+│   │   ├── acmr_data_merger.py
+│   │   └── acmr_sheet_uploader.py
+│   ├── scrapers/
+│   │   ├── acoustic/
+│   │   └── musicroom/
+│   ├── reports/
+│   ├── credentials.json
+│   └── requirements.txt
+│
+├── Acoustic-Geovoice/             # ACGV — Acoustic vs Geovoice
+│   ├── acgv/
+│   │   ├── acgv_main.py
+│   │   ├── acgv_data_merger.py
+│   │   └── acgv_sheet_uploader.py
+│   ├── scrapers/
+│   │   ├── acoustic/
+│   │   └── geovoice/
+│   ├── reports/
+│   ├── credentials.json
+│   └── requirements.txt
+│
+├── Acoustic-Mireli/               # ACMI — Acoustic vs Mireli
+│   ├── acmi/
+│   │   ├── acmi_main.py
+│   │   ├── acmi_data_merger.py
+│   │   └── acmi_sheet_uploader.py
+│   ├── scrapers/
+│   │   ├── acoustic/
+│   │   └── mireli/
+│   ├── reports/
+│   ├── credentials.json
+│   └── requirements.txt
+│
+├── start_all_scrapers.sh          # Start all 6 scrapers in parallel (screen sessions)
+├── stop_all_scrapers.sh           # Stop all scrapers and clean up processes
+├── run_single_scraper.sh          # Single-scraper loop (used by start_all_scrapers.sh)
+└── scraper_logs/                  # Per-scraper log files
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
 - Python 3.8+
-- Virtual environment (venv)
-- Google Sheets API credentials
-- Telegram bot token (for alerts)
-- Playwright browsers
+- `venv` virtual environment per project
+- Google Sheets API service account credentials (`credentials.json`)
+- Telegram bot token and chat ID
+- Playwright (Chromium) and/or Camoufox browsers (per project)
 
-### Running the Automated Pipeline
+### Start All Scrapers
 
-Use the master orchestration script:
+All 6 scrapers run in parallel, each in its own `screen` session with an 8-hour loop:
 
 ```bash
-cd /root
-bash run_scrapers.sh
+bash /root/start_all_scrapers.sh
 ```
 
-This runs ACGV, ACMI, and ACMS in sequence with 8-hour intervals between projects.
+This creates 6 screen sessions: `scraper-largo`, `scraper-jinomusic`, `scraper-musichouse`, `scraper-musicroom`, `scraper-geovoice`, `scraper-mireli`.
 
-### Running Individual Projects
+### Stop All Scrapers
 
-**ACGV (Acoustic-Geovoice):**
 ```bash
-cd /root/Acoustic-Geovoice
-source venv/bin/activate
-export PLAYWRIGHT_BROWSERS_PATH=/root/Acoustic-Geovoice/pw-browsers
-python acgv/acgv_main.py
+bash /root/stop_all_scrapers.sh
 ```
 
-**ACMR (Acoustic-Musicroom):**
+### Run a Single Scraper
+
 ```bash
-cd /root/Acoustic-Musicroom
-source venv/bin/activate
-export PLAYWRIGHT_BROWSERS_PATH=/root/Acoustic-Musicroom/pw-browsers
-python acmr/acmr_main.py
+bash /root/run_single_scraper.sh largo
 ```
 
-**ACMI (Acoustic-Mireli):**
+Available names: `largo`, `jinomusic`, `musichouse`, `musicroom`, `geovoice`, `mireli`
+
+### Managing Screen Sessions
+
 ```bash
-cd /root/Acoustic-Mireli
-source venv/bin/activate
-export PLAYWRIGHT_BROWSERS_PATH=/root/Acoustic-Mireli/pw-browsers
-python acmi/acmi_main.py
+# List active sessions
+screen -ls
+
+# Attach to a specific scraper
+screen -r scraper-largo
+
+# Detach (return to shell without stopping)
+Ctrl+A then D
 ```
 
-**ACMS (Acoustic-Musikis-Saxli):**
+### Viewing Logs
+
 ```bash
-cd /root/Acoustic-Musikissaxli
-source venv/bin/activate
-python acms/acms_main.py
+# All logs are in /root/scraper_logs/
+tail -f /root/scraper_logs/largo.log
+tail -f /root/scraper_logs/geovoice.log
 ```
 
-## 🔧 Component Details
+## Architecture
+
+### Per-Project Pipeline
+
+Each project follows the same 4-stage pipeline, orchestrated by its `*_main.py`:
+
+1. **Scrapers** — Collect product data from Acoustic and the competitor store
+2. **Data Merger** — Fuzzy-match products by name/brand/SKU and compute price differences
+3. **Sheet Uploader** — Upload merged comparison to Google Sheets
+4. **Telegram Alerts** — Notify on significant price changes, stock changes, and promotions
+
+### Parallel Execution Model
+
+All 6 scrapers run simultaneously in independent `screen` sessions. Each scraper:
+
+- Runs its full pipeline (scrape → merge → upload)
+- Sleeps 8 hours
+- Repeats automatically
+
+Startup is **staggered** to avoid browser launch conflicts:
+
+| Scraper | Startup Delay | Browser Engine |
+|---------|--------------|----------------|
+| Largo | 0s | Requests / BeautifulSoup |
+| Music House | 10s | Playwright (Chromium) |
+| Geovoice | 20s | Playwright (Chromium) + Cloudscraper |
+| JinoMusic | 30s | Camoufox (Firefox) + Tor |
+| Mireli | 40s | Playwright (Chromium) |
+| Musicroom | 60s | Camoufox (Firefox) + Playwright |
+
+### Data Flow
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                     start_all_scrapers.sh                        │
+│           Creates 6 independent screen sessions                  │
+└──────────────────────────┬───────────────────────────────────────┘
+                           │
+        ┌────────┬─────────┼─────────┬──────────┬────────┐
+        ▼        ▼         ▼         ▼          ▼        ▼
+   ┌────────┐┌────────┐┌────────┐┌──────────┐┌────────┐┌────────┐
+   │ ACLG   ││ ACJM   ││ ACMS   ││ ACMR     ││ ACGV   ││ ACMI   │
+   │ Largo  ││ JinoMu ││ Music  ││ Musicrm  ││ Geovoi ││ Mireli │
+   └───┬────┘└───┬────┘└───┬────┘└────┬─────┘└───┬────┘└───┬────┘
+       │         │         │          │          │         │
+       ▼         ▼         ▼          ▼          ▼         ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │                    1. SCRAPERS                              │
+  │  • Acoustic scraper → acoustic_final_stock.xlsx             │
+  │  • Competitor scraper → competitor_final_stock.xlsx         │
+  │  • Clean start: stale files deleted before each run         │
+  └────────────────────────┬────────────────────────────────────┘
+                           │
+                           ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │                 2. DATA MERGER                              │
+  │  • Fuzzy product matching (Levenshtein / RapidFuzz)         │
+  │  • Brand & category alignment                              │
+  │  • Price difference calculation                            │
+  │  • Stock availability comparison                           │
+  │  • Output: reports/<acoustic_vs_competitor>.xlsx            │
+  └────────────────────────┬────────────────────────────────────┘
+                           │
+                           ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │              3. SHEET UPLOADER (Guarded)                    │
+  │  • 24-hour freshness guard on merged Excel                  │
+  │  • Read current Google Sheet state (df_old)                 │
+  │  • Compare with fresh merged Excel (df_new)                 │
+  │  • Detect price changes, stock changes, new products        │
+  │  • Send Telegram alerts BEFORE updating sheet               │
+  │  • Update Google Sheet (only after alerts sent)             │
+  └─────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+              Sleep 8h → Repeat
+```
+
+## Component Details
 
 ### 1. Scrapers
 
-Each project contains two scrapers:
+Each project has two scrapers:
 
-- **Acoustic scraper**: Scrapes the baseline Acoustic website
-- **Competitor scraper**: Scrapes the competitor website (Geovoice/Musicroom/Mireli/Musikis-Saxli)
+- **Acoustic scraper** — Scrapes `acoustic.ge` (via JSON API: `https://acoustic.ge/data/products.json`)
+- **Competitor scraper** — Scrapes the competitor website using the appropriate browser engine
 
-**Key Features:**
+**Scraping technologies by project:**
 
-- Playwright-based web scraping
-- Product link collection and extraction
-- Price and availability tracking
-- Clean start (no stale data merging)
-- Automatic browser path configuration
+| Project | Acoustic Source | Competitor Engine |
+|---------|----------------|-------------------|
+| ACLG (Largo) | JSON API | Requests + BeautifulSoup |
+| ACJM (JinoMusic) | JSON API | Camoufox (Firefox) + Tor |
+| ACMS (Music House) | JSON API | Playwright (Chromium) |
+| ACMR (Musicroom) | JSON API | Camoufox (Firefox) + Playwright |
+| ACGV (Geovoice) | JSON API | Playwright (Chromium) + Cloudscraper |
+| ACMI (Mireli) | JSON API | Playwright (Chromium) |
+
+**Data fields collected:**
+
+- Product name
+- SKU (unique product code)
+- Price (in GEL)
+- Stock availability (quantity, 0 if out of stock)
+- Product URL
 
 ### 2. Data Merger
 
-Merges data from both scrapers into a comprehensive comparison:
+Merges Acoustic and competitor data into a price comparison report:
 
-**Input:**
-
-- Fresh acoustic data Excel file
-- Fresh competitor data Excel file
-
-**Output:**
-
-- Merged Excel file with price comparisons
-- Price difference calculations
-- Availability status comparison
-- Match confidence scores
-
-**Key Features:**
-
-- Deletes previous merged report before starting
-- Fuzzy product name matching (Levenshtein distance)
-- Brand and category matching
-- Price difference analysis
-- Fresh-only data processing
+- **Fuzzy matching** — Products matched by name similarity (Levenshtein distance / RapidFuzz)
+- **Brand & category alignment** — Secondary matching criteria
+- **Price difference** — Absolute and percentage difference per matched product
+- **Stock comparison** — Side-by-side availability status
+- **Clean output** — Previous merged report deleted before each run
 
 ### 3. Sheet Uploader
 
-Uploads merged data to Google Sheets with monitoring:
+Uploads merged data to Google Sheets with safety guards:
 
-**Key Features:**
+- **24-hour freshness guard** — Aborts if merged Excel is older than 24 hours
+- **Dual-source comparison** — Reads live Google Sheet (`df_old`) vs. fresh Excel (`df_new`)
+- **Alert-before-update** — Sends Telegram alerts for price changes BEFORE modifying the sheet
+- **Price change detection** — Identifies significant price drops, increases, and promotions
+- **Atomic update** — Sheet cleared and rewritten only after alerts are successfully sent
+- **Automatic formatting** — Color-coded price differences and status indicators
 
-- **24-hour freshness guard**: Aborts if merged Excel is older than 24 hours
-- **Dual-source validation**:
-  - `df_old` from live Google Sheet
-  - `df_new` from fresh merged Excel
-- **Alert-before-update**: Sends Telegram alerts BEFORE sheet modification
-- **Price change detection**: Identifies significant price changes
-- **Safe overwrite**: Only updates sheet after alerts are sent
+### 4. Telegram Alerts
 
-### 4. Main Orchestrator
+Real-time notifications sent to a configured Telegram chat:
 
-Coordinates the pipeline execution:
+- Price drops (competitor sales/promotions detected)
+- Price increases
+- Stock status changes (in stock → out of stock, and vice versa)
+- New product matches found
+- Scraping or upload failures
 
-**Pipeline Stages:**
+## Data Freshness Guarantees
 
-1. Run acoustic scraper
-2. Run competitor scraper
-3. Validate scraper outputs
-4. Run data merger
-5. Validate merger output
-6. Run sheet uploader
-7. Validate upload success
+| Layer | Protection |
+|-------|-----------|
+| Scraper | Clean start — stale output files deleted before each run |
+| Scraper | Empty result detection — aborts if no products found |
+| Merger | Previous report deleted before processing |
+| Merger | Only processes fresh scraper outputs (no cache) |
+| Uploader | 24-hour freshness guard on merged Excel |
+| Uploader | Live sheet read before any modification |
+| Orchestrator | Stage validation — pipeline stops on any failure |
+| Orchestrator | Exit code propagation — no silent failures |
 
-**Error Handling:**
+## Configuration
 
-- Stops pipeline on any stage failure
-- Proper exit codes (0 for success, 1 for failure)
-- Detailed error logging
-- No fail-open behavior
+### Google Sheets API
 
-## 🛡️ Data Freshness Guarantees
+Each project contains a `credentials.json` file with a Google Cloud service account. Setup:
 
-The system implements multiple layers of protection against stale data:
+1. Create a Google Cloud Project
+2. Enable the Google Sheets API
+3. Create a service account and download the JSON key
+4. Share the target Google Sheet with the service account email
+5. Place `credentials.json` in the project root
 
-### 1. Scraper Level
+### Telegram
 
-- **Clean start**: All scrapers start with empty output files
-- **No checkpoint merging**: Previous run data is never merged
-- **Stale file deletion**: Output files deleted at startup
-- **Empty result detection**: Aborts if no products are scraped
+Configure the bot token and chat ID in each project's sheet uploader script:
 
-### 2. Merger Level
+- `TELEGRAM_BOT_TOKEN` — Bot authentication token
+- `TELEGRAM_CHAT_ID` — Target chat/channel for alerts
 
-- **Previous report deletion**: Merged reports deleted before processing
-- **Fresh input validation**: Only processes current run's scraper outputs
-- **No cache**: No intermediate file caching
+### Browser Engines
 
-### 3. Uploader Level
+| Engine | Installation |
+|--------|-------------|
+| Playwright (Chromium) | `playwright install chromium` |
+| Camoufox (Firefox) | `python -m camoufox fetch` |
 
-- **24-hour freshness guard**: Aborts if merged Excel is older than 24 hours
-- **Live sheet baseline**: Always reads current sheet state
-- **Alert-before-update**: Telegram alerts sent before any modification
-- **Atomic updates**: Sheet cleared only after alerts succeed
+Browser paths are configured per project via `PLAYWRIGHT_BROWSERS_PATH` in `run_single_scraper.sh`.
 
-### 4. Orchestrator Level
+## Troubleshooting
 
-- **Stage validation**: Each stage must succeed before proceeding
-- **Exit code propagation**: Failures stop the entire pipeline
-- **No silent failures**: All errors are logged and reported
-
-## 📊 Monitoring & Alerts
-
-### Telegram Integration
-
-The system sends Telegram alerts for:
-
-- Price changes above threshold
-- Product availability changes
-- New product matches
-- Scraping failures
-- Upload failures
-
-### Google Sheets Integration
-
-Each project uploads to a dedicated Google Sheet with:
-
-- Real-time price comparisons
-- Price difference highlighting
-- Availability status
-- Historical data tracking
-- Automatic formatting
-
-## 🔐 Configuration
-
-### Credentials
-
-Each project requires:
-
-- `credentials.json`: Google Sheets API credentials
-- Telegram bot token (in environment variables or config)
-- Website-specific configurations
-
-### Environment Variables
-
-- `PLAYWRIGHT_BROWSERS_PATH`: Path to Playwright browsers
-- `TELEGRAM_BOT_TOKEN`: Telegram bot authentication
-- `TELEGRAM_CHAT_ID`: Target chat for alerts
-
-### Google Sheets Setup
-
-1. Create Google Cloud Project
-2. Enable Sheets API
-3. Create service account credentials
-4. Share sheet with service account email
-5. Configure sheet ID in uploader scripts
-
-## 🐛 Troubleshooting
-
-### Playwright Browser Issues
+### Browser Issues
 
 ```bash
-# Install browsers
+# Playwright
+export PLAYWRIGHT_BROWSERS_PATH=/root/<project>/pw-browsers
 playwright install chromium
 
-# Set browser path
-export PLAYWRIGHT_BROWSERS_PATH=/path/to/project/pw-browsers
+# Camoufox
+python -m camoufox fetch
 ```
 
-### Permission Issues
+### Scraper Failures
 
 ```bash
-# Make scripts executable
-chmod +x run_scrapers.sh
+# Check logs
+tail -100 /root/scraper_logs/<scraper_name>.log
 
-# Fix virtual environment permissions
-chmod -R 755 venv/
+# Check if screen session is running
+screen -ls
+
+# Restart a single scraper
+screen -dmS scraper-largo bash /root/run_single_scraper.sh largo
 ```
 
 ### Google Sheets API Errors
 
-- Verify credentials.json format
-- Check service account permissions
-- Ensure sheet is shared with service account
-- Validate sheet ID configuration
+- Verify `credentials.json` is present and valid
+- Ensure the Google Sheet is shared with the service account email
+- Check that the sheet ID in the uploader script is correct
 
-### Scraper Failures
+### Memory Issues
 
-- Check website accessibility
-- Verify Playwright browser installation
-- Review scraper logs for specific errors
-- Check rate limiting and blocking
+The system includes automatic memory monitoring during sleep cycles. If available memory drops below 500MB, leftover browser processes are killed automatically.
 
-## 🔄 Pipeline Flow Diagram
+## License
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    run_scrapers.sh                           │
-│                  (Master Orchestrator)                       │
-│              Runs ACGV → ACMI → ACMS (8h sleeps)             │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-        ┌────────────┼────────────┐
-        │            │            │
-        ▼            ▼            ▼
-┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-│     ACGV     │ │     ACMI     │ │     ACMS     │
-│  (Geovoice)  │ │   (Mireli)   │ │  (Musikis)   │
-└──────┬───────┘ └──────┬───────┘ └──────┬───────┘
-       │                │                │
-       ▼                ▼                ▼
-┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-│ acgv_main.py │ │ acmi_main.py │ │ acms_main.py │
-│              │ │              │ │              │
-└──────┬───────┘ └──────┬───────┘ └──────┬───────┘
-       │                │                │
-       ▼                ▼                ▼
-┌─────────────────────────────────────────────────────┐
-│              1. SCRAPERS (Clean Start)              │
-│  • acoustic scraper → fresh acoustic.xlsx           │
-│  • competitor scraper → fresh competitor.xlsx         │
-└────────────────────┬────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────┐
-│              2. DATA MERGER (Fresh Only)             │
-│  • Delete previous merged report                    │
-│  • Merge acoustic + competitor data                │
-│  • Fuzzy matching & price comparison               │
-│  • Output: fresh_merged_report.xlsx                 │
-└────────────────────┬────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────┐
-│              3. SHEET UPLOADER (Guarded)             │
-│  • Check 24-hour freshness of merged Excel          │
-│  • Read df_new from fresh merged Excel              │
-│  • Read df_old from live Google Sheet               │
-│  • Detect price changes & send Telegram alerts       │
-│  • Update Google Sheet (only after alerts)          │
-└─────────────────────────────────────────────────────┘
-                     │
-                     ▼
-              Pipeline Complete
-
-┌─────────────────────────────────────────────────────┐
-│   ACMR (Acoustic-Musicroom) — manual execution       │
-│   Same pipeline as above; run acmr_main.py directly  │
-└─────────────────────────────────────────────────────┘
-```
-
-## 📄 License
-
-Proprietary - Internal use only
-
-## 👥 Support
-
-For issues or questions:
-
-- Check logs in individual project directories
-- Review error messages in orchestrator output
-- Verify configuration files and credentials
-- Ensure all dependencies are installed
+Proprietary — Internal use only
 
 ---
 
 **Last Updated:** July 2026
-**Version:** 2.1 (README Sync)
+**Version:** 3.0
