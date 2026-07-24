@@ -171,22 +171,22 @@ class GeovoiceLinkCollector:
 
                     
 
-                    # Check if page has actual content (not empty or error page)
-
-                    if len(html) < 1000:  # Basic content check
-
-                        logger.info(f"Page {page} appears empty. Category finished.")
-
+                    # Check for Cloudflare challenge (blocked page)
+                    # Real Cloudflare challenge pages have "Just a moment" in title
+                    # and are small (< 10KB). Normal pages may contain
+                    # 'challenge-platform' in a script tag but still have full content.
+                    if 'Just a moment' in html and len(html) < 10000:
+                        logger.error(f"Page {page} returned Cloudflare challenge. Category finished.")
                         break
 
+                    # Check if page has actual content (not empty or error page)
+                    if len(html) < 1000:  # Basic content check
+                        logger.info(f"Page {page} appears empty. Category finished.")
+                        break
                     
-
-                    # Check for Cloudflare challenge (blocked page, not just footer script)
-
-                    if 'Just a moment' in html and len(html) < 5000:
-
-                        logger.error(f"Page {page} returned Cloudflare challenge. Category finished.")
-
+                    # Verify page has real product content (not just Cloudflare wrapper)
+                    if 'ty-column4' not in html and 'product-title' not in html and page > 1:
+                        logger.info(f"Page {page} has no product content. Category finished.")
                         break
 
                     

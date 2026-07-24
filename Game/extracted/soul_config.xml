@@ -1,0 +1,14 @@
+<config>
+    <defaultLocale>en_EN</defaultLocale>
+    <locales>
+        <locale id="ru_RU">Русский</locale>
+        <locale id="en_EN">English</locale>
+        <locale id="de_DE">Deutch</locale>
+        <locale id="es_ES">Español</locale>
+    </locales>
+	<gameServer>127.0.0.1</gameServer>
+	<loginServer>127.0.0.1:9090</loginServer>
+	<portalServer>http://127.0.0.1:9090</portalServer>
+	<staticServer>http://127.0.0.1:9090/static</staticServer>
+	<updateFile>http://127.0.0.1:9090/static/update.xml</updateFile>
+</config>

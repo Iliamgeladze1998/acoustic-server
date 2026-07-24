@@ -1,0 +1,8 @@
+=== search with SearchRequest ===
+{"type":"INVALID","msg":"Query does not pass validation. Violations:\n\nUnknown argument 'request' on field 'search' of type 'Query'. (line 1, column 14):\nquery{search(request:{}){__typename}}\n             ^\n\nField 'search' argument 'SearchRequest' of type 'SearchRequest!' is required but not provided. (line 1, column 7):\nquery{search(request:{}){__typename}}\n      ^"}
+=== review with ReviewRequest ===
+{"type":"INVALID","msg":"Query does not pass validation. Violations:\n\nUnknown argument 'request' on field 'review' of type 'Query'. (line 1, column 14):\nquery{review(request:{}){__typename}}\n             ^\n\nField 'review' argument 'ReviewRequest' of type 'ReviewRequest!' is required but not provided. (line 1, column 7):\nquery{review(request:{}){__typename}}\n      ^"}
+=== search with fields ===
+{"type":"INVALID","msg":"Query does not pass validation. Violations:\n\nUnknown argument 'request' on field 'search' of type 'Query'. (line 1, column 14):\nquery{search(request:{destinationId:1,startDate:\"2026-08-01\",endDate:\"2026-08-05\"}){__typename}}\n             ^\n\nField 'search' argument 'SearchRequest' of type 'SearchRequest!' is required but not provided. (line 1, column 7):\nquery{search(request:{destinationId:1,startDate:\"2026-08-01\",endDate:\"2026-08-05\"}){__typename}}\n      ^"}
+=== search subfields ===
+{"type":"INVALID","msg":"Syntax error while parsing GraphQL query. Invalid input \"{}){results{id title}}\", expected Value or Argument (line 1, column 22):\nquery{search(request:{}){results{id title}}\n                     ^"}

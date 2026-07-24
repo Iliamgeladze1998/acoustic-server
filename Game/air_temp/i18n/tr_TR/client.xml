@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>translations</comment>
+<entry key="server.account">Hesap</entry>
+<entry key="level">Seviye</entry>
+<entry key="login.register.unavailable">Karakter oluşturma şuan yalnızca oyun web sayfasından mümkündür</entry>
+<entry key="server.create">OLUŞTUR</entry>
+<entry key="enterGame">Oyna</entry>
+<entry key="login.login">E-POSTA GİRİŞİ</entry>
+<entry key="login.password">PAROLA</entry>
+<entry key="login.register">KAYIT OL</entry>
+<entry key="update.text">Bu sunucuda oynamak için güncelleştirmenin yüklenmesi gerekmektedir. Şimdi güncelle?</entry>
+<entry key="server.server">Sunucu seçimi</entry>
+<entry key="warning">Dikkat!</entry>
+<entry key="login.partners">Ortaklar</entry>
+<entry key="update.title">Güncelleme gerekli</entry>
+<entry key="login.support">Destek</entry>
+<entry key="login.help">Yardım</entry>
+<entry key="login.copyrights">Copyright (c) 2010-2011 Ambergames.</entry>
+<entry key="login.title">OYUN GİR</entry>
+<entry key="login.forum">Forum</entry>
+<entry key="login.remember">Parolayı hatırla</entry>
+<entry key="server.title">KARAKTER SEÇİMİ</entry>
+</properties>

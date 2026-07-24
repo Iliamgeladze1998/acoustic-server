@@ -95,8 +95,9 @@ class GeovoiceProductLinkCollector:
                     response = self.session.get(category_page_url, timeout=10)
                     html = response.text
                 
-                # Check for Cloudflare challenge (blocked page, not just footer script)
-                if 'Just a moment' in html and len(html) < 5000:
+                # Check for Cloudflare challenge (blocked page)
+                # Only treat as challenge if "Just a moment" is present AND page is small
+                if 'Just a moment' in html and len(html) < 10000:
                     logger.error(f"Cloudflare challenge on {category_page_url}, skipping")
                     continue
                 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns:ffdec="https://www.free-decompiler.com/flash" xmlns:xlink="http://www.w3.org/1999/xlink" ffdec:objectType="shape" height="23.95px" width="24.0px" xmlns="http://www.w3.org/2000/svg">
+  <g transform="matrix(1.0, 0.0, 0.0, 1.0, -8.5, -8.45)">
+    <path d="M21.4 9.95 Q25.15 10.2 27.9 12.95" fill="none" stroke="url(#gradient0)" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.0"/>
+    <path d="M10.0 20.9 L10.0 20.4 Q10.0 16.4 12.6 13.5" fill="none" stroke="url(#gradient1)" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.0"/>
+    <path d="M20.0 30.9 Q16.0 30.7 13.1 27.85" fill="none" stroke="url(#gradient2)" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.0"/>
+    <path d="M31.0 20.9 Q30.8 24.95 27.9 27.8 L27.4 28.3" fill="none" stroke="url(#gradient3)" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.0"/>
+  </g>
+  <defs>
+    <linearGradient gradientTransform="matrix(0.005, 0.0029, -0.0018, 0.0032, 24.7, 11.5)" gradientUnits="userSpaceOnUse" id="gradient0" spreadMethod="pad" x1="-819.2" x2="819.2">
+      <stop offset="0.0" stop-color="#ffffff"/>
+      <stop offset="1.0" stop-color="#1251de"/>
+    </linearGradient>
+    <linearGradient gradientTransform="matrix(0.0032, -0.0056, 0.0055, 0.0032, 10.8, 17.0)" gradientUnits="userSpaceOnUse" id="gradient1" spreadMethod="pad" x1="-819.2" x2="819.2">
+      <stop offset="0.0" stop-color="#ffffff"/>
+      <stop offset="1.0" stop-color="#1251de"/>
+    </linearGradient>
+    <linearGradient gradientTransform="matrix(-0.0054, -0.0031, 0.0018, -0.0032, 16.4, 29.7)" gradientUnits="userSpaceOnUse" id="gradient2" spreadMethod="pad" x1="-819.2" x2="819.2">
+      <stop offset="0.0" stop-color="#ffffff"/>
+      <stop offset="1.0" stop-color="#1251de"/>
+    </linearGradient>
+    <linearGradient gradientTransform="matrix(-0.0033, 0.0057, -0.0055, -0.0032, 29.2, 24.6)" gradientUnits="userSpaceOnUse" id="gradient3" spreadMethod="pad" x1="-819.2" x2="819.2">
+      <stop offset="0.0" stop-color="#ffffff"/>
+      <stop offset="1.0" stop-color="#1251de"/>
+    </linearGradient>
+  </defs>
+</svg>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>translations</comment>
+<entry key="server.account">账户</entry>
+<entry key="level">等级</entry>
+<entry key="login.register.unavailable">角色创建只限于这个游戏网站和这个时刻。</entry>
+<entry key="server.create">太好了</entry>
+<entry key="enterGame">玩</entry>
+<entry key="login.login">登录邮箱</entry>
+<entry key="login.password">密码</entry>
+<entry key="login.register">注册</entry>
+<entry key="update.text">在这个服务器上游戏，必须下载一个新版本，现在更新吗？</entry>
+<entry key="server.server">选择服务器</entry>
+<entry key="warning">警告！</entry>
+<entry key="login.partners">合作伙伴</entry>
+<entry key="update.title">更新要求</entry>
+<entry key="login.support">支持</entry>
+<entry key="login.help">帮助</entry>
+<entry key="login.copyrights">版权(c)2010-2011Ambergames.</entry>
+<entry key="login.title">进入游戏</entry>
+<entry key="login.forum">论坛</entry>
+<entry key="login.remember">请记住密码</entry>
+<entry key="server.title">选择角色</entry>
+</properties>

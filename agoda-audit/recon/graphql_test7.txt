@@ -1,0 +1,2 @@
+=== search complete query ===
+{"type":"INVALID","msg":"Query reducing error: Introspection is not allowed."}

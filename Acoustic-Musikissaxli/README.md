@@ -19,6 +19,6 @@ python acms/acms_main.py
 
 ## Notes
 
-- Included in the automated `run_scrapers.sh` cycle.
+- Part of the automated `start_all_scrapers.sh` parallel pipeline (screen session: `scraper-musichouse`).
 - The orchestrator starts a small Flask health-check server for Render compatibility.
 - Blacklist is read from the live sheet before uploading.
