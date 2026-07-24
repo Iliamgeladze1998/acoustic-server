@@ -28,6 +28,12 @@ review-redirect-dev/
 CascadeProjects/
 Downloads/
 
+# Non-scraper projects (not part of acoustic-server)
+Game/
+Mymarket/
+heroeswm.ru/
+music-compare/
+
 # Downloaded/generated files
 .env_mymarket
 .wget-hsts
