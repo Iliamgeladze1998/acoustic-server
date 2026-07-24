@@ -19,6 +19,7 @@
 .pm2/
 .snap/
 snap/
+agoda-audit/
 ai-sdk-audit/
 nba-audit/
 ssrf-backup/

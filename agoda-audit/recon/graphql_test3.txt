@@ -1,4 +1,0 @@
-=== search with SearchRequest arg ===
-{"type":"INVALID","msg":"Query does not pass validation. Violations:\n\nField 'SearchRequest.context' of required type 'InternalContext!' was not provided. (line 1, column 28):\nquery{search(SearchRequest:{}){__typename}}\n                           ^\n\nField 'SearchRequest.searchRequest' of required type 'SearchRequestParameters!' was not provided. (line 1, column 28):\nquery{search(SearchRequest:{}){__typename}}\n                           ^"}
-=== review with ReviewRequest arg ===
-{"type":"INVALID","msg":"Query does not pass validation. Violations:\n\nField 'ReviewRequest.context' of required type 'InternalContext!' was not provided. (line 1, column 28):\nquery{review(ReviewRequest:{}){__typename}}\n                           ^\n\nField 'ReviewRequest.reviewRequest' of required type 'ReviewRequestParameters!' was not provided. (line 1, column 28):\nquery{review(ReviewRequest:{}){__typename}}\n                           ^"}
