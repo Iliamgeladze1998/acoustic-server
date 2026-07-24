@@ -1,0 +1,38 @@
+=== savepointsmax with fields ===
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"Bad Request","status":400,"traceId":"00-1808c4b0c843e220ef8f64cc19b4c96e-8eb3781e408f56cf-00"}
+=== insertmembership with fields ===
+{"success":false}
+=== addfavoritehotel with userId ===
+false
+=== getmemberprograms ===
+{MemberId=0}
+=== search redirect ===
+HTTP/2 302 
+content-length: 0
+access-control-allow-credentials: true
+access-control-allow-headers: Content-Type
+access-control-allow-methods: GET,POST
+access-control-expose-headers: ag-correlation-id
+location: /pages/agoda/default/page_textSearchResult.aspx?asq=w729s%2BkEJ2R8fB44wFQIUBx6qcfgqBv7n1W6%2Bf2%2BHv10sfYoj875V7qb4%2BIBDRlrDF%2BQhGY88ptz7iz99x7lVXMcwP66tYARsHM%2FALpML8I%3D
+ag-correlation-id: f9b7382f-c5c3-4746-8786-79f3053b8a2a
+strict-transport-security: max-age=31536000
+x-content-type-options: nosniff
+request-context: appId=
+x-ua-compatible: IE=edge
+x-envoy-upstream-service-time: 15
+x-envoy-datacenter: am
+vary: User-Agent, Accept-Encoding
+date: Mon, 20 Jul 2026 21:00:12 GMT
+set-cookie: ASP.NET_SessionId=cwpalicrlv014b4o3dmikduf; domain=www.agoda.com; path=/; SameSite=Lax; secure; HttpOnly
+set-cookie: t_pp=RCN7M2qJCyCm2J4d:TZOpoTU1TyMfc9vrsBpBcQ==:TPQDNi5czAtzNIA/3Gut/75SzBl3uejJPiqUMBQj6wJBZRQLUKqADtpbU3QUUBBLIUfEXopkiCuOhmYXME7yHJvM6mWbN5goIJi+3yxP800oHMUoT7t5z62SmH7zwDN8Qf7bSaSGsdUq2MA3A7zoSTTD1Xo0y/dw/fldoSzRYSumv2AHRyKpQ9Kxy/kT+Clspy5M7OUCBHvd9pc0w5E2ZyRFuPxv14w02qCmHqum3reFdOZBx2c=; domain=.agoda.com; path=/; expires=Mon, 20-Jul-2026 22:00:12 GMT; secure; HttpOnly; SameSite=None
+set-cookie: agoda.user.03=UserId=4a61394f-9c85-457f-9a6c-23f9ba1f5427; domain=.agoda.com; path=/; expires=Tue, 20-Jul-2027 21:00:12 GMT; secure; SameSite=None
+set-cookie: t_rc=dD0xJnVpZD00YTYxMzk0Zi05Yzg1LTQ1N2YtOWE2Yy0yM2Y5YmExZjU0Mjc=.F9QwMk5NL7IrlCqHcfsBUTURXclrUR4Bj/4Uc9pxpIU=; domain=.agoda.com; path=/; expires=Tue, 21-Jul-2026 21:00:12 GMT; secure; HttpOnly; SameSite=None
+set-cookie: agoda.analytics=Id=-7256360020036853085&Signature=-4260166792762724172&Expiry=1784584812602; domain=.agoda.com; path=/; expires=Mon, 20-Jul-2026 22:00:12 GMT; secure
+set-cookie: agoda.prius=PriusID=0&PointsMaxTraffic=Agoda; domain=.agoda.com; path=/; expires=Tue, 20-Jul-2027 21:00:12 GMT
+akamai-grn: 0.c81c1202.1784581212.1868fd5b
+
+
+=== GetHotCities ===
+
+=== campaigns ===
+The requested resource could not be found.

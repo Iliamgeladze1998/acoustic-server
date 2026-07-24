@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>translations</comment>
+<entry key="server.account">Akun</entry>
+<entry key="level">Level</entry>
+<entry key="login.register.unavailable">Pembuatan karakter saat ini hanya dapat dilakukan dari situs</entry>
+<entry key="server.create">BUAT</entry>
+<entry key="enterGame">Mainkan</entry>
+<entry key="login.login">EMAIL LOGIN</entry>
+<entry key="login.password">KATA KUNCI</entry>
+<entry key="login.register">DAFTAR</entry>
+<entry key="update.text">Perlu mengunduh sebuah update untuk dapat bermain di server ini. Update sekarang?</entry>
+<entry key="server.server">Pilih server</entry>
+<entry key="warning">Peringatan!</entry>
+<entry key="login.partners">Partner</entry>
+<entry key="update.title">Perlu mengupdate</entry>
+<entry key="login.support">Dukungan</entry>
+<entry key="login.help">Bantuan</entry>
+<entry key="login.copyrights">Hak Cipta Terpelihara (c) 2010-2011 Ambergames.</entry>
+<entry key="login.title">MASUKI GAME</entry>
+<entry key="login.forum">Forum</entry>
+<entry key="login.remember">Ingat kata kunci</entry>
+<entry key="server.title">PILIH KARAKTER</entry>
+</properties>

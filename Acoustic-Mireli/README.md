@@ -20,5 +20,5 @@ python acmi/acmi_main.py
 
 ## Notes
 
-- Included in the automated `run_scrapers.sh` cycle.
+- Part of the automated `start_all_scrapers.sh` parallel pipeline (screen session: `scraper-mireli`).
 - Mireli links may contain Georgian characters; the uploader encodes them for Google Sheets compatibility.

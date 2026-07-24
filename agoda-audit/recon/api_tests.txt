@@ -1,0 +1,12 @@
+]633;E;echo "=== addfavoritehotel ===";d36df961-4710-4bb3-9457-fff0a9535aec]633;C=== addfavoritehotel ===
+false
+=== get-last-pending-review ===
+
+=== getgiftcardvalue ===
+
+=== notification/get ===
+
+=== insertmembership ===
+{"success":false}
+=== savepointsmax ===
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"Bad Request","status":400,"traceId":"00-7267c3479ff8feb34ff807275185929b-badfdf272800c368-00"}

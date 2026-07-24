@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>translations</comment>
+<entry key="server.account">Tài khoản</entry>
+<entry key="level">Cấp độ</entry>
+<entry key="login.register.unavailable">Tạo nhân vật chỉ có sẵn từ trang web của trò chơi vào lúc này</entry>
+<entry key="server.create">TẠO</entry>
+<entry key="enterGame">Chơi</entry>
+<entry key="login.login">E-MAIL ĐĂNG NHẬP</entry>
+<entry key="login.password">MẬT KHẨU</entry>
+<entry key="login.register">ĐĂNG KÝ</entry>
+<entry key="update.text">Cần thiết tải về một bản cập nhật để chơi trên máy chủ này. Cập nhật bây giờ?</entry>
+<entry key="server.server">Chọn máy chủ</entry>
+<entry key="warning">Cảnh báo!</entry>
+<entry key="login.partners">Đối tác</entry>
+<entry key="update.title">Cập nhật cần thiết</entry>
+<entry key="login.support">Hỗ trợ</entry>
+<entry key="login.help">Trợ giúp</entry>
+<entry key="login.copyrights">Bản quyền (c) 2010-2011 Ambergames.</entry>
+<entry key="login.title">VÀO TRÒ CHƠI</entry>
+<entry key="login.forum">Diễn đàn</entry>
+<entry key="login.remember">Ghi nhớ mật khẩu</entry>
+<entry key="server.title">CHỌN CÁC NHÂN VẬT</entry>
+</properties>

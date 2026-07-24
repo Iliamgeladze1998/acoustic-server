@@ -1,0 +1,12 @@
+=== GraphQL with headers ===
+{"type":"INVALID","msg":"Query reducing error: Introspection is not allowed."}
+=== GraphQL introspection with headers ===
+[{"type":"GLOBAL_CONTEXT","msg":"Cid is not provided"}]
+=== /api/cart/items POST ===
+{"type":"https://tools.ietf.org/html/rfc7231#section-6.5.1","title":"One or more validation errors occurred.","status":400,"traceId":"00-8dac8f6d8f02039823cd6f3666d3afa0-ab918c2ffbf736be-00","errors":{"Filter":["The Filter field is required."],"Context":["The Context field is required."]}}
+=== /api/saved/retrieve POST ===
+{"type":"https://tools.ietf.org/html/rfc7231#section-6.5.1","title":"One or more validation errors occurred.","status":400,"traceId":"00-28cb8bcbea0f691d22c519cbcbc7ffb6-b802d7fcaa43d447-00","errors":{"Context":["The Context field is required."]}}
+=== /api/saved/add POST ===
+{"type":"https://tools.ietf.org/html/rfc7231#section-6.5.1","title":"One or more validation errors occurred.","status":400,"traceId":"00-d07bfcd46c9cede3205568a23a735071-fdae0713c3f37306-00","errors":{"Context":["The Context field is required."],"SavedItems":["The SavedItems field is required."]}}
+=== /api/cart/add POST ===
+{"type":"https://tools.ietf.org/html/rfc7231#section-6.5.1","title":"One or more validation errors occurred.","status":400,"traceId":"00-2a0f04e04de7f6c9396e2ae8ffd19d30-dc11b975deb78746-00","errors":{"Context":["The Context field is required."],"ProductItems":["The ProductItems field is required."]}}

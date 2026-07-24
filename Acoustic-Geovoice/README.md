@@ -20,5 +20,5 @@ python acgv/acgv_main.py
 
 ## Notes
 
-- Included in the automated `run_scrapers.sh` cycle.
+- Part of the automated `start_all_scrapers.sh` parallel pipeline (screen session: `scraper-geovoice`).
 - Uses a 24-hour freshness guard before uploading.

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Error</title>
+    <meta content="text/html; charset=windows-1251" http-equiv="Content-Type">
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Игра Heroeswm.ru недоступна :(</h1>
+По техническим причинам, сервер heroeswm.ru недоступен. Наша команда усиленно работает над исправлением этой ситуации.
+
+<script>
+Delta=30;
+function Refresh()
+{   if (Timer>=0) clearTimeout(Timer);
+   Delta = Delta - 1;
+   if (Delta > 0) Timer=setTimeout('Refresh()',1000);
+   if (Delta <=0) window.location="/home.php"}
+Timer=setTimeout('Refresh()', 1000);
+</script>
+
+</body>
+</html>

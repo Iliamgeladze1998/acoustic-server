@@ -1,0 +1,30 @@
+=== GraphQL --compressed ===
+[{"type":"GLOBAL_CONTEXT","msg":"LanguageId is not provided|PlatformId is not provided"}]
+=== GraphQL introspection --compressed ===
+[{"type":"GLOBAL_CONTEXT","msg":"LanguageId is not provided|PlatformId is not provided"}]
+=== Flights search ===
+
+=== Flights location ===
+
+=== /api/cart/items with CORS test ===
+HTTP/2 405 
+access-control-allow-credentials: true
+access-control-allow-headers: Content-Type
+access-control-allow-methods: GET,POST
+access-control-expose-headers: ag-correlation-id
+
+=== /api/saved/retrieve with CORS test ===
+HTTP/2 405 
+access-control-allow-credentials: true
+access-control-allow-headers: Content-Type
+access-control-allow-methods: GET,POST
+access-control-expose-headers: ag-correlation-id
+
+=== UserMenuViewModel with CORS ===
+HTTP/2 200 
+content-type: application/json
+access-control-allow-credentials: true
+access-control-allow-headers: Content-Type
+access-control-allow-methods: GET,POST
+access-control-expose-headers: ag-correlation-id
+

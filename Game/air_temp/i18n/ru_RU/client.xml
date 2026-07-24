@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>translations</comment>
+<entry key="server.account">Учетная запись</entry>
+<entry key="level">Уровень</entry>
+<entry key="login.register.unavailable">В данный момент создание персонажа возможно только со странички портала игры</entry>
+<entry key="server.create">СОЗДАТЬ</entry>
+<entry key="enterGame">В ИГРУ</entry>
+<entry key="login.login">ЛОГИН E-MAIL</entry>
+<entry key="login.password">ПАРОЛЬ</entry>
+<entry key="login.register">РЕГИСТРАЦИЯ</entry>
+<entry key="update.text">Трубется скачать данные, что бы играть на этом сервере.
+Произвести скачку сейчас?</entry>
+<entry key="server.server">Выбор сервера</entry>
+<entry key="warning">Внимание!</entry>
+<entry key="login.partners">Партнеры</entry>
+<entry key="update.title">Update required</entry>
+<entry key="login.support">Поддержка</entry>
+<entry key="login.help">Помощь</entry>
+<entry key="login.copyrights">Copyright (c) 2010-2011 Ambergames.</entry>
+<entry key="login.title">ВХОД В ИГРУ</entry>
+<entry key="login.forum">Форум</entry>
+<entry key="login.remember">Запомнить пароль</entry>
+<entry key="server.title">ВЫБОР ПЕРСОНАЖА</entry>
+</properties>

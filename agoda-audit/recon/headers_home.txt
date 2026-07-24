@@ -1,0 +1,34 @@
+HTTP/2 200 
+content-type: text/html; charset=utf-8
+access-control-allow-credentials: true
+access-control-allow-headers: Content-Type
+access-control-allow-methods: GET,POST
+access-control-expose-headers: ag-correlation-id
+cache-control: no-store, no-cache
+pragma: no-cache
+ag-correlation-id: ebe11aea-4ded-4895-8b3a-c8d6781709e6
+strict-transport-security: max-age=31536000
+x-content-type-options: nosniff
+request-context: appId=
+x-ua-compatible: IE=edge
+x-frame-options: SAMEORIGIN
+x-envoy-upstream-service-time: 57
+x-envoy-datacenter: am
+vary: user-agent
+date: Mon, 20 Jul 2026 20:49:04 GMT
+set-cookie: ASP.NET_SessionId=kq3rylcbwaiy2yft202ezm2j; domain=www.agoda.com; path=/; SameSite=Lax; secure; HttpOnly
+set-cookie: agoda.version.03=CookieId=1432a834-b516-4c44-b99e-2c7ae4aca0a8&DLang=en-us&CurLabel=EUR; domain=.agoda.com; path=/; expires=Wed, 21-Jul-2027 00:00:00 GMT; secure
+set-cookie: agoda.landings=-1|||kq3rylcbwaiy2yft202ezm2j|2026-07-21T03:49:04|False|19-----1|||kq3rylcbwaiy2yft202ezm2j|2026-07-21T03:49:04|False|20-----1|||kq3rylcbwaiy2yft202ezm2j|2026-07-21T03:49:04|False|99; domain=.agoda.com; path=/; expires=Wed, 21-Jul-2027 00:00:00 GMT; secure; HttpOnly
+set-cookie: agoda.attr.fe=-1|||kq3rylcbwaiy2yft202ezm2j|2026-07-21T03:49:04|False|2026-08-20T03:49:04|t4t6wR+Jgw1K7z7L; domain=.agoda.com; path=/; expires=Wed, 21-Jul-2027 00:00:00 GMT; secure
+set-cookie: agoda.attr.03=ATItems=-1$07-21-2026 03:49$; domain=.agoda.com; path=/; expires=Wed, 21-Jul-2027 00:00:00 GMT; secure; HttpOnly
+set-cookie: agoda.cid=-1; domain=.agoda.com; path=/; expires=Wed, 21-Jul-2027 03:49:04 GMT; secure; HttpOnly
+set-cookie: agoda.price.trk.01=PriceView=2; domain=.agoda.com; path=/; expires=Wed, 21-Jul-2027 03:49:04 GMT; secure
+set-cookie: agoda.price.01=PriceView=2; domain=.agoda.com; path=/; expires=Wed, 21-Jul-2027 03:49:04 GMT; secure
+set-cookie: xsrf_token=CfDJ8Dkuqwv-0VhLoFfD8dw7lYy6en2ih6Ckvh6aSaZb5VRUnOw8LoNG2dll3XcaudFVhTnSp0BrpWwDy2epIPP6YPV3ZVwjhGE4OYI1MnPFGdpW2M0RfEWj1l7UJYOAiX41hcD4dEoTciR3mowHIaEO0ww; path=/; secure; samesite=strict; httponly
+set-cookie: t_pp=FaoGHpsT9dvDJB89:02zc56a6WMFMhJ6PWwSs6A==:D9SquNfyOx0jstiBeM6bFwFjNSKA4C5urVwz6HTe2GRe2gDodyjzxy3LVTQbKDS6JALknwRSjyN74E0h0Ta9GZ93tsSWyQZOmv+bRy55njPTGzdc1OXfeQlUwakChCXqYpGJqsJsAEVg+u6P4Mmy3ea3sBTteOoL5yag+3pBBNVj3u5VFn/1Rkvu3yBZ9LUJ19wYkOMoCGNzni2XZSnpymPg/9hsV8GqbuG/EXuPr9XdLM9m4gaLFhpdiA==; domain=.agoda.com; path=/; expires=Mon, 20-Jul-2026 21:49:04 GMT; secure; HttpOnly; SameSite=None
+set-cookie: agoda.user.03=UserId=6cc79b03-e847-423b-8211-9920ccd3dd5c; domain=.agoda.com; path=/; expires=Tue, 20-Jul-2027 20:49:04 GMT; secure; SameSite=None
+set-cookie: t_rc=dD0xJjhFVEQrMW02WEEzTlFZbTdEVlF2cFE9MSZ1aWQ9NmNjNzliMDMtZTg0Ny00MjNiLTgyMTEtOTkyMGNjZDNkZDVj.GNRhZumRCiVexi0JeV2Ycom21pMovnaZwSZvCMX4Oyo=; domain=.agoda.com; path=/; expires=Tue, 21-Jul-2026 20:49:04 GMT; secure; HttpOnly; SameSite=None
+set-cookie: agoda.analytics=Id=-7292748849640135104&Signature=-8317063838416943632&Expiry=1784584144782; domain=.agoda.com; path=/; expires=Mon, 20-Jul-2026 21:49:04 GMT; secure
+set-cookie: agoda.prius=PriusID=0&PointsMaxTraffic=Agoda; domain=.agoda.com; path=/; expires=Tue, 20-Jul-2027 20:49:04 GMT
+akamai-grn: 0.c81c1202.1784580544.18259253
+

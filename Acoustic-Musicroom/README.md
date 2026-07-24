@@ -20,5 +20,5 @@ python acmr/acmr_main.py
 
 ## Notes
 
-- Same architecture as ACGV/ACMI/ACMS.
-- Part of the automated `run_scrapers.sh` cycle (Part 4, after Music House). Can also be run manually as above.
+- Same architecture as the other projects.
+- Part of the automated `start_all_scrapers.sh` parallel pipeline (screen session: `scraper-musicroom`). Can also be run manually as above.

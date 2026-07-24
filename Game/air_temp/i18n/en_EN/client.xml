@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>translations</comment>
+<entry key="server.account">Account</entry>
+<entry key="level">Level</entry>
+<entry key="login.register.unavailable">Character creation is available only from the game website at the moment</entry>
+<entry key="server.create">CREATE</entry>
+<entry key="enterGame">Play</entry>
+<entry key="login.login">LOGIN E-MAIL</entry>
+<entry key="login.password">PASSWORD</entry>
+<entry key="login.register">REGISTER</entry>
+<entry key="update.text">It is necessary to download an update to play on this server. Update now?</entry>
+<entry key="server.server">Choose the server</entry>
+<entry key="warning">Warning!</entry>
+<entry key="login.partners">Partners</entry>
+<entry key="update.title">Update required</entry>
+<entry key="login.support">Support</entry>
+<entry key="login.help">Help</entry>
+<entry key="login.copyrights">Copyright (c) 2010-2011 Ambergames.</entry>
+<entry key="login.title">ENTER THE GAME</entry>
+<entry key="login.forum">Forum</entry>
+<entry key="login.remember">Remember password</entry>
+<entry key="server.title">CHOOSE THE CHARACTER</entry>
+</properties>

@@ -12,7 +12,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 # Ensure Playwright can locate the project-local browser install,
-# whether this script is launched from run_scrapers.sh or directly.
+# whether this script is launched from run_single_scraper.sh or directly.
 os.environ.setdefault(
     "PLAYWRIGHT_BROWSERS_PATH",
     "/root/Acoustic-Musicroom/pw-browsers",
