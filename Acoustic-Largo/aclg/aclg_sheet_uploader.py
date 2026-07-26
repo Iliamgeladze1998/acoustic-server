@@ -19,7 +19,7 @@ STORE_NAMES = {
     'Price_LG': 'Largo',
 }
 MERGED_FILE_MAX_AGE_SECONDS = 24 * 60 * 60
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1tDKgxcxPF8Jq151nMb6Wu_ziyOxkFATKSOquFKZrg94/edit"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1tDKgxcxPF8Jq151nMb6Wu_ziyOxkFATKSOquFKZrg94/edit#gid=1460607737"
 
 
 def escape_md_url(url):

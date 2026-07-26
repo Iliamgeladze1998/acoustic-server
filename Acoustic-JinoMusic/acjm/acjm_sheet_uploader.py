@@ -267,7 +267,7 @@ def upload_to_sheet(df, sheet, sh):
     print(f"Successfully uploaded {len(df)} rows to sheet.")
 
 
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1tDKgxcxPF8Jq151nMb6Wu_ziyOxkFATKSOquFKZrg94/edit"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1tDKgxcxPF8Jq151nMb6Wu_ziyOxkFATKSOquFKZrg94/edit#gid=14582180"
 
 
 def escape_md(text):

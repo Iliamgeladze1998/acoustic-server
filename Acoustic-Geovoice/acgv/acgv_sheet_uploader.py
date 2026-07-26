@@ -27,7 +27,7 @@ STORE_NAMES = {
 }
 
 
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1tDKgxcxPF8Jq151nMb6Wu_ziyOxkFATKSOquFKZrg94/edit"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1tDKgxcxPF8Jq151nMb6Wu_ziyOxkFATKSOquFKZrg94/edit#gid=286239999"
 
 
 def escape_md(text):

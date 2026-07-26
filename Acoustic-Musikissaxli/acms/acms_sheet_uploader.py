@@ -28,7 +28,7 @@ STORE_NAMES = {
     'Price_AC': 'Acoustic',
     'Price_MS': 'Musikis-saxli',
 }
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1tDKgxcxPF8Jq151nMb6Wu_ziyOxkFATKSOquFKZrg94/edit"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1tDKgxcxPF8Jq151nMb6Wu_ziyOxkFATKSOquFKZrg94/edit#gid=0"
 
 
 def escape_md_url(url):
