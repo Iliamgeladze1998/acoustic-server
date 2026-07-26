@@ -91,8 +91,14 @@ class GeovoiceProductLinkCollector:
                 html = None
                 if use_flaresolverr:
                     html = fetch_via_flaresolverr(category_page_url)
+                    # Retry FlareSolverr once if it fails
+                    if html is None:
+                        logger.info(f"FlareSolverr failed for {category_page_url}, retrying...")
+                        time.sleep(5)
+                        html = fetch_via_flaresolverr(category_page_url)
                 if html is None:
-                    response = self.session.get(category_page_url, timeout=10)
+                    logger.info(f"FlareSolverr unavailable, trying cloudscraper for {category_page_url}")
+                    response = self.session.get(category_page_url, timeout=15)
                     html = response.text
                 
                 # Check for Cloudflare challenge (blocked page)

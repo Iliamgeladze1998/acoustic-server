@@ -164,9 +164,15 @@ class GeovoiceLinkCollector:
 
                     if use_flaresolverr:
                         html = fetch_via_flaresolverr(page_url)
+                        # Retry FlareSolverr once if it fails
+                        if html is None:
+                            logger.info(f"FlareSolverr failed for {page_url}, retrying...")
+                            time.sleep(5)
+                            html = fetch_via_flaresolverr(page_url)
 
                     if html is None:
-                        response = self.session.get(page_url, timeout=10)
+                        logger.info(f"FlareSolverr unavailable, trying cloudscraper for {page_url}")
+                        response = self.session.get(page_url, timeout=15)
                         html = response.text
 
                     
@@ -241,7 +247,9 @@ class GeovoiceLinkCollector:
 
         try:
 
-            with open(filename, 'w', encoding='utf-8') as f:
+            filepath = os.path.join(SCRIPT_DIR, filename)
+
+            with open(filepath, 'w', encoding='utf-8') as f:
 
                 for page_url in pages:
 

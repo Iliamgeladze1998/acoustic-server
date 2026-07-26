@@ -9,6 +9,12 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
+try:
+    from camoufox_helper import fetch_page as camoufox_fetch
+    CAMOUFOX_AVAILABLE = True
+except Exception:
+    CAMOUFOX_AVAILABLE = False
+
 FLARESOLVERR_URL = os.getenv('FLARESOLVERR_URL', 'http://localhost:8191/v1')
 
 def flaresolverr_available():
@@ -35,6 +41,20 @@ def fetch_via_flaresolverr(url, timeout_ms=60000):
     except Exception as e:
         print(f"  FlareSolverr request failed: {str(e)[:80]}", flush=True)
         return None
+
+def fetch_with_bypass(url):
+    """Fetch a page using FlareSolverr first, then Camoufox as fallback. Returns HTML or None."""
+    # Try FlareSolverr first
+    html = fetch_via_flaresolverr(url)
+    if html and 'Just a moment' not in html[:5000]:
+        return html
+    print(f"  FlareSolverr failed or blocked, trying Camoufox...", flush=True)
+    # Try Camoufox
+    if CAMOUFOX_AVAILABLE:
+        html = camoufox_fetch(url)
+        if html and 'Just a moment' not in html[:5000]:
+            return html
+    return None
 
 async def scrape_geovoice_full():
     """Direct product page scraper: read links from file, visit each product page for detailed extraction"""
@@ -142,10 +162,11 @@ async def scrape_geovoice_full():
             'DATE': datetime.now().strftime("%Y-%m-%d %H:%M")
         }
     
-    # --- FLARESOLVERR MODE: bypass Cloudflare via local FlareSolverr (port 8191) ---
-    use_flaresolverr = os.getenv('USE_FLARESOLVERR', 'true').lower() == 'true' and flaresolverr_available()
-    if use_flaresolverr:
-        print(f"Using FlareSolverr at {FLARESOLVERR_URL} to bypass Cloudflare", flush=True)
+    # --- BYPASS MODE: FlareSolverr + Camoufox fallback ---
+    use_bypass = os.getenv('USE_FLARESOLVERR', 'true').lower() == 'true' and (flaresolverr_available() or CAMOUFOX_AVAILABLE)
+    if use_bypass:
+        method = "FlareSolverr + Camoufox" if CAMOUFOX_AVAILABLE else "FlareSolverr"
+        print(f"Using {method} to bypass Cloudflare", flush=True)
         all_products = []
         output_file = os.path.join(script_dir, "geovoice_final_stock.xlsx")
         
@@ -162,15 +183,15 @@ async def scrape_geovoice_full():
                 print(f"  Taking a {cooldown:.0f}s cooldown break after {idx} products...", flush=True)
                 await asyncio.sleep(cooldown)
             
-            html = fetch_via_flaresolverr(product_url)
+            html = fetch_with_bypass(product_url)
             if html is None:
-                html = fetch_via_flaresolverr(product_url)  # single retry
+                html = fetch_with_bypass(product_url)  # single retry
             if html is None:
                 print(f"  ERROR: Failed to fetch {product_url}, skipping", flush=True)
                 continue
             
             if 'Just a moment' in html and len(html) < 5000:
-                print(f"  ERROR: Cloudflare challenge not solved by FlareSolverr for {product_url}", flush=True)
+                print(f"  ERROR: Cloudflare challenge not solved for {product_url}", flush=True)
                 if no_delay:
                     print("  [SMOKE TEST] Fail-fast: aborting on Cloudflare detection", flush=True)
                     return
@@ -193,16 +214,16 @@ async def scrape_geovoice_full():
             df['PRICE'] = pd.to_numeric(df['PRICE'], errors='coerce')
             df.to_excel(output_file, index=False)
             print(f"\n{'='*60}", flush=True)
-            print(f"SCRAPE COMPLETE (FlareSolverr mode)!", flush=True)
+            print(f"SCRAPE COMPLETE (bypass mode)!", flush=True)
             print(f"   Total products processed: {len(product_links)}", flush=True)
             print(f"   Unique products (after dedup): {len(df)}", flush=True)
             print(f"   Output file: {output_file}", flush=True)
             print(f"{'='*60}", flush=True)
         else:
-            print("\nNo products found (FlareSolverr mode)!", flush=True)
+            print("\nNo products found (bypass mode)!", flush=True)
         return
     
-    print("FlareSolverr not available - falling back to Playwright mode", flush=True)
+    print("FlareSolverr/Camoufox not available - falling back to Playwright mode", flush=True)
     
     print(f"Starting deep extraction for {len(product_links)} products...", flush=True)
     

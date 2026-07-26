@@ -19,6 +19,145 @@ STORE_NAMES = {
     'Price_LG': 'Largo',
 }
 MERGED_FILE_MAX_AGE_SECONDS = 24 * 60 * 60
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1tDKgxcxPF8Jq151nMb6Wu_ziyOxkFATKSOquFKZrg94/edit"
+
+
+def escape_md_url(url):
+    """Escape a URL so it can be used as a MarkdownV2 inline-link target."""
+    return str(url).replace('\\', '\\\\').replace(')', '\\)')
+
+
+def md_link(label, url):
+    """Render a MarkdownV2 inline link, falling back to plain text for unusable URLs."""
+    text = str(url).strip()
+    if not text.lower().startswith(('http://', 'https://')):
+        return f"{escape_md(label)}: N/A"
+    return f"[{escape_md(label)}]({escape_md_url(text)})"
+
+
+def fmt_money(value):
+    """Presentation-only money formatting (thousands separator, 2 decimals)."""
+    try:
+        return f"{float(value):,.2f}"
+    except (TypeError, ValueError):
+        return 'N/A'
+
+
+def build_price_alert_message(store_changed, other_store, name_ac, name_other,
+                             old_price, new_price, current_ac, current_other,
+                             link_ac, link_other):
+    """Render a single price-change alert. Presentation only — no detection logic."""
+    delta_line = ''
+    if old_price is not None and new_price is not None:
+        diff = new_price - old_price
+        if diff < 0:
+            head, arrow = 'ფასი დაეცა', '🔻'
+            icon = '📉'
+        else:
+            head, arrow = 'ფასი გაიზარდა', '🔺'
+            icon = '📈'
+        delta_line = f"{arrow} {escape_md(fmt_money(abs(diff)))} ₾"
+        if old_price:
+            pct = abs(diff) / old_price * 100
+            delta_line += f" \\({escape_md(f'{pct:.1f}')}%\\)"
+    else:
+        head, icon = 'ფასი განახლდა', '🔄'
+
+    old_display = fmt_money(old_price) if old_price is not None else 'N/A'
+    new_display = fmt_money(new_price) if new_price is not None else 'N/A'
+
+    lines = [
+        f"{icon} *{escape_md(head)}* · *{escape_md(store_changed)}*",
+        f"{escape_md(old_display)} ₾ ➡️ *{escape_md(new_display)} ₾*",
+    ]
+    if delta_line:
+        lines.append(delta_line)
+    lines += [
+        "",
+        f"📦 *Acoustic:* {escape_md(name_ac)}",
+        f"📦 *{escape_md(other_store)}:* {escape_md(name_other)}",
+        "",
+        f"💰 მიმდინარე: Acoustic *{escape_md(current_ac)} ₾* · {escape_md(other_store)} *{escape_md(current_other)} ₾*",
+        f"🔗 {md_link('Acoustic', link_ac)} · {md_link(other_store, link_other)}",
+    ]
+    return "\n".join(lines)
+
+
+def build_alert_summary_message(other_store, drops, rises, others):
+    """Render a short run summary. Presentation only."""
+    total = drops + rises + others
+    stamp = (datetime.utcnow() + timedelta(hours=4)).strftime('%Y-%m-%d %H:%M')
+    lines = [
+        f"✅ *{escape_md(other_store)}* · ფასების შემოწმება დასრულდა",
+        f"📊 სულ ცვლილება: *{total}*",
+        f"🔻 გაიაფდა: *{drops}*  ·  🔺 გაძვირდა: *{rises}*",
+    ]
+    if others:
+        lines.append(f"🔄 სხვა განახლება: *{others}*")
+    lines += [
+        f"🕒 {escape_md(stamp)}",
+        f"📄 [Google Sheet]({escape_md_url(SHEET_URL)})",
+    ]
+    return "\n".join(lines)
+
+
+def polish_sheet_visuals(spreadsheet, worksheet, headers, row_count):
+    """Cosmetic-only Google Sheet polish. Never reads or writes cell values.
+
+    All requests are idempotent, so repeated runs cannot pile up artifacts.
+    """
+    sheet_id = worksheet._properties['sheetId']
+    col_count = max(1, len(headers))
+    end_row = max(2, row_count + 1)
+
+    body = [
+        {'repeatCell': {
+            'range': {'sheetId': sheet_id, 'startRowIndex': 0, 'endRowIndex': 1,
+                      'startColumnIndex': 0, 'endColumnIndex': col_count},
+            'cell': {'userEnteredFormat': {
+                'backgroundColor': {'red': 0.051, 'green': 0.400, 'blue': 0.400},
+                'horizontalAlignment': 'CENTER',
+                'verticalAlignment': 'MIDDLE',
+                'wrapStrategy': 'CLIP',
+                'textFormat': {'bold': True, 'fontSize': 10,
+                               'foregroundColor': {'red': 1.0, 'green': 1.0, 'blue': 1.0}},
+            }},
+            'fields': 'userEnteredFormat(backgroundColor,horizontalAlignment,verticalAlignment,wrapStrategy,textFormat)',
+        }},
+        {'updateDimensionProperties': {
+            'range': {'sheetId': sheet_id, 'dimension': 'ROWS', 'startIndex': 0, 'endIndex': 1},
+            'properties': {'pixelSize': 34}, 'fields': 'pixelSize',
+        }},
+        {'repeatCell': {
+            'range': {'sheetId': sheet_id, 'startRowIndex': 1, 'endRowIndex': end_row,
+                      'startColumnIndex': 0, 'endColumnIndex': col_count},
+            'cell': {'userEnteredFormat': {'verticalAlignment': 'MIDDLE', 'wrapStrategy': 'CLIP'}},
+            'fields': 'userEnteredFormat(verticalAlignment,wrapStrategy)',
+        }},
+        {'setBasicFilter': {
+            'filter': {'range': {'sheetId': sheet_id, 'startRowIndex': 0, 'endRowIndex': end_row,
+                                 'startColumnIndex': 0, 'endColumnIndex': col_count}},
+        }},
+        {'autoResizeDimensions': {
+            'dimensions': {'sheetId': sheet_id, 'dimension': 'COLUMNS',
+                           'startIndex': 0, 'endIndex': col_count},
+        }},
+    ]
+
+    width_rules = ((('link',), 190), (('name',), 280), (('price',), 95),
+                   (('feedback',), 130), (('last_updated',), 150))
+    for idx, header in enumerate(headers):
+        key = str(header).strip().lower()
+        for needles, width in width_rules:
+            if any(n in key for n in needles):
+                body.append({'updateDimensionProperties': {
+                    'range': {'sheetId': sheet_id, 'dimension': 'COLUMNS',
+                              'startIndex': idx, 'endIndex': idx + 1},
+                    'properties': {'pixelSize': width}, 'fields': 'pixelSize',
+                }})
+                break
+
+    spreadsheet.batch_update({'requests': body})
 
 
 def _abort_critical(message):
@@ -256,6 +395,13 @@ def upload_to_sheet(df, sheet, sh):
     # Apply standard formatting
     apply_standard_sheet_formatting(sheet, headers, row_count + 1)
 
+    # Cosmetic polish (filter, widths, header style). Never affects data.
+    try:
+        polish_sheet_visuals(sh, sheet, headers, row_count)
+        print("   ✨ Sheet visuals polished.")
+    except Exception as e:
+        print(f"   Warning: Visual polish skipped: {e}")
+
     print(f"Successfully uploaded {len(df)} rows to sheet.")
 
 
@@ -430,6 +576,7 @@ def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
         return True
 
     pending_alerts = []
+    drops = rises = other_changes = 0
     price_cols = [cols['price_ac'], cols['price_other']]
 
     for key, new_row in new_rows.items():
@@ -448,19 +595,21 @@ def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
             product_name_other = str(new_row.get(cols['name_other'], '')).strip() or 'N/A'
             link_ac = str(new_row.get(cols['link_ac'], '')).strip() or 'N/A'
             link_other = str(new_row.get(cols['link_other'], '')).strip() or 'N/A'
-            old_display = f"{old_price:.2f}" if old_price is not None else 'N/A'
-            new_display = f"{new_price:.2f}" if new_price is not None else 'N/A'
             current_price_ac = _format_alert_price(new_row.get(cols['price_ac'], ''))
             current_price_other = _format_alert_price(new_row.get(cols['price_other'], ''))
-            pending_alerts.append((
-                "🚨 *ფასის ცვლილება დეტექტირებულია\\!* 🚨\n"
-                f"📦 *Acoustic პროდუქტი:* {escape_md(product_name_ac)}\n"
-                f"📦 *{escape_md(cols['other_store'])} პროდუქტი:* {escape_md(product_name_other)}\n"
-                f"*შეცვლილი მაღაზია:* {escape_md(store_name)}\n"
-                f"💰 *ძველი → ახალი:* {escape_md(old_display)} ₾ ➡️ {escape_md(new_display)} ₾\n"
-                f"*მიმდინარე ფასები:* Acoustic {escape_md(current_price_ac)} ₾ \\| {escape_md(cols['other_store'])} {escape_md(current_price_other)} ₾\n"
-                f"*Acoustic ბმული:* {escape_md(link_ac)}\n"
-                f"*{escape_md(cols['other_store'])} ბმული:* {escape_md(link_other)}"
+
+            if old_price is not None and new_price is not None:
+                if new_price < old_price:
+                    drops += 1
+                else:
+                    rises += 1
+            else:
+                other_changes += 1
+
+            pending_alerts.append(build_price_alert_message(
+                store_name, cols['other_store'], product_name_ac, product_name_other,
+                old_price, new_price, current_price_ac, current_price_other,
+                link_ac, link_other,
             ))
 
     if not pending_alerts:
@@ -470,6 +619,10 @@ def detect_and_alert_price_changes(df_old, df_new, token, chat_id):
             if not send_telegram_message(token, chat_id, message):
                 return False
         print(f"📨 Sent {len(pending_alerts)} Telegram alert(s) for exact product price changes")
+        send_telegram_message(
+            token, chat_id,
+            build_alert_summary_message(cols['other_store'], drops, rises, other_changes),
+        )
 
     new_only_count = len(set(new_rows) - set(old_rows))
     if new_only_count:

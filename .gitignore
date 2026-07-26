@@ -70,6 +70,11 @@ music-store-product-links.txt
 
 # Credentials
 **/credentials.json
+**/admin_credentials.txt
+
+# Backup files
+*.backup_*
+*.bak
 
 # Playwright browsers
 **/pw-browsers/

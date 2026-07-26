@@ -2,7 +2,7 @@
 
 QR code redirect system for acoustic.ge Google Maps reviews.
 
-- **Live URL:** https://acoustic-review.surge.sh
+- **Live URL:** https://review.acoustic.ge/
 - **QR Code:** `acoustic_review_qr.png`
 - **How it works:** User scans QR → sees question → positive = Google Maps review, negative = thank you message
 

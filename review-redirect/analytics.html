@@ -1,401 +1,753 @@
 <!DOCTYPE html>
-<html lang="ka">
+<html lang="ka" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acoustic — ანალიტიკა</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0f1117;
-            color: #e2e2e8;
-            min-height: 100vh;
-        }
-        /* Login */
-        .login {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .login-card {
-            background: #1a1d27;
-            border: 1px solid #2a2d3a;
-            border-radius: 16px;
-            padding: 36px;
-            width: 100%;
-            max-width: 380px;
-        }
-        .login-card h1 {
-            font-size: 22px;
-            margin-bottom: 6px;
-            color: #008080;
-        }
-        .login-card p {
-            font-size: 14px;
-            color: #6a6a7a;
-            margin-bottom: 24px;
-        }
-        .login-card input {
-            width: 100%;
-            padding: 14px 16px;
-            background: #0f1117;
-            border: 1px solid #2a2d3a;
-            border-radius: 10px;
-            color: #e2e2e8;
-            font-size: 16px;
-            outline: none;
-            margin-bottom: 12px;
-        }
-        .login-card input:focus { border-color: #008080; }
-        .btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #008080, #006666);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .btn:hover { opacity: 0.9; }
-        .login-error {
-            color: #e74c3c;
-            font-size: 14px;
-            margin-top: 10px;
-            display: none;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e14">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="/logo_for_acoustic_browser_tab.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Acoustic — ანალიტიკა</title>
+<style>
+:root{
+  --bg:#0b0e14;
+  --bg-soft:#111520;
+  --panel:#141926;
+  --panel-2:#1a2031;
+  --line:#232b3d;
+  --line-soft:#1d2434;
+  --text:#e8ecf4;
+  --text-soft:#93a0b8;
+  --text-faint:#5f6b82;
+  --teal:#19b3a6;
+  --teal-soft:#0f6f68;
+  --green:#2ecc9a;
+  --red:#f0616d;
+  --violet:#9b8cfb;
+  --gold:#f6a623;
+  --radius:18px;
+  --radius-sm:12px;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 18px 40px -22px rgba(0,0,0,.75);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+html[data-theme="light"]{
+  --bg:#f2f6f7;
+  --bg-soft:#e9f0f1;
+  --panel:#ffffff;
+  --panel-2:#f6fafa;
+  --line:#e0eaea;
+  --line-soft:#eaf1f1;
+  --text:#14201f;
+  --text-soft:#5b6b69;
+  --text-faint:#93a3a2;
+  --teal:#0d7d75;
+  --teal-soft:#bfe6e3;
+  --green:#12a37a;
+  --red:#d9414f;
+  --violet:#6c5ce7;
+  --shadow:0 1px 2px rgba(6,63,63,.05), 0 16px 36px -20px rgba(6,63,63,.28);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:'Noto Sans Georgian','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;min-height:100dvh;line-height:1.5;
+  font-variant-numeric:tabular-nums;
+  transition:background .35s var(--ease), color .35s var(--ease);
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(42% 40% at 12% 0%, rgba(25,179,166,.16) 0%, transparent 62%),
+    radial-gradient(38% 36% at 92% 6%, rgba(155,140,251,.13) 0%, transparent 60%),
+    radial-gradient(46% 40% at 60% 100%, rgba(25,179,166,.10) 0%, transparent 62%);
+}
+.wrap{position:relative;z-index:1}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+svg{display:block}
 
-        /* Dashboard */
-        .dashboard { display: none; padding: 24px; max-width: 1100px; margin: 0 auto; }
-        .dash-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 28px;
-        }
-        .dash-header h1 { font-size: 24px; color: #008080; }
-        .dash-header .actions { display: flex; gap: 10px; align-items: center; }
-        .refresh-btn {
-            background: #1a1d27;
-            border: 1px solid #2a2d3a;
-            color: #008080;
-            padding: 10px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .refresh-btn:hover { background: #222533; }
-        .live-dot {
-            display: inline-block;
-            width: 8px; height: 8px;
-            background: #00b894;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .auto-refresh { font-size: 13px; color: #6a6a7a; }
+/* ---------------- login ---------------- */
+.login{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:24px}
+.login-card{
+  width:100%;max-width:392px;background:var(--panel);
+  border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:34px 30px 30px;text-align:center;
+  animation:rise .6s var(--ease) both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(16px) scale(.99)}to{opacity:1;transform:none}}
+.login-mark{
+  width:56px;height:56px;margin:0 auto 18px;border-radius:16px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--teal),var(--teal-soft));
+  box-shadow:0 10px 26px -12px rgba(25,179,166,.7);
+}
+.login-mark svg{width:28px;height:28px;stroke:#fff}
+.login-card h1{font-size:20px;font-weight:700;letter-spacing:-.2px}
+.login-card p{font-size:13.5px;color:var(--text-soft);margin:6px 0 22px}
+.field{position:relative}
+.field input{
+  width:100%;padding:14px 44px 14px 16px;font:inherit;font-size:15px;
+  background:var(--bg-soft);border:1.5px solid var(--line);border-radius:var(--radius-sm);
+  color:var(--text);outline:none;transition:border-color .25s var(--ease), box-shadow .25s var(--ease);
+}
+.field input::placeholder{color:var(--text-faint)}
+.field input:focus{border-color:var(--teal);box-shadow:0 0 0 4px rgba(25,179,166,.14)}
+.field .eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:8px;border-radius:8px;color:var(--text-faint)}
+.field .eye:hover{color:var(--text)}
+.field .eye svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7}
+.btn-primary{
+  width:100%;margin-top:12px;padding:14px;border-radius:var(--radius-sm);
+  font-weight:700;font-size:15px;color:#fff;
+  background:linear-gradient(135deg,var(--teal),var(--teal-soft));
+  box-shadow:0 10px 24px -12px rgba(25,179,166,.8);
+  transition:transform .25s var(--ease), box-shadow .25s var(--ease), opacity .25s var(--ease);
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 16px 30px -14px rgba(25,179,166,.9)}
+.btn-primary:active{transform:translateY(0) scale(.995)}
+.login-error{
+  color:var(--red);font-size:13.5px;font-weight:600;margin-top:12px;
+  opacity:0;transform:translateY(-4px);transition:.25s var(--ease);
+}
+.login-error.on{opacity:1;transform:none}
+.shake{animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 28px;
-        }
-        .stat-card {
-            background: #1a1d27;
-            border: 1px solid #2a2d3a;
-            border-radius: 14px;
-            padding: 24px;
-        }
-        .stat-card .label {
-            font-size: 13px;
-            color: #6a6a7a;
-            margin-bottom: 6px;
-        }
-        .stat-card .value {
-            font-size: 36px;
-            font-weight: 800;
-        }
-        .stat-card .sub {
-            font-size: 12px;
-            color: #6a6a7a;
-            margin-top: 4px;
-        }
-        .stat-positive .value { color: #00b894; }
-        .stat-negative .value { color: #e74c3c; }
-        .stat-unique .value { color: #008080; }
+/* ---------------- dashboard shell ---------------- */
+.dashboard{display:none;max-width:1180px;margin:0 auto;padding:26px 22px 46px}
+.dashboard.on{display:block;animation:rise .5s var(--ease) both}
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand-mark{
+  width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex:none;
+  background:linear-gradient(135deg,var(--teal),var(--teal-soft));
+  box-shadow:0 8px 20px -10px rgba(25,179,166,.75);
+}
+.brand-mark svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:1.8}
+.brand h1{font-size:19px;font-weight:700;letter-spacing:-.2px;line-height:1.2}
+.brand .sub{font-size:12px;color:var(--text-faint)}
+.spacer{flex:1 1 auto}
+.tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 13px;font-size:13px;font-weight:600;color:var(--text-soft);
+  background:var(--panel);border:1px solid var(--line);border-radius:999px;
+  transition:color .2s var(--ease), background .2s var(--ease), border-color .2s var(--ease), transform .2s var(--ease);
+}
+.chip:hover{color:var(--text);border-color:var(--teal);transform:translateY(-1px)}
+.chip.on{color:#fff;background:linear-gradient(135deg,var(--teal),var(--teal-soft));border-color:transparent}
+.chip svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9}
+.chip.icon{padding:9px;border-radius:11px}
+.live{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-faint);padding:0 4px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(46,204,154,.55);animation:pulse 2.2s infinite}
+.live-dot.off{background:var(--text-faint);animation:none;box-shadow:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,204,154,.5)}70%{box-shadow:0 0 0 9px rgba(46,204,154,0)}100%{box-shadow:0 0 0 0 rgba(46,204,154,0)}}
+.spin{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-        .chart-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 28px;
-        }
-        @media (max-width: 700px) {
-            .chart-row { grid-template-columns: 1fr; }
-        }
-        .panel {
-            background: #1a1d27;
-            border: 1px solid #2a2d3a;
-            border-radius: 14px;
-            padding: 24px;
-        }
-        .panel h2 {
-            font-size: 16px;
-            margin-bottom: 16px;
-            color: #a0a0b0;
-        }
-        .bar-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-        .bar-label {
-            font-size: 14px;
-            width: 100px;
-            text-align: right;
-        }
-        .bar-track {
-            flex: 1;
-            height: 28px;
-            background: #0f1117;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .bar-fill {
-            height: 100%;
-            border-radius: 6px;
-            transition: width 0.6s ease;
-            display: flex;
-            align-items: center;
-            padding-left: 10px;
-            font-size: 13px;
-            font-weight: 700;
-            color: white;
-        }
-        .bar-positive { background: linear-gradient(90deg, #00b894, #00cec9); }
-        .bar-negative { background: linear-gradient(90deg, #e74c3c, #c0392b); }
-        .bar-neutral { background: #2a2d3a; color: #6a6a7a; }
+.banner{
+  display:none;align-items:center;gap:10px;margin-bottom:18px;padding:12px 16px;
+  border-radius:var(--radius-sm);font-size:13.5px;font-weight:600;
+  background:rgba(240,97,109,.12);border:1px solid rgba(240,97,109,.35);color:var(--red);
+}
+.banner.on{display:flex}
 
-        .conversion {
-            text-align: center;
-            padding: 10px 0;
-        }
-        .conversion .pct {
-            font-size: 48px;
-            font-weight: 800;
-            color: #008080;
-        }
-        .conversion .desc {
-            font-size: 14px;
-            color: #6a6a7a;
-            margin-top: 4px;
-        }
+/* ---------------- cards ---------------- */
+.grid{display:grid;gap:16px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(216px,1fr));margin-bottom:16px}
+.card{
+  position:relative;overflow:hidden;
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);
+}
+.card::after{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:var(--accent,transparent);opacity:.85}
+.kpi{display:flex;flex-direction:column;gap:2px}
+.kpi-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.kpi-label{font-size:12.5px;font-weight:600;color:var(--text-soft);letter-spacing:.1px}
+.kpi-ico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--tint,var(--panel-2))}
+.kpi-ico svg{width:18px;height:18px;stroke:var(--accent,var(--text-soft));fill:none;stroke-width:1.9}
+.kpi-value{font-size:38px;font-weight:800;letter-spacing:-1.2px;line-height:1.15;margin-top:8px;color:var(--accent,var(--text))}
+.kpi-sub{font-size:12.5px;color:var(--text-faint)}
+.delta{
+  display:inline-flex;align-items:center;gap:4px;margin-left:8px;
+  font-size:12px;font-weight:700;color:var(--green);
+  opacity:0;transform:translateY(3px);transition:.3s var(--ease);
+}
+.delta.on{opacity:1;transform:none}
 
-        .activity-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .activity-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #222533;
-            font-size: 14px;
-        }
-        .activity-item:last-child { border-bottom: none; }
-        .activity-item .time { color: #6a6a7a; font-size: 12px; }
-        .activity-item .action-positive { color: #00b894; font-weight: 600; }
-        .activity-item .action-negative { color: #e74c3c; font-weight: 600; }
-        .activity-item .action-visit { color: #6a6a7a; }
+.k-unique{--accent:var(--teal);--tint:rgba(25,179,166,.13)}
+.k-positive{--accent:var(--green);--tint:rgba(46,204,154,.13)}
+.k-negative{--accent:var(--red);--tint:rgba(240,97,109,.13)}
+.k-24h{--accent:var(--violet);--tint:rgba(155,140,251,.14)}
 
-        .activity-list::-webkit-scrollbar { width: 5px; }
-        .activity-list::-webkit-scrollbar-thumb { background: #2a2d3a; border-radius: 3px; }
-    </style>
+.panels{grid-template-columns:1.15fr .85fr;margin-bottom:16px}
+@media (max-width:880px){.panels{grid-template-columns:1fr}}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.panel-head h2{font-size:14.5px;font-weight:700;color:var(--text)}
+.panel-head .hint{font-size:12px;color:var(--text-faint)}
+
+/* donut */
+.donut-row{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+.donut{position:relative;width:170px;height:170px;flex:none}
+.donut svg{width:170px;height:170px;transform:rotate(-90deg)}
+.donut circle{fill:none;stroke-width:15;stroke-linecap:round;transition:stroke-dasharray .8s var(--ease)}
+.donut .track{stroke:var(--line-soft)}
+.donut-center{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.donut-center b{font-size:27px;font-weight:800;letter-spacing:-.8px;display:block;line-height:1.1}
+.donut-center span{font-size:11.5px;color:var(--text-faint)}
+.legend{flex:1;min-width:190px;display:flex;flex-direction:column;gap:12px}
+.leg{display:flex;align-items:center;gap:11px;font-size:13.5px}
+.leg .sw{width:10px;height:10px;border-radius:3px;flex:none;background:var(--c)}
+.leg .name{color:var(--text-soft);flex:1}
+.leg .val{font-weight:700}
+.leg .pct{color:var(--text-faint);font-size:12px;width:44px;text-align:right}
+
+/* gauge */
+.gauge{display:flex;flex-direction:column;align-items:center;gap:4px}
+.gauge-svg{width:100%;max-width:250px;height:132px}
+.gauge-svg path{fill:none;stroke-width:16;stroke-linecap:round}
+.gauge-svg .g-track{stroke:var(--line-soft)}
+.gauge-svg .g-fill{stroke:url(#gaugeGrad);transition:stroke-dashoffset .9s var(--ease)}
+.gauge-val{font-size:36px;font-weight:800;letter-spacing:-1.2px;margin-top:-42px;color:var(--teal)}
+.gauge-desc{font-size:12.5px;color:var(--text-faint);text-align:center;margin-top:12px;text-wrap:balance}
+.meter{width:100%;margin-top:18px;height:9px;border-radius:99px;background:var(--line-soft);overflow:hidden;display:flex}
+.meter i{height:100%;display:block;transition:width .8s var(--ease)}
+.meter .m-pos{background:linear-gradient(90deg,var(--green),#39dfae)}
+.meter .m-neg{background:linear-gradient(90deg,#ff8a92,var(--red))}
+.meter-labels{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-faint);margin-top:8px}
+
+/* activity */
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filters .chip{padding:6px 11px;font-size:12px}
+.feed{max-height:420px;overflow-y:auto;margin:-6px -6px -6px 0;padding-right:6px}
+.feed::-webkit-scrollbar{width:6px}
+.feed::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+.feed::-webkit-scrollbar-track{background:transparent}
+.row{
+  display:flex;align-items:center;gap:12px;padding:11px 6px;
+  border-bottom:1px solid var(--line-soft);
+  animation:fadeIn .4s var(--ease) both;
+}
+.row:last-child{border-bottom:0}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.avatar{
+  width:34px;height:34px;border-radius:11px;flex:none;display:grid;place-items:center;
+  font-size:11px;font-weight:800;color:#fff;letter-spacing:.3px;
+}
+.row .main{flex:1;min-width:0}
+.row .act{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:7px}
+.row .act svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2}
+.row .uid{font-size:11.5px;color:var(--text-faint);font-family:'Inter',monospace}
+.row .when{font-size:12px;color:var(--text-faint);text-align:right;flex:none;white-space:nowrap}
+.a-positive{color:var(--green)}
+.a-negative{color:var(--red)}
+.a-visit{color:var(--text-soft)}
+.tag-new{
+  font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;
+  background:rgba(46,204,154,.14);color:var(--green);letter-spacing:.2px;
+}
+.empty{text-align:center;padding:34px 10px;color:var(--text-faint);font-size:13.5px}
+.empty svg{width:34px;height:34px;margin:0 auto 10px;stroke:currentColor;fill:none;stroke-width:1.6;opacity:.6}
+
+.skeleton{background:linear-gradient(90deg,var(--line-soft) 25%,var(--panel-2) 37%,var(--line-soft) 63%);background-size:400% 100%;animation:shimmer 1.4s ease infinite;border-radius:8px;color:transparent!important}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
+
+.foot{margin-top:22px;text-align:center;font-size:11.5px;color:var(--text-faint)}
+.foot a{color:var(--teal);text-decoration:none;font-weight:600}
+
+@media (max-width:520px){
+  .dashboard{padding:18px 14px 36px}
+  .kpi-value{font-size:32px}
+  .brand h1{font-size:17px}
+  .donut-row{gap:18px;justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
 </head>
 <body>
+<div class="wrap">
 
-<!-- Login -->
-<div class="login" id="loginScreen">
-    <div class="login-card">
-        <h1>🔐 ანალიტიკა</h1>
-        <p>შედით პაროლით სტატისტიკის სანახავად</p>
-        <input type="password" id="passwordInput" placeholder="პაროლი" autocomplete="off">
-        <button class="btn" id="loginBtn">შესვლა</button>
-        <div class="login-error" id="loginError">არასწორი პაროლი</div>
+<!-- ============ LOGIN ============ -->
+<section class="login" id="loginScreen">
+  <div class="login-card" id="loginCard">
+    <div class="login-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="10.5" width="16" height="10" rx="2.5"/><path d="M8 10.5V7.6a4 4 0 0 1 8 0v2.9"/><path d="M12 14.6v2.2"/>
+      </svg>
     </div>
+    <h1>ანალიტიკის პანელი</h1>
+    <p>შედით პაროლით სტატისტიკის სანახავად</p>
+    <div class="field">
+      <input type="password" id="passwordInput" placeholder="პაროლი" autocomplete="current-password" spellcheck="false">
+      <button class="eye" id="eyeBtn" type="button" aria-label="პაროლის ჩვენება">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M2.2 12S6 5.4 12 5.4 21.8 12 21.8 12 18 18.6 12 18.6 2.2 12 2.2 12z"/><circle cx="12" cy="12" r="3.1"/></svg>
+      </button>
+    </div>
+    <button class="btn-primary" id="loginBtn">შესვლა</button>
+    <div class="login-error" id="loginError">არასწორი პაროლი</div>
+  </div>
+</section>
+
+<!-- ============ DASHBOARD ============ -->
+<main class="dashboard" id="dashboard">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19V8"/></svg>
+      </div>
+      <div>
+        <h1>Acoustic — ანალიტიკა</h1>
+        <div class="sub" id="lastUpdated">იტვირთება…</div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="tools">
+      <span class="live"><span class="live-dot" id="liveDot"></span><span id="liveLabel">ავტო 5 წმ</span></span>
+      <button class="chip on" id="autoBtn" title="ავტო-განახლების ჩართვა/გამორთვა">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>
+        <span id="autoLabel">ავტო</span>
+      </button>
+      <button class="chip" id="refreshBtn" title="განახლება (R)">
+        <svg id="refreshIco" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M20.5 4v5h-5"/></svg>
+        განახლება
+      </button>
+      <button class="chip icon" id="exportBtn" title="CSV ექსპორტი">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M8 11l4 4 4-4"/><path d="M4 19h16"/></svg>
+      </button>
+      <button class="chip icon" id="themeBtn" title="თემის შეცვლა">
+        <svg id="themeIco" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+      </button>
+      <button class="chip icon" id="logoutBtn" title="გასვლა">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4"/><path d="M16 12H6"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="banner" id="banner">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v5"/><path d="M12 16.5h.01"/><circle cx="12" cy="12" r="9"/></svg>
+    <span id="bannerText">სტატისტიკის ჩატვირთვა ვერ მოხერხდა</span>
+  </div>
+
+  <!-- KPIs -->
+  <section class="grid kpis">
+    <div class="card kpi k-unique">
+      <div class="kpi-top">
+        <span class="kpi-label">უნიკალური მომხმარებლები</span>
+        <span class="kpi-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.8 19.4a6.4 6.4 0 0 1 12.4 0"/><path d="M16.5 5.2a3.4 3.4 0 0 1 0 6.6"/><path d="M18 19.4a6.5 6.5 0 0 0-1.6-4.3"/></svg></span>
+      </div>
+      <div class="kpi-value" id="statUnique">—<span class="delta" id="dUnique"></span></div>
+      <div class="kpi-sub" id="statUniqueSub">—</div>
+    </div>
+    <div class="card kpi k-positive">
+      <div class="kpi-top">
+        <span class="kpi-label">დადებითი შეფასება</span>
+        <span class="kpi-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20V10.2l4-6.2c1.5 0 2.3 1 2.1 2.4L12.7 10H18a2 2 0 0 1 2 2.3l-1 5.6A2.6 2.6 0 0 1 16.4 20z"/><path d="M7 10.5H4.6A1.6 1.6 0 0 0 3 12.1v6.3c0 .9.7 1.6 1.6 1.6H7z"/></svg></span>
+      </div>
+      <div class="kpi-value" id="statPositive">—<span class="delta" id="dPositive"></span></div>
+      <div class="kpi-sub" id="statPositiveSub">—</div>
+    </div>
+    <div class="card kpi k-negative">
+      <div class="kpi-top">
+        <span class="kpi-label">უარყოფითი შეფასება</span>
+        <span class="kpi-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 4v9.8l-4 6.2c-1.5 0-2.3-1-2.1-2.4L11.3 14H6a2 2 0 0 1-2-2.3l1-5.6A2.6 2.6 0 0 1 7.6 4z"/><path d="M17 13.5h2.4A1.6 1.6 0 0 0 21 11.9V5.6A1.6 1.6 0 0 0 19.4 4H17z"/></svg></span>
+      </div>
+      <div class="kpi-value" id="statNegative">—<span class="delta" id="dNegative"></span></div>
+      <div class="kpi-sub" id="statNegativeSub">—</div>
+    </div>
+    <div class="card kpi k-24h">
+      <div class="kpi-top">
+        <span class="kpi-label">ბოლო 24 საათი</span>
+        <span class="kpi-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15.5l5-5.5 4 3.4 4.5-6 4.5 5.6"/><path d="M3 20h18"/></svg></span>
+      </div>
+      <div class="kpi-value" id="stat24h">—<span class="delta" id="d24h"></span></div>
+      <div class="kpi-sub">ვიზიტი (ყველა სესია)</div>
+    </div>
+  </section>
+
+  <!-- Distribution + conversion -->
+  <section class="grid panels">
+    <div class="card">
+      <div class="panel-head">
+        <h2>შეფასებების განაწილება</h2>
+        <span class="hint">უნიკალურ მომხმარებლებზე</span>
+      </div>
+      <div class="donut-row">
+        <div class="donut">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="track" cx="60" cy="60" r="48"></circle>
+            <circle id="arcPos" cx="60" cy="60" r="48" stroke="#2ecc9a" stroke-dasharray="0 999"></circle>
+            <circle id="arcNeg" cx="60" cy="60" r="48" stroke="#f0616d" stroke-dasharray="0 999"></circle>
+            <circle id="arcIdle" cx="60" cy="60" r="48" stroke="#4a5670" stroke-dasharray="0 999"></circle>
+          </svg>
+          <div class="donut-center">
+            <b id="donutTotal">—</b>
+            <span>მომხმარებელი</span>
+          </div>
+        </div>
+        <div class="legend">
+          <div class="leg" style="--c:#2ecc9a"><span class="sw"></span><span class="name">დადებითი</span><span class="val" id="legPos">—</span><span class="pct" id="legPosPct"></span></div>
+          <div class="leg" style="--c:#f0616d"><span class="sw"></span><span class="name">უარყოფითი</span><span class="val" id="legNeg">—</span><span class="pct" id="legNegPct"></span></div>
+          <div class="leg" style="--c:#4a5670"><span class="sw"></span><span class="name">უპასუხო</span><span class="val" id="legIdle">—</span><span class="pct" id="legIdlePct"></span></div>
+        </div>
+      </div>
+      <div class="meter">
+        <i class="m-pos" id="mPos" style="width:0%"></i>
+        <i class="m-neg" id="mNeg" style="width:0%"></i>
+      </div>
+      <div class="meter-labels">
+        <span id="mPosLabel">დადებითი 0%</span>
+        <span id="mNegLabel">უარყოფითი 0%</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="panel-head"><h2>კონვერსია</h2><span class="hint">კლიკი / მომხმარებელი</span></div>
+      <div class="gauge">
+        <svg class="gauge-svg" viewBox="0 0 200 110" aria-hidden="true">
+          <defs>
+            <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#19b3a6"/><stop offset="60%" stop-color="#2ecc9a"/><stop offset="100%" stop-color="#f6a623"/>
+            </linearGradient>
+          </defs>
+          <path class="g-track" d="M18 96a82 82 0 0 1 164 0"/>
+          <path class="g-fill" id="gaugeFill" d="M18 96a82 82 0 0 1 164 0" stroke-dasharray="258" stroke-dashoffset="258"/>
+        </svg>
+        <div class="gauge-val" id="conversionPct">—</div>
+        <div class="gauge-desc" id="conversionDesc">—</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Activity -->
+  <section class="card">
+    <div class="panel-head">
+      <h2>უკანასკნელი აქტივობა</h2>
+      <div class="filters" id="filters">
+        <button class="chip on" data-f="all">ყველა</button>
+        <button class="chip" data-f="positive">დადებითი</button>
+        <button class="chip" data-f="negative">უარყოფითი</button>
+        <button class="chip" data-f="visit">ვიზიტები</button>
+      </div>
+    </div>
+    <div class="feed" id="feed">
+      <div class="empty">
+        <svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2"/></svg>
+        იტვირთება…
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">Acoustic Analytics · <a href="https://acoustic.ge" target="_blank" rel="noopener">acoustic.ge</a></div>
+</main>
+
 </div>
-
-<!-- Dashboard -->
-<div class="dashboard" id="dashboard">
-    <div class="dash-header">
-        <h1>📊 Acoustic — ანალიტიკა</h1>
-        <div class="actions">
-            <span class="live-dot"></span>
-            <span class="auto-refresh" id="autoRefreshLabel">Auto 5s</span>
-            <button class="refresh-btn" onclick="loadStats()">განახლება</button>
-        </div>
-    </div>
-
-    <div class="stats-grid">
-        <div class="stat-card stat-unique">
-            <div class="label">უნიკალური მომხმარებლები</div>
-            <div class="value" id="statUnique">0</div>
-            <div class="sub" id="statUniqueSub">0 ვიზიტი სულ</div>
-        </div>
-        <div class="stat-card stat-positive">
-            <div class="label">დადებითი შეფასება</div>
-            <div class="value" id="statPositive">0</div>
-            <div class="sub" id="statPositiveSub">0% კონვერსია</div>
-        </div>
-        <div class="stat-card stat-negative">
-            <div class="label">უარყოფითი შეფასება</div>
-            <div class="value" id="statNegative">0</div>
-            <div class="sub" id="statNegativeSub">0% კონვერსია</div>
-        </div>
-        <div class="stat-card">
-            <div class="label">ბოლო 24 საათში</div>
-            <div class="value" id="stat24h" style="color:#a29bfe">0</div>
-            <div class="sub">ახალი ვიზიტები</div>
-        </div>
-    </div>
-
-    <div class="chart-row">
-        <div class="panel">
-            <h2>შეფასებების განაწილება</h2>
-            <div class="bar-container">
-                <div class="bar-label">დადებითი</div>
-                <div class="bar-track"><div class="bar-fill bar-positive" id="barPositive" style="width:0%">0</div></div>
-            </div>
-            <div class="bar-container">
-                <div class="bar-label">უარყოფითი</div>
-                <div class="bar-track"><div class="bar-fill bar-negative" id="barNegative" style="width:0%">0</div></div>
-            </div>
-            <div class="bar-container">
-                <div class="bar-label">უპასუხო</div>
-                <div class="bar-track"><div class="bar-fill bar-neutral" id="barNeutral" style="width:0%">0</div></div>
-            </div>
-        </div>
-        <div class="panel">
-            <h2>კონვერსია</h2>
-            <div class="conversion">
-                <div class="pct" id="conversionPct">0%</div>
-                <div class="desc" id="conversionDesc">მომხმარებლებმა დააკლიკეს ღილაკს</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="panel">
-        <h2>უკანასკნელი აქტივობა</h2>
-        <div class="activity-list" id="activityList">
-            <div style="color:#6a6a7a;text-align:center;padding:20px">აქტივობა არ არის</div>
-        </div>
-    </div>
-</div>
-
 <script>
-const ADMIN_PASSWORD = "acoustic_analytics_2026";
-let refreshTimer = null;
+/* ============ auth (unchanged password) ============ */
+var ADMIN_PASSWORD = "acoustic_analytics_2026";
+var SESSION_KEY = "acoustic_analytics_session";
+var REFRESH_MS = 5000;
 
-document.getElementById('loginBtn').addEventListener('click', checkLogin);
-document.getElementById('passwordInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') checkLogin();
+var refreshTimer = null;
+var autoOn = true;
+var filter = "all";
+var lastData = null;
+var prev = {};
+var lastItems = [];
+
+var $ = function(id){ return document.getElementById(id); };
+
+/* theme */
+(function(){
+  var saved = localStorage.getItem('acoustic_analytics_theme');
+  if(saved) document.documentElement.setAttribute('data-theme', saved);
+})();
+$('themeBtn').addEventListener('click', function(){
+  var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('acoustic_analytics_theme', next);
 });
 
-function checkLogin() {
-    const pass = document.getElementById('passwordInput').value;
-    if (pass === ADMIN_PASSWORD) {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-        loadStats();
-        refreshTimer = setInterval(loadStats, 5000);
+/* login */
+$('loginBtn').addEventListener('click', checkLogin);
+$('passwordInput').addEventListener('keydown', function(e){ if(e.key === 'Enter') checkLogin(); });
+$('eyeBtn').addEventListener('click', function(){
+  var i = $('passwordInput');
+  i.type = i.type === 'password' ? 'text' : 'password';
+  i.focus();
+});
+
+function checkLogin(){
+  if($('passwordInput').value === ADMIN_PASSWORD){
+    try{ sessionStorage.setItem(SESSION_KEY, '1'); }catch(e){}
+    openDashboard();
+  } else {
+    $('loginError').classList.add('on');
+    $('loginCard').classList.remove('shake');
+    void $('loginCard').offsetWidth;
+    $('loginCard').classList.add('shake');
+    $('passwordInput').select();
+  }
+}
+
+function openDashboard(){
+  $('loginScreen').style.display = 'none';
+  $('dashboard').classList.add('on');
+  loadStats();
+  startTimer();
+}
+
+function logout(){
+  try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){}
+  stopTimer();
+  $('dashboard').classList.remove('on');
+  $('loginScreen').style.display = 'grid';
+  $('passwordInput').value = '';
+  $('loginError').classList.remove('on');
+}
+$('logoutBtn').addEventListener('click', logout);
+
+try{ if(sessionStorage.getItem(SESSION_KEY) === '1') openDashboard(); }catch(e){}
+
+/* ============ refresh control ============ */
+function startTimer(){
+  stopTimer();
+  if(autoOn) refreshTimer = setInterval(loadStats, REFRESH_MS);
+}
+function stopTimer(){ if(refreshTimer){ clearInterval(refreshTimer); refreshTimer = null; } }
+
+$('autoBtn').addEventListener('click', function(){
+  autoOn = !autoOn;
+  this.classList.toggle('on', autoOn);
+  $('liveDot').classList.toggle('off', !autoOn);
+  $('liveLabel').textContent = autoOn ? 'ავტო 5 წმ' : 'პაუზა';
+  startTimer();
+});
+$('refreshBtn').addEventListener('click', function(){ loadStats(true); });
+document.addEventListener('keydown', function(e){
+  if(!$('dashboard').classList.contains('on')) return;
+  if(e.key === 'r' || e.key === 'R'){ loadStats(true); }
+});
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden){ stopTimer(); }
+  else if($('dashboard').classList.contains('on')){ loadStats(); startTimer(); }
+});
+
+/* ============ helpers ============ */
+function animateNumber(el, to){
+  var from = parseFloat((el.getAttribute('data-v') || '0')) || 0;
+  if(from === to){ el.setAttribute('data-v', to); setNum(el, to); return; }
+  el.setAttribute('data-v', to);
+  var t0 = performance.now(), dur = 600;
+  function frame(t){
+    var p = Math.min(1, (t - t0) / dur);
+    var eased = 1 - Math.pow(1 - p, 3);
+    setNum(el, Math.round(from + (to - from) * eased));
+    if(p < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+function setNum(el, v){
+  var node = el.firstChild;
+  if(node && node.nodeType === 3) node.nodeValue = String(v);
+  else el.insertBefore(document.createTextNode(String(v)), el.firstChild);
+}
+function showDelta(id, diff){
+  var el = $(id);
+  if(diff > 0){
+    el.textContent = '+' + diff;
+    el.classList.add('on');
+    setTimeout(function(){ el.classList.remove('on'); }, 4000);
+  }
+}
+function relTime(iso){
+  var d = new Date(iso);
+  if(isNaN(d)) return '';
+  var s = Math.max(0, (Date.now() - d.getTime()) / 1000);
+  if(s < 45) return 'ახლახან';
+  if(s < 3600) return Math.round(s / 60) + ' წთ წინ';
+  if(s < 86400) return Math.round(s / 3600) + ' სთ წინ';
+  if(s < 604800) return Math.round(s / 86400) + ' დღის წინ';
+  return d.toLocaleDateString('ka-GE');
+}
+function fullTime(iso){
+  var d = new Date(iso);
+  return isNaN(d) ? iso : d.toLocaleString('ka-GE');
+}
+function hashHue(str){
+  var h = 0;
+  for(var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 360;
+  return h;
+}
+function banner(msg){
+  if(msg){ $('bannerText').textContent = msg; $('banner').classList.add('on'); }
+  else $('banner').classList.remove('on');
+}
+
+/* ============ data ============ */
+async function loadStats(manual){
+  var ico = $('refreshIco');
+  if(manual) ico.classList.add('spin');
+  try{
+    var res = await fetch('/api/stats', {cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    var d = await res.json();
+    banner(null);
+    render(d);
+    $('lastUpdated').textContent = 'განახლდა ' + new Date().toLocaleTimeString('ka-GE');
+  }catch(e){
+    banner('სტატისტიკის ჩატვირთვა ვერ მოხერხდა — ' + e.message);
+  }finally{
+    setTimeout(function(){ ico.classList.remove('spin'); }, 500);
+  }
+}
+
+function render(d){
+  lastData = d;
+
+  /* ---- KPIs (same metrics as API) ---- */
+  animateNumber($('statUnique'), d.total_unique);
+  animateNumber($('statPositive'), d.positive);
+  animateNumber($('statNegative'), d.negative);
+  animateNumber($('stat24h'), d.recent_24h);
+
+  if(prev.total_unique !== undefined){
+    showDelta('dUnique', d.total_unique - prev.total_unique);
+    showDelta('dPositive', d.positive - prev.positive);
+    showDelta('dNegative', d.negative - prev.negative);
+    showDelta('d24h', d.recent_24h - prev.recent_24h);
+  }
+  prev = {total_unique:d.total_unique, positive:d.positive, negative:d.negative, recent_24h:d.recent_24h};
+
+  var totalClicks = d.positive + d.negative;
+  var posPct = totalClicks > 0 ? Math.round(d.positive / totalClicks * 100) : 0;
+  var negPct = totalClicks > 0 ? Math.round(d.negative / totalClicks * 100) : 0;
+
+  $('statUniqueSub').textContent = d.total_visits + ' ვიზიტი სულ';
+  $('statPositiveSub').textContent = posPct + '% კლიკებიდან';
+  $('statNegativeSub').textContent = negPct + '% კლიკებიდან';
+
+  /* ---- donut over unique users ---- */
+  var total = d.total_unique || 0;
+  var C = 2 * Math.PI * 48;
+  var segs = [
+    {el:'arcPos', v:d.positive},
+    {el:'arcNeg', v:d.negative},
+    {el:'arcIdle', v:d.users_no_click}
+  ];
+  var offset = 0;
+  segs.forEach(function(s){
+    var frac = total > 0 ? s.v / total : 0;
+    var len = Math.max(0, frac * C - (frac > 0 ? 2 : 0));
+    var el = $(s.el);
+    el.setAttribute('stroke-dasharray', len + ' ' + (C - len));
+    el.setAttribute('stroke-dashoffset', String(-offset));
+    offset += frac * C;
+  });
+  $('donutTotal').textContent = total;
+  $('legPos').textContent = d.positive;
+  $('legNeg').textContent = d.negative;
+  $('legIdle').textContent = d.users_no_click;
+  $('legPosPct').textContent = total > 0 ? Math.round(d.positive / total * 100) + '%' : '0%';
+  $('legNegPct').textContent = total > 0 ? Math.round(d.negative / total * 100) + '%' : '0%';
+  $('legIdlePct').textContent = total > 0 ? Math.round(d.users_no_click / total * 100) + '%' : '0%';
+
+  /* ---- sentiment meter (share of clicks) ---- */
+  $('mPos').style.width = posPct + '%';
+  $('mNeg').style.width = negPct + '%';
+  $('mPosLabel').textContent = 'დადებითი ' + posPct + '%';
+  $('mNegLabel').textContent = 'უარყოფითი ' + negPct + '%';
+
+  /* ---- conversion gauge (identical formula) ---- */
+  var convPct = d.total_unique > 0 ? Math.round(d.users_clicked / d.total_unique * 100) : 0;
+  $('conversionPct').textContent = convPct + '%';
+  var LEN = 258;
+  $('gaugeFill').setAttribute('stroke-dashoffset', String(LEN - LEN * Math.min(100, convPct) / 100));
+  $('conversionDesc').textContent = d.users_clicked + ' / ' + d.total_unique + ' მომხმარებელმა დააკლიკა ღილაკს';
+
+  /* ---- activity feed ---- */
+  var items = [];
+  (d.clicks || []).forEach(function(c){
+    items.push({time:c.time, action:c.action, user:c.user_id});
+  });
+  (d.recent_visits || []).forEach(function(v){
+    items.push({time:v.time, action:'visit', user:v.user_id, isNew:v.is_new, ip:v.ip});
+  });
+  items.sort(function(a, b){ return String(b.time).localeCompare(String(a.time)); });
+  lastItems = items;
+  renderFeed();
+}
+
+function renderFeed(){
+  var feed = $('feed');
+  var items = lastItems.filter(function(i){ return filter === 'all' || i.action === filter; });
+  if(items.length === 0){
+    feed.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2"/></svg>აქტივობა არ არის</div>';
+    return;
+  }
+  feed.innerHTML = items.slice(0, 40).map(function(i){
+    var uid = String(i.user || '');
+    var short = uid.replace(/^u_/, '').substring(0, 8);
+    var hue = hashHue(uid);
+    var act, cls;
+    if(i.action === 'positive'){
+      cls = 'a-positive';
+      act = '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20V10.2l4-6.2c1.5 0 2.3 1 2.1 2.4L12.7 10H18a2 2 0 0 1 2 2.3l-1 5.6A2.6 2.6 0 0 1 16.4 20z"/></svg>დადებითი შეფასება';
+    } else if(i.action === 'negative'){
+      cls = 'a-negative';
+      act = '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 4v9.8l-4 6.2c-1.5 0-2.3-1-2.1-2.4L11.3 14H6a2 2 0 0 1-2-2.3l1-5.6A2.6 2.6 0 0 1 7.6 4z"/></svg>უარყოფითი შეფასება';
     } else {
-        document.getElementById('loginError').style.display = 'block';
+      cls = 'a-visit';
+      act = '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="3"/></svg>ვიზიტი' +
+            (i.isNew ? ' <span class="tag-new">ახალი</span>' : '');
     }
+    return '<div class="row">' +
+        '<div class="avatar" style="background:linear-gradient(135deg,hsl(' + hue + ',58%,46%),hsl(' + ((hue + 40) % 360) + ',58%,34%))">' + short.substring(0, 2).toUpperCase() + '</div>' +
+        '<div class="main"><div class="act ' + cls + '">' + act + '</div><div class="uid">#' + short + (i.ip ? ' · ' + i.ip : '') + '</div></div>' +
+        '<div class="when" title="' + fullTime(i.time) + '">' + relTime(i.time) + '</div>' +
+      '</div>';
+  }).join('');
 }
 
-async function loadStats() {
-    try {
-        const res = await fetch('/api/stats');
-        const d = await res.json();
+/* filters */
+$('filters').addEventListener('click', function(e){
+  var b = e.target.closest('button[data-f]');
+  if(!b) return;
+  filter = b.getAttribute('data-f');
+  Array.prototype.forEach.call(this.querySelectorAll('button'), function(x){ x.classList.toggle('on', x === b); });
+  renderFeed();
+});
 
-        // Stats
-        document.getElementById('statUnique').textContent = d.total_unique;
-        document.getElementById('statUniqueSub').textContent = d.total_visits + ' ვიზიტი სულ';
-        document.getElementById('statPositive').textContent = d.positive;
-        document.getElementById('statNegative').textContent = d.negative;
-        document.getElementById('stat24h').textContent = d.recent_24h;
+/* CSV export */
+$('exportBtn').addEventListener('click', function(){
+  if(!lastData) return;
+  var rows = [['metric','value'],
+    ['total_unique', lastData.total_unique],
+    ['total_visits', lastData.total_visits],
+    ['positive', lastData.positive],
+    ['negative', lastData.negative],
+    ['users_clicked', lastData.users_clicked],
+    ['users_no_click', lastData.users_no_click],
+    ['recent_24h', lastData.recent_24h],
+    [],
+    ['time','action','user_id']
+  ];
+  lastItems.forEach(function(i){ rows.push([i.time, i.action, i.user]); });
+  var csv = rows.map(function(r){
+    return r.map(function(c){ return '"' + String(c === undefined ? '' : c).replace(/"/g, '""') + '"'; }).join(',');
+  }).join('\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8'}));
+  a.download = 'acoustic-analytics-' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-') + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
 
-        const totalClicks = d.positive + d.negative;
-        const totalUnique = d.total_unique || 1;
-
-        const posPct = totalClicks > 0 ? Math.round(d.positive / totalClicks * 100) : 0;
-        const negPct = totalClicks > 0 ? Math.round(d.negative / totalClicks * 100) : 0;
-        document.getElementById('statPositiveSub').textContent = posPct + '% დადებითი';
-        document.getElementById('statNegativeSub').textContent = negPct + '% უარყოფითი';
-
-        // Bars
-        const maxVal = Math.max(d.positive, d.negative, d.users_no_click, 1);
-        document.getElementById('barPositive').style.width = (d.positive / maxVal * 100) + '%';
-        document.getElementById('barPositive').textContent = d.positive;
-        document.getElementById('barNegative').style.width = (d.negative / maxVal * 100) + '%';
-        document.getElementById('barNegative').textContent = d.negative;
-        document.getElementById('barNeutral').style.width = (d.users_no_click / maxVal * 100) + '%';
-        document.getElementById('barNeutral').textContent = d.users_no_click;
-
-        // Conversion
-        const convPct = totalUnique > 0 ? Math.round(d.users_clicked / totalUnique * 100) : 0;
-        document.getElementById('conversionPct').textContent = convPct + '%';
-        document.getElementById('conversionDesc').textContent = 
-            d.users_clicked + ' / ' + d.total_unique + ' მომხმარებელმა დააკლიკა ღილაკს';
-
-        // Activity list
-        const list = document.getElementById('activityList');
-        const items = [];
-
-        // Combine clicks and recent visits
-        d.clicks.forEach(c => {
-            items.push({
-                time: c.time,
-                action: c.action,
-                user: c.user_id.substring(0, 8)
-            });
-        });
-        d.recent_visits.forEach(v => {
-            items.push({
-                time: v.time,
-                action: 'visit',
-                user: v.user_id.substring(0, 8),
-                isNew: v.is_new
-            });
-        });
-
-        // Sort by time desc
-        items.sort((a, b) => b.time.localeCompare(a.time));
-
-        if (items.length === 0) {
-            list.innerHTML = '<div style="color:#6a6a7a;text-align:center;padding:20px">აქტივობა არ არის</div>';
-        } else {
-            list.innerHTML = items.slice(0, 30).map(i => {
-                const t = new Date(i.time).toLocaleString('ka-GE');
-                let actionHtml;
-                if (i.action === 'positive') actionHtml = '<span class="action-positive">👍 დადებითი</span>';
-                else if (i.action === 'negative') actionHtml = '<span class="action-negative">👎 უარყოფითი</span>';
-                else actionHtml = '<span class="action-visit">' + (i.isNew ? '🟢 ახალი ვიზიტი' : '👁 ვიზიტი') + '</span>';
-                return `<div class="activity-item"><div>${actionHtml} <span style="color:#4a4a5a;font-size:12px">#${i.user}</span></div><div class="time">${t}</div></div>`;
-            }).join('');
-        }
-    } catch (e) {
-        console.error(e);
-    }
-}
+/* keep relative timestamps fresh */
+setInterval(function(){ if(lastItems.length) renderFeed(); }, 30000);
 </script>
 </body>
 </html>

@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acoustic.ge აკუსტიკა</title>
+<meta name="description" content="Acoustic.ge — მუსიკალური ინსტრუმენტების და აპარატურის მაღაზია.">
+<link rel="icon" href="assets/img/04c7f6ec_logo-color.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container topbar__row">
+    <nav class="topbar__nav"><a href="index.php">მთავარი</a><a href="index.php?dispatch=pages.view&amp;page_id=46">ჩვენს შესახებ</a><a href="https://sheet.acoustic.ge/">სარეპეტიციო</a><a href="index.php?dispatch=pages.view&amp;page_id=47">სერვისი</a><a href="contact">კონტაქტი</a></nav>
+    <div class="topbar__meta">
+      <a href="tel:+995551160562"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><bdo dir="ltr">+995551160562</bdo></a>
+      <span><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>11:00-19:00</span>
+      <a href="mailto:sales@acoustic.ge"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>sales@acoustic.ge</a>
+      <span><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>აკაკი წერეთლის 142</span>
+    </div>
+  </div>
+</div>
+<header class="header" id="header">
+  <div class="container header__row">
+    <a class="logo" href="/"><img src="assets/img/04c7f6ec_logo-color.png" alt="Acoustic.ge"></a>
+    
+      <div class="megawrap">
+        <button class="catbtn" id="catbtn"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>პროდუქცია</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="mega" id="mega">
+          <div class="mega__list"><button class="mega__item is-active" data-mega="0"><img src="assets/img/7a9035ff_guitar.png_jpg.webp" alt="" loading="lazy"><span>გიტარა</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="1"><img src="assets/img/3f1281bf_bass.png_jpg.webp" alt="" loading="lazy"><span>ბასი</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="2"><img src="assets/img/185b2ed3_keys.png_jpg.webp" alt="" loading="lazy"><span>კლავიშებიანი</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="3"><img src="assets/img/4dc64e48_drums.png_jpg.webp" alt="" loading="lazy"><span>დასარტყამი</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="4"><img src="assets/img/c6a8cf27_studio.png_jpg.webp" alt="" loading="lazy"><span>სტუდია</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="5"><img src="assets/img/f2308e55_mics.webp.jpg" alt="" loading="lazy"><span>მიკროფონები</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="6"><img src="assets/img/6d367fcc_DJ.webp.jpg" alt="" loading="lazy"><span>DJ</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="7"><img src="assets/img/4c26598b_PA.webp.jpg" alt="" loading="lazy"><span>პრო აუდიო</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="8"><img src="assets/img/5348221c_stage.png_jpg.webp" alt="" loading="lazy"><span>სასცენო ეფექტები</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="9"><img src="assets/img/68a53a9f_orchestr.png_jpg.webp" alt="" loading="lazy"><span>ხემიანი</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="10"><img src="assets/img/02f3485c_wind.png_jpg.webp" alt="" loading="lazy"><span>ჩასაბერი</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="11"><img src="assets/img/51a8d5a7_traditional.webp.jpg" alt="" loading="lazy"><span>ტრადიციული</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="12"><img src="assets/img/db8954c0_cables.webp.jpg" alt="" loading="lazy"><span>კომუტაცია</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="13"><img src="assets/img/5dff7112_stands.png_jpg.webp" alt="" loading="lazy"><span>სადგამები</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="14"><img src="assets/img/bc58c99f_accessories.webp.jpg" alt="" loading="lazy"><span>აქსესუარები &amp; სხვა</span><svg class="icon icon-sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><button class="mega__item" data-mega="15"><img src="assets/img/422167c8_Gemini_Generated_Image_p2pba3p2pba3p2pb.png" alt="" loading="lazy"><span>აჩუქე</span></button></div>
+          <div class="mega__panels"><div class="mega__panel is-active" data-panel="0"><h3 class="mega__title">გიტარა</h3><div class="mega__links"><a href="https://acoustic.ge/guitar-acoustic/">აკუსტიკური</a><a href="https://acoustic.ge/guitar-electric/">ელექტრო</a><a href="https://acoustic.ge/guitar-el-acoustic/">ელექტრო-აკუსტიკური</a><a href="https://acoustic.ge/guitar-classic/">კლასიკური</a><a href="https://acoustic.ge/guitar-el-classic/">ელექტრო-კლასიკური</a><a href="https://acoustic.ge/guitar-amp/">გამაძლიერებელი/კომბი</a><a href="https://acoustic.ge/guitar-effects/">ეფექტები</a><a href="https://acoustic.ge/guitar-strings/">სიმები</a><a href="https://acoustic.ge/guitar-cases/">ჩანთები</a><a href="https://acoustic.ge/guitar-accessories/">აქსესუარები</a><a href="https://acoustic.ge/guitar-parts/">ნაწილები</a></div></div><div class="mega__panel" data-panel="1"><h3 class="mega__title">ბასი</h3><div class="mega__links"><a href="https://acoustic.ge/bass-guitar/">ბას-გიტარა</a><a href="https://acoustic.ge/acoustic-bass/">აკუსტიკური ბასი</a><a href="https://acoustic.ge/bass-amp/">გამაძლიერებელი/კომბი</a><a href="https://acoustic.ge/bass-effects/">ეფექტები</a><a href="https://acoustic.ge/bass-strings/">სიმები</a><a href="https://acoustic.ge/bass-cases/">ჩანთები</a><a href="https://acoustic.ge/bass-parts/">ნაწილები</a><a href="https://acoustic.ge/bass-accessories/">აქსესუარები</a></div></div><div class="mega__panel" data-panel="2"><h3 class="mega__title">კლავიშებიანი</h3><div class="mega__links"><a href="https://acoustic.ge/digital-pianos/">ციფრული პიანინო</a><a href="https://acoustic.ge/synths/">სინთეზატორი</a><a href="https://acoustic.ge/midi-keyboard/">MIDI კლავიატურა</a><a href="https://acoustic.ge/piano/">ფორტეპიანო</a><a href="https://acoustic.ge/piano-stands/">სადგამები</a><a href="https://acoustic.ge/piano-chair/">სკამები</a><a href="https://acoustic.ge/piano-amps/">გამაძლიერებელი</a><a href="https://acoustic.ge/piano-accessories/">აქსესუარები</a><a href="https://acoustic.ge/folding-piano/">დასაკეცი</a></div></div><div class="mega__panel" data-panel="3"><h3 class="mega__title">დასარტყამი</h3><div class="mega__links"><a href="https://acoustic.ge/acoustic-drums/">აკუსტიკური</a><a href="https://acoustic.ge/category-171/">სკამი</a><a href="https://acoustic.ge/electric-drum/">ელექტრო</a><a href="https://acoustic.ge/cymbals/">თეფშები</a><a href="https://acoustic.ge/percussion/">პერკუსია</a><a href="https://acoustic.ge/drum-heads/">პლასტიკები</a><a href="https://acoustic.ge/stands-and-pedals/">სადგამები და პედლები</a><a href="https://acoustic.ge/drum-sticks/">ჯოხები</a><a href="https://acoustic.ge/orchestra-drums/">საორკესტრო</a><a href="https://acoustic.ge/drum-bags/">ჩანთები</a><a href="https://acoustic.ge/drum-mics/">მიკროფონები</a><a href="https://acoustic.ge/drum-parts/">ნაწილები</a></div></div><div class="mega__panel" data-panel="4"><h3 class="mega__title">სტუდია</h3><div class="mega__links"><a href="https://acoustic.ge/midi-controller/">MIDI კონტროლერი</a><a href="https://acoustic.ge/acoustic-panels/">აკუსტიკური პანელები</a><a href="https://acoustic.ge/audio-interface/">აუდიო ინტერფეისი</a><a href="https://acoustic.ge/studio-accessories/">აქსესუარები</a><a href="https://acoustic.ge/effects-dsp/">ეფექტები და DSP</a><a href="https://acoustic.ge/studio-microphones/">მიკროფონები</a><a href="https://acoustic.ge/portable-recorders/">პორტატული ჩამწერი</a><a href="https://acoustic.ge/preamp/">პრე-გამაძლიერებელი</a><a href="https://acoustic.ge/studio-bundle/">სტუდიის ნაკრები</a><a href="https://acoustic.ge/studio-monitors/">სტუდიური მონიტორები</a><a href="https://acoustic.ge/headphones/">ყურსასმენი</a><a href="https://acoustic.ge/studio-rack/">საკომუნიკაციო კარადა/რეკი</a></div></div><div class="mega__panel" data-panel="5"><h3 class="mega__title">მიკროფონები</h3><div class="mega__links"><a href="https://acoustic.ge/dynamic-microhpone/">დინამიური</a><a href="https://acoustic.ge/condenser-microphone/">კონდენსატორული</a><a href="https://acoustic.ge/instrument-microphone/">ინსტრუმენტის</a><a href="https://acoustic.ge/wireless-microphone/">უკაბელო</a><a href="https://acoustic.ge/large-diaphragm/">დიდი დიაფრაგმით</a><a href="https://acoustic.ge/conference/">საკონფერენციო</a><a href="https://acoustic.ge/microphone-stands/">სადგამები</a><a href="https://acoustic.ge/vocal-effects/">ვოკალის პროცესორი/ეფექტი</a><a href="https://acoustic.ge/microphone-bags/">ჩანთები და ქეისები</a><a href="https://acoustic.ge/microphone-accessories/">აქსესუარები &amp; სხვა</a></div></div><div class="mega__panel" data-panel="6"><h3 class="mega__title">DJ</h3><div class="mega__links"><a href="https://acoustic.ge/dj-controller/">DJ კონტროლერი</a><a href="https://acoustic.ge/dj-bundle/">DJ ნაკრები</a><a href="https://acoustic.ge/dj-accessories/">აქსესუარები</a><a href="https://acoustic.ge/dj-mixer/">მიქსერი</a><a href="https://acoustic.ge/dj-stands/">სადგამები</a><a href="https://acoustic.ge/dj-cases/">ჩანთები და ქეისები</a><a href="https://acoustic.ge/drum-machine/">დრამ-მანქანა</a><a href="https://acoustic.ge/desktop-synth/">დესკტოპ-სინთეზატორები და ხმის მოდულები</a></div></div><div class="mega__panel" data-panel="7"><h3 class="mega__title">პრო აუდიო</h3><div class="mega__links"><a href="https://acoustic.ge/pa-passive-speakers/">პასიური დინამიკები</a><a href="https://acoustic.ge/pa-active-speakers/">აქტიური დინამიკები</a><a href="https://acoustic.ge/crossover/">Crossover</a><a href="https://acoustic.ge/category-92/">კაბელები</a><a href="https://acoustic.ge/category-88/">მიქსერი</a><a href="https://acoustic.ge/category-94/">ნაწილები და აქსესუარები</a><a href="https://acoustic.ge/category-93/">სამონტაჟო აღჭურვილობა</a><a href="https://acoustic.ge/category-89/">ხმის გამაძლიერებელი</a><a href="https://acoustic.ge/category-308/">ფონური დინამიკები</a><a href="https://acoustic.ge/category-324/">მეგაფონი</a></div></div><div class="mega__panel" data-panel="8"><h3 class="mega__title">სასცენო ეფექტები</h3><div class="mega__links"><a href="https://acoustic.ge/smoke-machine/">ბოლის აპარატი</a><a href="https://acoustic.ge/lighting-controller/">განათების კონტროლერები</a><a href="https://acoustic.ge/decorative-light/">დეკორატიული</a><a href="https://acoustic.ge/theatre-lighting/">თეატრის განათება</a><a href="https://acoustic.ge/laser/">ლაზერი</a><a href="https://acoustic.ge/led-par/">ლედ-პარი</a><a href="https://acoustic.ge/moving-head/">მოტრიალე თავი</a><a href="https://acoustic.ge/lighting-accessories/">ნაწილები და აქსესუარები</a><a href="https://acoustic.ge/strobe/">სტრობი</a><a href="https://acoustic.ge/dotted/">წერტილოვანი</a><a href="https://acoustic.ge/soup-bubble-machine/">საპნის ბუშტის აპარატი</a><a href="https://acoustic.ge/disco-ball/">დისკო-ბურთი</a></div></div><div class="mega__panel" data-panel="9"><h3 class="mega__title">ხემიანი</h3><div class="mega__links"><a href="https://acoustic.ge/violin/">ვიოლინო</a><a href="https://acoustic.ge/contrabass/">კონტრაბასი</a><a href="https://acoustic.ge/chello/">ჩელო</a><a href="https://acoustic.ge/orchestra-strings/">სიმები</a><a href="https://acoustic.ge/orchestra-accessories/">აქსესუარები</a><a href="https://acoustic.ge/strings-bag/">ჩანთები</a></div></div><div class="mega__panel" data-panel="10"><h3 class="mega__title">ჩასაბერი</h3><div class="mega__links"><a href="https://acoustic.ge/electric-wind/">ელექტრო-ჩასაბერი</a><a href="https://acoustic.ge/valtorna/">ვალტორნა</a><a href="https://acoustic.ge/clarnet/">კლარნეტი</a><a href="https://acoustic.ge/melodica/">მელოდიკა</a><a href="https://acoustic.ge/saxaphone/">საქსაფონი</a><a href="https://acoustic.ge/trumpet/">საყვირი</a><a href="https://acoustic.ge/wind-other/">სხვადასხვა</a><a href="https://acoustic.ge/trombone/">ტრომბონი</a><a href="https://acoustic.ge/bassoon/">ფაგოტი</a><a href="https://acoustic.ge/flute/">ფლეიტა</a><a href="https://acoustic.ge/harmonica/">ჰარმონიკა</a><a href="https://acoustic.ge/oboe/">ჰობოი</a></div></div><div class="mega__panel" data-panel="11"><h3 class="mega__title">ტრადიციული</h3><div class="mega__links"><a href="https://acoustic.ge/traditional-percussion/">პერკუსია</a><a href="https://acoustic.ge/traditional-georgian/">ქართული</a><a href="https://acoustic.ge/traditional-accessories/">აქსესუარები</a><a href="https://acoustic.ge/kalimba/">კალიმბა</a><a href="https://acoustic.ge/ritual/">რიტუალური ინსტრუმენტები</a><a href="https://acoustic.ge/ukulele/">უკულელე და სამოგზაურო</a><a href="https://acoustic.ge/bluegrass/">ბლუგრას-ინსტრუმენტები</a></div></div><div class="mega__panel" data-panel="12"><h3 class="mega__title">კომუტაცია</h3><div class="mega__links"><a href="https://acoustic.ge/audio-cables/">აუდიო კაბელები</a><a href="https://acoustic.ge/microphone-cables/">მიკროფონის კაბელი</a><a href="https://acoustic.ge/instrument-cables/">ინსტრუმენტის კაბელი</a><a href="https://acoustic.ge/speaker-cables/">დინამიკის კაბელი</a><a href="https://acoustic.ge/multicore/">მულტიქორი (Multicore)</a><a href="https://acoustic.ge/cable-adapters/">კონექტორი/ადაფტერი</a></div></div><div class="mega__panel" data-panel="13"><h3 class="mega__title">სადგამები</h3><div class="mega__links"><a href="https://acoustic.ge/category-95/">PA სადგამები</a><a href="https://acoustic.ge/guitar-stands/">გიტარის</a><a href="https://acoustic.ge/keyboard-stands/">კლავიშის</a><a href="https://acoustic.ge/laptop-stands/">ლეპტოპის</a><a href="https://acoustic.ge/microphone-stands-1/">მიკროფონის</a><a href="https://acoustic.ge/music-stands/">ნოტების/პიუპიტრი</a><a href="https://acoustic.ge/dj-stands-ka/">DJ</a><a href="https://acoustic.ge/amp-stands/">გამაძლიერებლის</a><a href="https://acoustic.ge/studio-monitor-stands/">სტუდიური მონიტორის</a></div></div><div class="mega__panel" data-panel="14"><h3 class="mega__title">აქსესუარები &amp; სხვა</h3><div class="mega__links"><a href="https://acoustic.ge/branded-items/">ბრენდირებული ნივთები</a><a href="https://acoustic.ge/metronome/">მეტრონომი</a><a href="https://acoustic.ge/other-stands/">სადგამი</a><a href="https://acoustic.ge/cleaning/">საწმენდი საშუალებები</a><a href="https://acoustic.ge/other-accessories/">სხვადასხვა</a><a href="https://acoustic.ge/bluetooth/">Bluetooth დინამიკები</a><a href="https://acoustic.ge/category-305/">ხელსაწყოები</a><a href="https://acoustic.ge/category-322/">ჩანთები</a></div></div><div class="mega__panel" data-panel="15"><h3 class="mega__title">აჩუქე</h3><div class="mega__links"></div></div></div>
+        </div>
+      </div>
+    <form class="search" role="search" onsubmit="return false">
+      <input type="search" placeholder="ძებნა: გიტარა, მიკროფონი, სიმები…" aria-label="ძებნა">
+      <button type="submit" aria-label="ძებნა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+    </form>
+    <div class="actions">
+      <a class="act" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg><span>შედარება</span></a>
+      <a class="act" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg><span>რჩეული</span></a>
+      <a class="act" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>ანგარიში</span></a>
+      <a class="act" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg><span class="badge">0</span><span>ურიკა</span></a>
+    </div>
+  </div>
+</header>
+<section class="section hero">
+  <div class="container">
+    <div class="shead">
+      <h2><span class="accent">ახალი ბრენდები</span> აკუსტიკაში</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="bcards">
+        <a class="bcard" href="https://acoustic.ge/lamancha">
+          <img src="assets/img/4cafb096_1-01__Copy_.png" alt="La Mancha Guitars" loading="lazy">
+          <div class="bcard__body">
+            <h3 class="bcard__title">La Mancha Guitars</h3>
+            <p class="bcard__sub">ის აქ არის</p>
+            <span class="btn-ghost">გაიგე მეტი<svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+          </div>
+        </a>
+        <a class="bcard" href="https://acoustic.ge/batonrouge">
+          <img src="assets/img/5cf89d88_22-01__Copy_.png" alt="Baton Rouge Guitars" loading="lazy">
+          <div class="bcard__body">
+            <h3 class="bcard__title">Baton Rouge Guitars</h3>
+            <p class="bcard__sub">ის აქ არის</p>
+            <span class="btn-ghost">გაიგე მეტი<svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+          </div>
+        </a>
+        <a class="bcard" href="https://acoustic.ge/manuelrodriguez">
+          <img src="assets/img/f06d6c23_3-01__Copy_.png" alt="Manuel Rodriguez" loading="lazy">
+          <div class="bcard__body">
+            <h3 class="bcard__title">Manuel Rodriguez</h3>
+            <p class="bcard__sub">ის აქ არის</p>
+            <span class="btn-ghost">მეტის გაგება<svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+          </div>
+        </a>
+        <a class="bcard" href="https://acoustic.ge/gtrs">
+          <img src="assets/img/ccf94054_123123123123123.png" alt="ჭკვიანი გიტარა" loading="lazy">
+          <div class="bcard__body">
+            <h3 class="bcard__title">ჭკვიანი გიტარა</h3>
+            <p class="bcard__sub">ის აქ არის</p>
+            <span class="btn-ghost">მეტის ნახვა<svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+          </div>
+        </a></div>
+    <div class="promos"><a class="promo" href="https://acoustic.ge/drums/?features_hash=4-Y_7-227">
+          <img src="assets/img/962d1945_11111111111111111111111.jpeg" alt="" loading="lazy">
+          <span>ნახვა<svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+        </a><a class="promo" href="https://acoustic.ge/?match=all&amp;subcats=Y&amp;pcode_from_q=Y&amp;pshort=Y&amp;pfull=Y&amp;pname=Y&amp;pkeywords=Y&amp;search_performed=Y&amp;q=pitbull&amp;dispatch=products.search&amp;security_hash=8543fc7d280eb035bd5f55fe9204de5d">
+          <img src="assets/img/8d623db2_WhatsApp_Image_2026-05-11_at_15.59.12.jpeg" alt="" loading="lazy">
+          <span>ნახვა<svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+        </a></div>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="shead"><h2>პროდუქციის <span class="accent">კატალოგი</span></h2><div class="rule"></div></div>
+    <div class="cats"><a class="cat" href="https://acoustic.ge/guitar/">
+          <span class="cat__img"><img src="assets/img/e99f41b3_guitar.png.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">გიტარა</span>
+        </a><a class="cat" href="https://acoustic.ge/bass/">
+          <span class="cat__img"><img src="assets/img/0e3ebd5b_bass.png.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">ბასი</span>
+        </a><a class="cat" href="https://acoustic.ge/drums/">
+          <span class="cat__img"><img src="assets/img/e5b1c528_drums.png.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">დასარტყამი</span>
+        </a><a class="cat" href="https://acoustic.ge/keys/">
+          <span class="cat__img"><img src="assets/img/8827e742_keys.png.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">კლავიშებიანი</span>
+        </a><a class="cat" href="https://acoustic.ge/studio/">
+          <span class="cat__img"><img src="assets/img/6b4a5ec4_studio.png.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">სტუდია</span>
+        </a><a class="cat" href="https://acoustic.ge/pa/">
+          <span class="cat__img"><img src="assets/img/f567d195_PA.webp.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">პრო აუდიო</span>
+        </a><a class="cat" href="https://acoustic.ge/stage/">
+          <span class="cat__img"><img src="assets/img/adeaa310_stage.png.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">სასცენო ეფექტები</span>
+        </a><a class="cat" href="https://acoustic.ge/dj/">
+          <span class="cat__img"><img src="assets/img/040d3811_DJ.webp.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">DJ</span>
+        </a><a class="cat" href="https://acoustic.ge/microphones/">
+          <span class="cat__img"><img src="assets/img/3507b7d5_mics.webp.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">მიკროფონები</span>
+        </a><a class="cat" href="https://acoustic.ge/wind/">
+          <span class="cat__img"><img src="assets/img/b21fdc23_wind.png.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">ჩასაბერი</span>
+        </a><a class="cat" href="https://acoustic.ge/orchestra/">
+          <span class="cat__img"><img src="assets/img/d068a11c_orchestr.png.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">ხემიანი</span>
+        </a><a class="cat" href="https://acoustic.ge/traditional/">
+          <span class="cat__img"><img src="assets/img/53093392_traditional.webp.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">ტრადიციული</span>
+        </a><a class="cat" href="https://acoustic.ge/stands/">
+          <span class="cat__img"><img src="assets/img/e23bcd7a_stands.png.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">სადგამები</span>
+        </a><a class="cat" href="https://acoustic.ge/cables/">
+          <span class="cat__img"><img src="assets/img/a4e20bf5_cables.webp.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">კომუტაცია</span>
+        </a><a class="cat" href="https://acoustic.ge/accessories/">
+          <span class="cat__img"><img src="assets/img/03335fc2_accessories.webp.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">აქსესუარები &amp; სხვა</span>
+        </a><a class="cat" href="https://acoustic.ge/gift/">
+          <span class="cat__img"><img src="assets/img/8e5b408a_Gemini_Generated_Image_p2pba3p2pba3p2pb.png.jpg" alt="" loading="lazy"></span>
+          <span class="cat__name">აჩუქე</span>
+        </a></div>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="shead"><h2>ჩვენი <span class="accent">სერვისები</span></h2><div class="rule"></div></div>
+    <div class="services"><article class="service">
+          <img src="assets/img/8373792f_crash.gif" alt="" loading="lazy">
+          <div class="service__body">
+            <h3 class="service__title">დასარტყამი ინსტრუმენტი</h3>
+            <p class="service__desc">პლასტიკების შეცვლა აწყობა გამართვა</p>
+            <a class="service__tel" href="tel:+995557343332"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><bdo dir="ltr">+995557343332</bdo></a>
+          </div>
+        </article><article class="service">
+          <img src="assets/img/d0787fcc_f18469f0-3119-49c1-bf24-f7258496c6b5.webp" alt="" loading="lazy">
+          <div class="service__body">
+            <h3 class="service__title">გიტარა/ვიოლინო</h3>
+            <p class="service__desc">სიმების შეცვლა აწყობა გრიფის გასწორება</p>
+            <a class="service__tel" href="tel:+995555658847"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><bdo dir="ltr">+995555658847</bdo></a>
+          </div>
+        </article><article class="service">
+          <img src="assets/img/ae8876e1_top-view-circuit-board-repair_jpg.jpg" alt="" loading="lazy">
+          <div class="service__body">
+            <h3 class="service__title">აპარატურა</h3>
+            <p class="service__desc">აპარატურის დიაგნოსტიკა სქემების შეკეთება</p>
+            <a class="service__tel" href="tel:+995599513069"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><bdo dir="ltr">+995599513069</bdo></a>
+          </div>
+        </article></div>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="shead">
+      <h2><span class="accent">ფასდაკლებული</span> პროდუქცია</h2>
+      <div class="rule"></div>
+      <div class="navbtns">
+        <button class="navbtn" data-rail="rail0" data-dir="-1" aria-label="prev"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+        <button class="navbtn" data-rail="rail0" data-dir="1" aria-label="next"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+    <div class="rail" id="rail0">
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag">-55%</span>
+        <a href="https://acoustic.ge/kalimba-zkm01-c-17keys-with-case/"><img src="assets/img/c9e07c9b_ae9a202814c79a6e530f2bdc5e43800c_qctc-p5.jpg.jpg" srcset="assets/img/e9ad80bc_ae9a202814c79a6e530f2bdc5e43800c_qctc-p5.jpg.jpg 2x" alt="Kalimba ZKM01-C 17keys with case კალიმბა" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/kalimba-zkm01-c-17keys-with-case/">Kalimba ZKM01-C 17keys with case კალიმბა</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now is-sale">45.00 GEL</span><span class="price-old">100.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag">-55%</span>
+        <a href="https://acoustic.ge/kalimba-21u-cko00-17keys-with-case/"><img src="assets/img/7a557f1c_f4e1d30d4ae46a405db519a887508daa.jpg.jpg" srcset="assets/img/b8ac44a9_f4e1d30d4ae46a405db519a887508daa.jpg.jpg 2x" alt="Kalimba 21U-CKO00 17keys with case კალიმბა" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/kalimba-21u-cko00-17keys-with-case/">Kalimba 21U-CKO00 17keys with case კალიმბა</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now is-sale">45.00 GEL</span><span class="price-old">100.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock out"><i></i>არ არის გაყიდვაში</span>
+        <button class="buy" title="დაამატე ურიკაში" disabled><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag">-53%</span>
+        <a href="https://acoustic.ge/kalimba-bkw00-c-17keys-with-case/"><img src="assets/img/f5b76768_unnamed_unl3-e2.jpg.jpg" srcset="assets/img/2d6d6a03_unnamed_unl3-e2.jpg.jpg 2x" alt="Kalimba BKW00-C 17keys with case კალიმბა" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/kalimba-bkw00-c-17keys-with-case/">Kalimba BKW00-C 17keys with case კალიმბა</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now is-sale">70.00 GEL</span><span class="price-old">150.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag">-47%</span>
+        <a href="https://acoustic.ge/pitbull-geb-6-sl-30-125-super-light-bass-guitar-strings/"><img src="assets/img/d9bf83d1_geb6slon.jpg.jpg" srcset="assets/img/dde4c612_geb6slon.jpg.jpg 2x" alt="Pitbull GEB 6 Super Light ბას-გიტარის სიმები 30-125" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/pitbull-geb-6-sl-30-125-super-light-bass-guitar-strings/">Pitbull GEB 6 Super Light ბას-გიტარის სიმები 30-125</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now is-sale">90.00 GEL</span><span class="price-old">170.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag">-47%</span>
+        <a href="https://acoustic.ge/pitbull-geb-6-l-30-128-light-bass-guitar-strings/"><img src="assets/img/3047ad7b_geb6lon.jpg.jpg" srcset="assets/img/bca8dbf4_geb6lon.jpg.jpg 2x" alt="Pitbull GEB 6 Light ბას-გიტარის სიმები 30-128" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/pitbull-geb-6-l-30-128-light-bass-guitar-strings/">Pitbull GEB 6 Light ბას-გიტარის სიმები 30-128</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now is-sale">90.00 GEL</span><span class="price-old">170.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag">-47%</span>
+        <a href="https://acoustic.ge/pitbull-meb-6-l-30-130-light-extra-long-bass/"><img src="assets/img/8d1e37a3_bass-meb-6-l-on-copy.jpg.jpg" srcset="assets/img/a12497d1_bass-meb-6-l-on-copy.jpg.jpg 2x" alt="Pitbull MEB 6 Light Extra Long Scale ბას-გიტარის სიმები 30-130" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/pitbull-meb-6-l-30-130-light-extra-long-bass/">Pitbull MEB 6 Light Extra Long Scale ბას-გიტარის სიმები 30-130</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now is-sale">90.00 GEL</span><span class="price-old">170.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag">-46%</span>
+        <a href="https://acoustic.ge/kalimba-bkf01-c-17keys-with-case/"><img src="assets/img/1da42f06_0821fc7253645dff16a9f2744fd62d06_.jpg.jpg" srcset="assets/img/5a9dbaac_0821fc7253645dff16a9f2744fd62d06_.jpg.jpg 2x" alt="Kalimba BKF01-C 17keys with case კალიმბა" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/kalimba-bkf01-c-17keys-with-case/">Kalimba BKF01-C 17keys with case კალიმბა</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now is-sale">70.00 GEL</span><span class="price-old">130.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock out"><i></i>არ არის გაყიდვაში</span>
+        <button class="buy" title="დაამატე ურიკაში" disabled><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag">-46%</span>
+        <a href="https://acoustic.ge/valencia-vc203twr-3-4-sized-classical-guitar-trans-wine-red/"><img src="assets/img/1b724a27_60058-800x800.jpg.jpg" srcset="assets/img/8cf50875_60058-800x800.jpg.jpg 2x" alt="Valencia VC203TWR 3/4 Sized Classical Guitar, Trans Wine Red კლასიკური გიტარა" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/valencia-vc203twr-3-4-sized-classical-guitar-trans-wine-red/">Valencia VC203TWR 3/4 Sized Classical Guitar, Trans Wine Red კლასიკური გიტარა</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now is-sale">190.00 GEL</span><span class="price-old">350.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock out"><i></i>არ არის გაყიდვაში</span>
+        <button class="buy" title="დაამატე ურიკაში" disabled><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag">-45%</span>
+        <a href="https://acoustic.ge/aiersi-kalimba/"><img src="assets/img/9790d798_fdbcb702370423e0e3ae041791f32e59_.jpg.jpg" srcset="assets/img/f6e295d5_fdbcb702370423e0e3ae041791f32e59_.jpg.jpg 2x" alt="Aiersi KALIMBA კალიმბა" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/aiersi-kalimba/">Aiersi KALIMBA კალიმბა</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now is-sale">55.00 GEL</span><span class="price-old">100.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag">-45%</span>
+        <a href="https://acoustic.ge/kenaz-kalimba-kk201-17keys-with-case/"><img src="assets/img/4703c15b_ff421909a47765e9b5079e84f9bca2ee.jpg.jpg" srcset="assets/img/f0b07a53_ff421909a47765e9b5079e84f9bca2ee.jpg.jpg 2x" alt="Kenaz Kalimba KK201 17keys with case კალიმბა" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/kenaz-kalimba-kk201-17keys-with-case/">Kenaz Kalimba KK201 17keys with case კალიმბა</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now is-sale">55.00 GEL</span><span class="price-old">100.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article></div>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="shead">
+      <h2><span class="accent">უახლესი</span> პროდუქცია</h2>
+      <div class="rule"></div>
+      <div class="navbtns">
+        <button class="navbtn" data-rail="rail1" data-dir="-1" aria-label="prev"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+        <button class="navbtn" data-rail="rail1" data-dir="1" aria-label="next"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+    <div class="rail" id="rail1">
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/roadworx-monitor-speaker-stand-table-for-monitor-speakers-black/"><img src="assets/img/557325fa_roadworx_monitor_speaker_stand_1.jpg.jpg" srcset="assets/img/371bc987_roadworx_monitor_speaker_stand_1.jpg.jpg 2x" alt="Roadworx Monitor Speaker Stand Table სტუდიური მონიტორის სადგამი" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/roadworx-monitor-speaker-stand-table-for-monitor-speakers-black/">Roadworx Monitor Speaker Stand Table სტუდიური მონიტორის სადგამი</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-ask">ფასის დასაზუსტებლად გთხოვთ დაგვიკავშრდეთ</span></div>
+      <div class="pcard__foot">
+        <span class="stock out"><i></i>არ არის გაყიდვაში</span>
+        <button class="buy" title="დაამატე ურიკაში" disabled><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/harley-benton-pj-4-sbk-deluxe-series/"><img src="assets/img/d56a8977_harley_benton_pj-4_sbk_deluxe__0.jpg.jpg" srcset="assets/img/2dfa6099_harley_benton_pj-4_sbk_deluxe__0.jpg.jpg 2x" alt="Harley Benton PJ-4 SBK Deluxe Series ბას-გიტარა" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/harley-benton-pj-4-sbk-deluxe-series/">Harley Benton PJ-4 SBK Deluxe Series ბას-გიტარა</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">650.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock out"><i></i>არ არის გაყიდვაში</span>
+        <button class="buy" title="დაამატე ურიკაში" disabled><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/used-boss-guitar-synthesizer-sy-300/"><img src="assets/img/c480040a_sy_300_top_main.jpg.jpg" srcset="assets/img/7a784623_sy_300_top_main.jpg.jpg 2x" alt="Used BOSS Guitar Synthesizer SY-300 გიტარის ეფექტ-პედალი" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/used-boss-guitar-synthesizer-sy-300/">Used BOSS Guitar Synthesizer SY-300 გიტარის ეფექტ-პედალი</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">900.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/ibanez-aam54-opn-acoustic-guitar/"><img src="assets/img/aa7e5ec9_p_region_AAM54_OPN_2Y_02_sub_3.jpg.jpg" srcset="assets/img/99b76751_p_region_AAM54_OPN_2Y_02_sub_3.jpg.jpg 2x" alt="Ibanez AAM54-OPN Acoustic Guitar აკუსტიკური გიტარა" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/ibanez-aam54-opn-acoustic-guitar/">Ibanez AAM54-OPN Acoustic Guitar აკუსტიკური გიტარა</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">650.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/pyramid-nylon-satz-black-wires-nylon-string-set-medium-tension-c342-200/"><img src="assets/img/80119391_pyramid_nylon_satz_black_wires_0.jpg.jpg" srcset="assets/img/597662d4_pyramid_nylon_satz_black_wires_0.jpg.jpg 2x" alt="Pyramid Nylon Satz Black Wires კლასიკური გიტარის სიმები" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/pyramid-nylon-satz-black-wires-nylon-string-set-medium-tension-c342-200/">Pyramid Nylon Satz Black Wires კლასიკური გიტარის სიმები</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-ask">ფასის დასაზუსტებლად გთხოვთ დაგვიკავშრდეთ</span></div>
+      <div class="pcard__foot">
+        <span class="stock out"><i></i>არ არის გაყიდვაში</span>
+        <button class="buy" title="დაამატე ურიკაში" disabled><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/hannabach-500ht-high-tension-string-set-for-classical-guitar/"><img src="assets/img/c438fc18_hannabach-500ht.jpg.jpg" srcset="assets/img/7efd580e_hannabach-500ht.jpg.jpg 2x" alt="Hannabach 500 High Tension კლასიკური გიტარის სიმები" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/hannabach-500ht-high-tension-string-set-for-classical-guitar/">Hannabach 500 High Tension კლასიკური გიტარის სიმები</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">30.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock out"><i></i>არ არის გაყიდვაში</span>
+        <button class="buy" title="დაამატე ურიკაში" disabled><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/savarez-500cj-high-tension-string-set-for-concert-guitar-high-tension/"><img src="assets/img/c6d4bf54_SAVAREZ500CJ.jpg.jpg" srcset="assets/img/c1a80a5b_SAVAREZ500CJ.jpg.jpg 2x" alt="Savarez 500CJ High Tension კლასიკური გიტარის სიმები" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/savarez-500cj-high-tension-string-set-for-concert-guitar-high-tension/">Savarez 500CJ High Tension კლასიკური გიტარის სიმები</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">50.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock out"><i></i>არ არის გაყიდვაში</span>
+        <button class="buy" title="დაამატე ურიკაში" disabled><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/used-pioneer-dj-ddjflx4-dj-controller-ka/"><img src="assets/img/94c1894d_pc-cgi_top.png_jpg.webp.jpg" srcset="assets/img/3e23ef95_pc-cgi_top.png_jpg.webp.jpg 2x" alt="Used Pioneer 2-channel DDJ-FLX4 დიჯეი კონტროლერი" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/used-pioneer-dj-ddjflx4-dj-controller-ka/">Used Pioneer 2-channel DDJ-FLX4 დიჯეი კონტროლერი</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">850.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock out"><i></i>არ არის გაყიდვაში</span>
+        <button class="buy" title="დაამატე ურიკაში" disabled><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/used-akg-k52-headphones/"><img src="assets/img/3ee46032_AKG_K52_standard_white_V2.png.jpg" srcset="assets/img/d312f3a5_AKG_K52_standard_white_V2.png.jpg 2x" alt="Used AKG K52 Closed-back სტუდიური ყურსასმენები" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/used-akg-k52-headphones/">Used AKG K52 Closed-back სტუდიური ყურსასმენები</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">80.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/used-yamaha-255-clarinet/"><img src="assets/img/dc879249_IMG_5229.png.jpg" srcset="assets/img/527a79e5_IMG_5229.png.jpg 2x" alt="Used Yamaha 255 Clarinet კლარნეტი" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/used-yamaha-255-clarinet/">Used Yamaha 255 Clarinet კლარნეტი</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">850.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/used-yamaha-pacifica-el-guitar/"><img src="assets/img/f5d093bc_51Kn6maHNDL._AC_SY879_.jpg.jpg" srcset="assets/img/16f73d0e_51Kn6maHNDL._AC_SY879_.jpg.jpg 2x" alt="Used Yamaha Pacifica ელ.გიტარა" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/used-yamaha-pacifica-el-guitar/">Used Yamaha Pacifica ელ.გიტარა</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">550.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock out"><i></i>არ არის გაყიდვაში</span>
+        <button class="buy" title="დაამატე ურიკაში" disabled><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/used-alphatheta-ddj-flx2/"><img src="assets/img/6ac39ba9_DDJ-FLX2_WEB_Product-image_Top_3500x2045-scaled.webp.jpg" srcset="assets/img/bc5da847_DDJ-FLX2_WEB_Product-image_Top_3500x2045-scaled.webp.jpg 2x" alt="Used AlphaTheta DDJ-flx2 დიჯეი კონტროლერი" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/used-alphatheta-ddj-flx2/">Used AlphaTheta DDJ-flx2 დიჯეი კონტროლერი</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">500.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/istanbul-ixs3-xist-16/"><img src="assets/img/e52628b0_istanbul_agop_16_xist_crash_b_1.jpg.jpg" srcset="assets/img/28fd516d_istanbul_agop_16_xist_crash_b_1.jpg.jpg 2x" alt="Istanbul Agop 16&quot; Xist დრამის თეფში" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/istanbul-ixs3-xist-16/">Istanbul Agop 16&quot; Xist დრამის თეფში</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">400.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/acoustic-panel-ka/"><img src="assets/img/77626169_IMG_5097.png.jpg" srcset="assets/img/38b0e459_IMG_5097.png.jpg 2x" alt="Acoustic Panel აკუსტიკური პანელი 100x100x7" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/acoustic-panel-ka/">Acoustic Panel აკუსტიკური პანელი 100x100x7</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-ask">ფასის დასაზუსტებლად გთხოვთ დაგვიკავშრდეთ</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/guitar-bag-acousic-classic/"><img src="assets/img/e42e3cd8_IMG_5083_vvxx-ve.webp.jpg" srcset="assets/img/767f5b3f_IMG_5083_vvxx-ve.webp.jpg 2x" alt="Guitar Bag Acousic,Classic აკუსტიკური/კლსიკური გიტარის ჩანთა" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/guitar-bag-acousic-classic/">Guitar Bag Acousic,Classic აკუსტიკური/კლსიკური გიტარის ჩანთა</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">35.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/epiphone-g-1275-custom-double-neck-cherry-red/"><img src="assets/img/dd8e89fa_s-l960_k5bl-ta.webp.jpg" srcset="assets/img/ea073637_s-l960_k5bl-ta.webp.jpg 2x" alt="Epiphone G-1275 Custom Double Neck Cherry Red ელ.გიტარა" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/epiphone-g-1275-custom-double-neck-cherry-red/">Epiphone G-1275 Custom Double Neck Cherry Red ელ.გიტარა</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">4,550.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/daddario-exl116-nickel-wound-medium-topheavy-bottom-electric-guitar-strings-11-52/"><img src="assets/img/c5d5db76_Screenshot_1_ft3d-wj.png.jpg" srcset="assets/img/2c55bd46_Screenshot_1_ft3d-wj.png.jpg 2x" alt="DAddario EXL116 Nickel Wound Medium TopHeavy Bottom ელექტრო გიტარის სიმები 11-52" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/daddario-exl116-nickel-wound-medium-topheavy-bottom-electric-guitar-strings-11-52/">DAddario EXL116 Nickel Wound Medium TopHeavy Bottom ელექტრო გიტარის სიმები 11-52</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">30.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/acoustic-panel/"><img src="assets/img/9a1d0151_IMG_5012.png.jpg" srcset="assets/img/2b9341c1_IMG_5012.png.jpg 2x" alt="Acoustic Panel აკუსტიკური პანელი 100x100x7" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/acoustic-panel/">Acoustic Panel აკუსტიკური პანელი 100x100x7</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-ask">ფასის დასაზუსტებლად გთხოვთ დაგვიკავშრდეთ</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/akg-wms40mini-voc-set-ism1/"><img src="assets/img/6718bda2_akg-wms40mini-voc-set-ism1-akg-geovoice.ge-akg-7639.png.jpg" srcset="assets/img/a428e3e4_akg-wms40mini-voc-set-ism1-akg-geovoice.ge-akg-7639.png.jpg 2x" alt="AKG WMS40 Mini Voc-Set ISM1 უკაბელო მიკროფონის სისტემა" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/akg-wms40mini-voc-set-ism1/">AKG WMS40 Mini Voc-Set ISM1 უკაბელო მიკროფონის სისტემა</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">400.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard__media">
+        <span class="tag tag--new">ახალი</span>
+        <a href="https://acoustic.ge/akg-3350h00010-wms40mini2-voc-set-bd-ism2-3/"><img src="assets/img/2ea29b98_-wms40mini-dual-voc-set-ism-akg-geovoice.ge-akg-7314.png.jpg" srcset="assets/img/448b60b8_-wms40mini-dual-voc-set-ism-akg-geovoice.ge-akg-7314.png.jpg 2x" alt="AKG WMS40MINI Dual Voc-Set ISM უკაბელო მიკროფონის სისტემა" loading="lazy"></a>
+        <div class="quick">
+          <button title="რჩეულებში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 1 0-7.4 7.4L12 21.5l8.8-8.5a5.2 5.2 0 0 0 0-7.4z"/></svg></button>
+          <button title="შედარება"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/></svg></button>
+          <button title="სწრაფი ნახვა"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <a class="pcard__name" href="https://acoustic.ge/akg-3350h00010-wms40mini2-voc-set-bd-ism2-3/">AKG WMS40MINI Dual Voc-Set ISM უკაბელო მიკროფონის სისტემა</a>
+      <div class="stars"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></svg><span>0.0</span></div>
+      <div class="pcard__price"><span class="price-now">700.00 GEL</span></div>
+      <div class="pcard__foot">
+        <span class="stock"><i></i>გაყიდვაშია</span>
+        <button class="buy" title="დაამატე ურიკაში"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.4 12.1a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/></svg></button>
+      </div>
+    </article></div>
+  </div>
+</section>
+<section class="section section--tight">
+  <div class="container">
+    <div class="brands"><div class="brands__track"><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-306"><img src="assets/img/d3911b0a_mooer_e6ac-v3.jpg" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-86"><img src="assets/img/6d021cd3_behringer.webp" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-209"><img src="assets/img/13f9b592_harley_benton.gif" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-415"><img src="assets/img/52e45738_squier.png" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-395"><img src="assets/img/0b423d77_shure.webp" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-252"><img src="assets/img/736de559_krk.png" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-56"><img src="assets/img/ba62cc41_alesis.png" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-390"><img src="assets/img/e23c8fac_schecter.png" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-172"><img src="assets/img/8ea40329_fender.png" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-180"><img src="assets/img/13f4ee2f_focusrite.png" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/guitar/?features_hash=7-255"><img src="assets/img/8423879f_lamancha.jpg" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/guitar/?features_hash=7-279"><img src="assets/img/bbe9f107_manuelrodriguez.png" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/guitar/?features_hash=7-83"><img src="assets/img/50ac792f_batonrouge.jpeg.jpg" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-306"><img src="assets/img/d3911b0a_mooer_e6ac-v3.jpg" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-86"><img src="assets/img/6d021cd3_behringer.webp" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-209"><img src="assets/img/13f9b592_harley_benton.gif" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-415"><img src="assets/img/52e45738_squier.png" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-395"><img src="assets/img/0b423d77_shure.webp" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-252"><img src="assets/img/736de559_krk.png" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-56"><img src="assets/img/ba62cc41_alesis.png" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-390"><img src="assets/img/e23c8fac_schecter.png" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-172"><img src="assets/img/8ea40329_fender.png" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/index.php?dispatch=products.search&amp;features_hash=7-180"><img src="assets/img/13f4ee2f_focusrite.png" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/guitar/?features_hash=7-255"><img src="assets/img/8423879f_lamancha.jpg" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/guitar/?features_hash=7-279"><img src="assets/img/bbe9f107_manuelrodriguez.png" alt="" loading="lazy"></a><a class="brand" href="https://acoustic.ge/guitar/?features_hash=7-83"><img src="assets/img/50ac792f_batonrouge.jpeg.jpg" alt="" loading="lazy"></a></div></div>
+  </div>
+</section>
+<footer class="footer">
+  <div class="container footer__top">
+    <div>
+      <h3>საიტის რუკა</h3>
+      <ul class="footer__links"><li><a href="index.php?dispatch=pages.view&amp;page_id=46">ჩვენს შესახებ</a></li><li><a href="https://sheet.acoustic.ge/">სარეპეტიციო</a></li><li><a href="index.php?dispatch=pages.view&amp;page_id=47">სერვისი</a></li><li><a href="tel:+995591229314">კონტაქტი</a></li></ul>
+    </div>
+    <div>
+      <h3>წესები და პირობები</h3>
+      <ul class="footer__links"><li><a href="index.php?dispatch=pages.view&amp;page_id=48">დაბრუნების პოლიტიკა</a></li><li><a href="index.php?dispatch=pages.view&amp;page_id=50">კონფიდენციალურობის პოლიტიკა</a></li><li><a href="index.php?dispatch=pages.view&amp;page_id=49">მიწოდების პოლიტიკა</a></li></ul>
+    </div>
+    <div>
+      <h3>კონტაქტი</h3>
+      <ul class="fcontact">
+        <li><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span>თბილისი, აკაკი წერეთლის 142</span></li>
+        <li><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><a href="tel:+995591229314"><bdo dir="ltr">+995591229314</bdo></a></li>
+        <li><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>ყოველდღე 11:00-19:00</span></li>
+        <li><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><a href="mailto:sales@acoustic.ge">sales@acoustic.ge</a></li>
+      </ul>
+      <div class="fbtns"><a class="fbtn" href="https://www.google.com/maps/place/%E1%83%90%E1%83%99%E1%83%A3%E1%83%A1%E1%83%A2%E1%83%98%E1%83%99%E1%83%90/@41.750564,44.773621,17z/data=!3m1!4b1!4m6!3m5!1s0x4044735287d07e21:0x83d79660ac099e03!8m2!3d41.75056!4d44.7762013!16s%2Fg%2F11ry2s60l9?entry=ttu" target="_blank" rel="noopener"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 4 6 2 5-2v14l-5 2-6-2-5 2V6z"/><path d="M9 4v14M15 6v14"/></svg>მოგვძებნე რუკაზე</a></div>
+    </div>
+    <div>
+      <h3>ჩემი ანგარიში</h3>
+      <div class="fbtns">
+        <a class="fbtn fbtn--solid" href="https://acoustic.ge/auth-loginform/?return_url=index.php">ავტორიზაცია</a>
+        <a class="fbtn" href="https://acoustic.ge/profiles-add-ka/">რეგისტრაცია</a>
+      </div>
+      <p class="footer__note">გაიარე ავტორიზაცია, ან დარეგისტრირდი</p>
+    </div>
+  </div>
+  <div class="container footer__bottom">
+    <span>&copy; 2020-2026 აკუსტიკა. ყველა უფლება დაცულია.</span>
+    <span class="pays"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.4 8.4-8 9.5C7.4 20.4 4 17 4 12V6z"/></svg>Supported by: <a href="https://cscart.ge" target="_blank" rel="noopener">Geopay</a></span>
+  </div>
+</footer>
+<div class="scrim" id="scrim"></div>
+<button class="up" id="up" aria-label="up"><svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+<script src="assets/app.js"></script>
+</body>
+</html>
