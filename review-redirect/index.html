@@ -1,360 +1,450 @@
 <!DOCTYPE html>
 <html lang="ka">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="/logo_for_acoustic_browser_tab.png">
-    <link rel="shortcut icon" type="image/png" href="/logo_for_acoustic_browser_tab.png">
-    <title>აკუსტიკა - შეფასება</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #eef5f5 0%, #e0eaea 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #333;
-            position: relative;
-            overflow-x: hidden;
-        }
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='%23008080' fill-opacity='0.025'%3E%3Cpath d='M80 20c-8 0-14 6-14 14v60c-4-2-9-3-14-3-12 0-22 8-22 18s10 18 22 18 22-8 22-18V56l40-12v36c-4-2-9-3-14-3-12 0-22 8-22 18s10 18 22 18 22-8 22-18V20l-12 0z'/%3E%3C/g%3E%3C/svg%3E");
-            background-repeat: repeat;
-            background-size: 200px 200px;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .container {
-            background: #ffffff;
-            max-width: 460px;
-            width: 92%;
-            text-align: center;
-            overflow: hidden;
-            border-radius: 16px;
-            box-shadow: 0 8px 40px rgba(0,128,128,0.10), 0 2px 8px rgba(0,0,0,0.04);
-            position: relative;
-            z-index: 1;
-        }
-        .lang-switcher {
-            position: absolute;
-            top: 12px;
-            right: 14px;
-            z-index: 2;
-            display: flex;
-            gap: 4px;
-        }
-        .lang-btn {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: #fff;
-            padding: 5px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .lang-btn:hover {
-            background: rgba(255,255,255,0.35);
-        }
-        .lang-btn.active {
-            background: rgba(255,255,255,0.9);
-            color: #008080;
-        }
-        .header {
-            background: linear-gradient(135deg, #008080 0%, #006666 100%);
-            padding: 44px 24px 32px;
-            position: relative;
-        }
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            right: 0;
-            height: 24px;
-            background: #ffffff;
-            border-radius: 24px 24px 0 0;
-        }
-        .header a {
-            text-decoration: none;
-            display: block;
-        }
-        .header-logo {
-            max-width: 160px;
-            width: 70%;
-            height: auto;
-            margin-bottom: 14px;
-            filter: brightness(0) invert(1);
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .tagline {
-            font-size: 12px;
-            color: #a8d8d8;
-            margin-top: 6px;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-        }
-        .body {
-            padding: 32px 32px 40px;
-        }
-        .question {
-            font-size: 23px;
-            font-weight: 700;
-            color: #008080;
-            margin-bottom: 6px;
-            line-height: 1.4;
-        }
-        .subtitle {
-            font-size: 13px;
-            color: #aaa;
-            margin-bottom: 36px;
-            font-weight: 400;
-        }
-        .btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-        .btn {
-            padding: 18px 24px;
-            border: none;
-            font-size: 17px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            letter-spacing: 0.3px;
-            border-radius: 12px;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .btn-positive {
-            background: linear-gradient(135deg, #008080 0%, #006666 100%);
-            color: #ffffff;
-            box-shadow: 0 4px 14px rgba(0,128,128,0.25);
-        }
-        .btn-positive:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,128,128,0.35);
-            filter: brightness(1.05);
-        }
-        .btn-positive:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(0,128,128,0.2);
-        }
-        .btn-negative {
-            background: #f8f6f4;
-            color: #888;
-            border: 2px solid #ece8e4;
-        }
-        .btn-negative:hover {
-            background: #f3f0ed;
-            border-color: #d8d2cc;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            color: #777;
-        }
-        .btn-negative:active {
-            transform: translateY(0);
-            box-shadow: none;
-        }
-        .thank-you, .redirecting {
-            display: none;
-            text-align: center;
-            padding: 20px 0;
-        }
-        .thank-you .icon, .redirecting .icon {
-            font-size: 56px;
-            margin-bottom: 16px;
-        }
-        .thank-you h2, .redirecting h2 {
-            font-size: 22px;
-            color: #008080;
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-        .thank-you p, .redirecting p {
-            font-size: 15px;
-            color: #888;
-        }
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #e0f0f0;
-            border-top: 3px solid #008080;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .footer {
-            background: #fafaf9;
-            padding: 18px 24px;
-            font-size: 12px;
-            color: #b0aaa4;
-            border-top: 1px solid #f0eeec;
-        }
-        .footer a {
-            color: #008080;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .fade-in {
-            animation: fadeIn 0.4s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @media (max-width: 480px) {
-            .container { width: 94%; border-radius: 12px; }
-            .body { padding: 28px 22px 34px; }
-            .question { font-size: 20px; }
-            .btn { padding: 16px 20px; font-size: 16px; min-height: 54px; }
-            .header { padding: 30px 20px 28px; }
-            .header-logo { max-width: 140px; }
-            .lang-btn { padding: 4px 10px; font-size: 11px; }
-            .lang-switcher { position: relative; top: auto; right: auto; justify-content: center; margin-bottom: 10px; }
-            .header { padding: 24px 20px 24px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0d5c5c">
+<meta name="description" content="შეაფასეთ აკუსტიკა — მუსიკალური ინსტრუმენტების მაღაზია">
+<link rel="icon" type="image/png" href="/logo_for_acoustic_browser_tab.png">
+<link rel="shortcut icon" type="image/png" href="/logo_for_acoustic_browser_tab.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>აკუსტიკა - შეფასება</title>
+<style>
+:root{
+  --teal-900:#063f3f;
+  --teal-800:#0a5252;
+  --teal-700:#0d6666;
+  --teal-600:#108080;
+  --teal-500:#1b9a9a;
+  --teal-100:#d9f0f0;
+  --ink:#16211f;
+  --ink-soft:#5b6b69;
+  --ink-faint:#96a5a3;
+  --surface:#ffffff;
+  --surface-2:#f7fbfb;
+  --line:#e6efee;
+  --gold:#f6a623;
+  --gold-deep:#e08d05;
+  --radius-xl:28px;
+  --radius-md:14px;
+  --shadow-card:0 1px 2px rgba(6,63,63,.04), 0 12px 28px -10px rgba(6,63,63,.16), 0 40px 80px -32px rgba(6,63,63,.22);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:'Noto Sans Georgian','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  color:var(--ink);
+  background:#eaf4f4;
+  min-height:100vh;min-height:100dvh;
+  display:flex;align-items:center;justify-content:center;
+  padding:24px 18px;
+  position:relative;overflow-x:hidden;
+  line-height:1.5;
+}
+
+/* ---------- ambient background ---------- */
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.bg::before{
+  content:'';position:absolute;inset:-20%;
+  background:
+    radial-gradient(38% 42% at 18% 22%, rgba(27,154,154,.34) 0%, transparent 62%),
+    radial-gradient(34% 38% at 84% 16%, rgba(13,102,102,.28) 0%, transparent 60%),
+    radial-gradient(44% 46% at 70% 88%, rgba(127,212,212,.32) 0%, transparent 64%),
+    radial-gradient(32% 34% at 8% 82%, rgba(246,166,35,.12) 0%, transparent 60%);
+  filter:blur(8px);
+  animation:drift 26s ease-in-out infinite alternate;
+}
+@keyframes drift{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(-2.5%,2%,0) scale(1.06)}
+  100%{transform:translate3d(2%,-2.5%,0) scale(1.03)}
+}
+.bg .notes{
+  position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260'%3E%3Cg fill='%23063f3f' fill-opacity='.045'%3E%3Cpath d='M108 34c-7 0-12 5-12 12v52c-3.4-1.7-7.6-2.6-12-2.6-10.4 0-19 6.9-19 15.5S73.6 126 84 126s19-6.9 19-15.5V65l34-10.3v31c-3.4-1.7-7.6-2.6-12-2.6-10.4 0-19 6.9-19 15.5S114.6 114 125 114s19-6.9 19-15.5V34h-36z'/%3E%3Ccircle cx='196' cy='196' r='7'/%3E%3Ccircle cx='224' cy='182' r='4.5'/%3E%3Cpath d='M203 196V152l26-8v10l-19 6v36z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:260px 260px;
+  animation:pan 60s linear infinite;
+}
+@keyframes pan{to{background-position:260px 260px}}
+.bg .grain{
+  position:absolute;inset:0;opacity:.5;mix-blend-mode:soft-light;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+}
+
+/* ---------- card ---------- */
+.card{
+  position:relative;z-index:1;
+  width:100%;max-width:452px;
+  background:var(--surface);
+  border-radius:var(--radius-xl);
+  box-shadow:var(--shadow-card);
+  overflow:hidden;
+  animation:rise .7s var(--ease) both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(22px) scale(.985)}to{opacity:1;transform:none}}
+
+/* ---------- header ---------- */
+.head{
+  position:relative;
+  padding:34px 26px 48px;
+  background:radial-gradient(120% 130% at 50% -20%, var(--teal-500) 0%, var(--teal-700) 46%, var(--teal-900) 100%);
+  text-align:center;isolation:isolate;
+}
+.head::before{
+  content:'';position:absolute;inset:0;z-index:-1;
+  background:
+    radial-gradient(60% 60% at 12% 8%, rgba(255,255,255,.20) 0%, transparent 60%),
+    radial-gradient(50% 50% at 92% 4%, rgba(255,255,255,.12) 0%, transparent 58%);
+}
+.head::after{
+  content:'';position:absolute;left:-2%;right:-2%;bottom:-2px;height:34px;
+  background:var(--surface);
+  border-radius:100% 100% 0 0/34px 34px 0 0;
+}
+.sheen{
+  position:absolute;top:0;bottom:0;width:44%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.16),transparent);
+  transform:skewX(-16deg);
+  animation:sweep 7.5s var(--ease) infinite;animation-delay:1.2s;
+  pointer-events:none;
+}
+@keyframes sweep{0%{left:-55%}55%,100%{left:120%}}
+
+.lang{
+  position:absolute;top:14px;right:14px;
+  display:flex;gap:3px;padding:3px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.lang button{
+  font:inherit;font-size:11.5px;font-weight:600;letter-spacing:.2px;
+  color:rgba(255,255,255,.82);
+  background:transparent;border:0;
+  padding:6px 12px;border-radius:999px;cursor:pointer;
+  transition:color .25s var(--ease), background .25s var(--ease);
+}
+.lang button:hover{color:#fff;background:rgba(255,255,255,.14)}
+.lang button.on{color:var(--teal-800);background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+
+.logo-link{display:inline-block;text-decoration:none;transition:transform .35s var(--ease)}
+.logo-link:hover{transform:translateY(-2px)}
+.logo{
+  width:min(62%,168px);height:auto;display:block;margin:6px auto 0;
+  filter:brightness(0) invert(1) drop-shadow(0 4px 14px rgba(0,0,0,.22));
+}
+.tagline{
+  margin-top:13px;font-size:10.5px;font-weight:600;
+  letter-spacing:1.6px;text-transform:uppercase;
+  color:rgba(255,255,255,.62);
+}
+
+/* ---------- body ---------- */
+.body{padding:10px 30px 34px;text-align:center}
+.step{display:none}
+.step.on{display:block;animation:fade .55s var(--ease) both}
+@keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+h1{
+  font-size:clamp(21px,5.4vw,24px);
+  font-weight:700;line-height:1.36;letter-spacing:-.2px;
+  color:var(--ink);margin-bottom:9px;text-wrap:balance;
+}
+.sub{
+  font-size:13.5px;color:var(--ink-soft);
+  max-width:32ch;margin:0 auto 30px;text-wrap:balance;
+}
+
+/* ---------- buttons ---------- */
+.btns{display:flex;flex-direction:column;gap:12px}
+.btn{
+  position:relative;overflow:hidden;
+  font:inherit;font-size:16px;font-weight:600;letter-spacing:.1px;
+  padding:17px 22px;min-height:56px;
+  border:0;border-radius:var(--radius-md);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  cursor:pointer;
+  transition:transform .3s var(--ease), box-shadow .3s var(--ease), background .3s var(--ease), color .3s var(--ease);
+}
+.btn .ico{width:22px;height:22px;flex:none;display:block}
+.btn-positive{
+  color:#fff;
+  background:linear-gradient(135deg,var(--teal-600) 0%,var(--teal-800) 100%);
+  box-shadow:0 1px 2px rgba(6,63,63,.2), 0 10px 22px -8px rgba(13,102,102,.55);
+}
+.btn-positive::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.26) 50%,transparent 70%);
+  transform:translateX(-120%);transition:transform .7s var(--ease);
+}
+.btn-positive:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(6,63,63,.2), 0 18px 34px -10px rgba(13,102,102,.6)}
+.btn-positive:hover::after{transform:translateX(120%)}
+.btn-positive:active{transform:translateY(0) scale(.99)}
+.btn-negative{
+  color:var(--ink-soft);
+  background:var(--surface-2);
+  box-shadow:inset 0 0 0 1.5px var(--line);
+}
+.btn-negative:hover{color:var(--ink);background:#f1f7f7;box-shadow:inset 0 0 0 1.5px #d5e5e4;transform:translateY(-1px)}
+.btn-negative:active{transform:translateY(0)}
+
+/* ---------- result states ---------- */
+.result-icon{
+  width:76px;height:76px;margin:6px auto 18px;
+  display:grid;place-items:center;border-radius:50%;
+  animation:bloom .6s var(--ease) both;
+}
+@keyframes bloom{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+.result-icon.good{background:radial-gradient(circle at 50% 35%,#fff3dc,#ffe6bd)}
+.result-icon.soft{background:radial-gradient(circle at 50% 35%,var(--teal-100),#cfeceb)}
+.result-icon svg{width:40px;height:40px}
+h2{font-size:20px;font-weight:700;color:var(--ink);margin-bottom:8px;letter-spacing:-.1px}
+.result-text{font-size:14px;color:var(--ink-soft);max-width:30ch;margin:0 auto}
+.progress{width:132px;height:4px;margin:22px auto 0;background:var(--line);border-radius:99px;overflow:hidden}
+.progress i{
+  display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--teal-500),var(--teal-700));
+  border-radius:99px;animation:fill 1.5s var(--ease) forwards;
+}
+@keyframes fill{to{width:100%}}
+
+/* ---------- footer ---------- */
+.foot{
+  padding:15px 22px;background:var(--surface-2);
+  border-top:1px solid var(--line);
+  font-size:11.5px;color:var(--ink-faint);
+  display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
+}
+.foot a{color:var(--teal-700);text-decoration:none;font-weight:600;transition:color .25s var(--ease)}
+.foot a:hover{color:var(--teal-500)}
+.dot{width:3px;height:3px;border-radius:50%;background:var(--ink-faint);opacity:.55}
+
+/* ---------- responsive ---------- */
+@media (max-width:420px){
+  body{padding:14px 12px}
+  .card{border-radius:22px}
+  .head{padding:26px 18px 44px}
+  .lang{top:11px;right:11px}
+  .lang button{padding:5px 10px;font-size:11px}
+  .body{padding:8px 20px 28px}
+  .sub{margin-bottom:26px}
+  .btn{font-size:15.5px;padding:16px 18px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="lang-switcher">
-                <button class="lang-btn active" onclick="switchLang('ka')">ქარ</button>
-                <button class="lang-btn" onclick="switchLang('en')">EN</button>
-                <button class="lang-btn" onclick="switchLang('ru')">RU</button>
-            </div>
-            <a href="https://acoustic.ge"><img src="/acoustic_logo.png" alt="Acoustic" class="header-logo"></a>
-            <div class="tagline" id="tagline">მუსიკალური ინსტრუმენტების მაღაზია</div>
-        </div>
 
-        <div class="body">
-            <div id="step-question" class="fade-in">
-                <div class="question" id="question">როგორ შეაფასებდით აკუსტიკას?</div>
-                <div class="subtitle" id="subtitle">თქვენი შეფასება ჩვენთვის მნიშვნელოვანია</div>
-                <div class="btn-group">
-                    <button class="btn btn-positive" onclick="goPositive()">&#128522; <span id="btn-positive">დადებითად</span></button>
-                    <button class="btn btn-negative" onclick="goNegative()">&#128532; <span id="btn-negative">უარყოფითად</span></button>
-                </div>
-            </div>
+<div class="bg"><div class="notes"></div><div class="grain"></div></div>
 
-            <div id="step-redirect" class="redirecting">
-                <div class="icon">&#11088;</div>
-                <h2 id="redirect-title">გმადლობთ!</h2>
-                <p id="redirect-text">გადაყვანთ Google Maps-ის შეფასების გვერდზე...</p>
-                <div class="spinner"></div>
-            </div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffd579"/>
+      <stop offset="55%" stop-color="#f6a623"/>
+      <stop offset="100%" stop-color="#e08d05"/>
+    </linearGradient>
+  </defs>
+</svg>
 
-            <div id="step-thanks" class="thank-you">
-                <div class="icon">&#128591;</div>
-                <h2 id="thanks-title">გმადლობთ შეფასებისთვის!</h2>
-                <p id="thanks-text">თქვენი მოსაზრება ჩვენთვის მნიშვნელოვანია.</p>
-            </div>
-        </div>
+<main class="card">
+  <header class="head">
+    <div class="sheen"></div>
+    <nav class="lang" aria-label="Language">
+      <button class="on" data-lang="ka" onclick="setLang('ka')">ქარ</button>
+      <button data-lang="en" onclick="setLang('en')">EN</button>
+      <button data-lang="ru" onclick="setLang('ru')">RU</button>
+    </nav>
+    <a class="logo-link" href="https://acoustic.ge" aria-label="Acoustic">
+      <img src="/acoustic_logo.png" alt="Acoustic" class="logo">
+    </a>
+    <div class="tagline" id="t-tagline">მუსიკალური ინსტრუმენტების მაღაზია</div>
+  </header>
 
-        <div class="footer">
-            <a href="https://acoustic.ge">acoustic.ge</a> &middot; <span id="address">აკაკი წერეთლის 142</span> &middot; <span id="city">თბილისი</span>
-        </div>
+  <section class="body">
+
+    <!-- STEP 1 -->
+    <div class="step on" id="step-question">
+      <h1 id="t-question">როგორ შეაფასებდით აკუსტიკას?</h1>
+      <p class="sub" id="t-sub">თქვენი შეფასება ჩვენთვის მნიშვნელოვანია</p>
+
+      <div class="btns">
+        <button class="btn btn-positive" onclick="goPositive()">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9.2"/><path d="M8.2 14.2s1.4 2 3.8 2 3.8-2 3.8-2"/><path d="M9 9.6h.01M15 9.6h.01"/>
+          </svg>
+          <span id="t-positive">დადებითად</span>
+        </button>
+        <button class="btn btn-negative" onclick="goNegative()">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9.2"/><path d="M8.2 15.6s1.4-2 3.8-2 3.8 2 3.8 2"/><path d="M9 9.6h.01M15 9.6h.01"/>
+          </svg>
+          <span id="t-negative">უარყოფითად</span>
+        </button>
+      </div>
     </div>
 
-    <script>
-        var GOOGLE_REVIEW_URL = "https://www.google.com/maps/place/acoustic.ge/@41.750564,44.7736264,841m/data=!3m1!1e3!4m8!3m7!1s0x4044735287d07e21:0x83d79660ac099e03!8m2!3d41.75056!4d44.7762013!9m1!1b1!16s%2Fg%2F11ry2s60l9";
+    <!-- STEP 2a -->
+    <div class="step" id="step-redirect">
+      <div class="result-icon good">
+        <svg viewBox="0 0 24 24" fill="url(#goldGrad)" stroke="#e08d05" stroke-width="1.4" stroke-linejoin="round">
+          <path d="M12 2.6l2.95 5.98 6.6.96-4.77 4.65 1.12 6.57L12 17.65l-5.9 3.11 1.12-6.57L2.45 9.54l6.6-.96z"/>
+        </svg>
+      </div>
+      <h2 id="t-redirect-title">გმადლობთ!</h2>
+      <p class="result-text" id="t-redirect-text">გადაყვანთ Google Maps-ის შეფასების გვერდზე...</p>
+      <div class="progress"><i></i></div>
+    </div>
 
-        var translations = {
-            ka: {
-                tagline: 'მუსიკალური ინსტრუმენტების მაღაზია',
-                question: 'როგორ შეაფასებდით აკუსტიკას?',
-                subtitle: 'თქვენი შეფასება ჩვენთვის მნიშვნელოვანია',
-                btnPositive: 'დადებითად',
-                btnNegative: 'უარყოფითად',
-                redirectTitle: 'გმადლობთ!',
-                redirectText: 'გადაყვანთ Google Maps-ის შეფასების გვერდზე...',
-                thanksTitle: 'გმადლობთ შეფასებისთვის!',
-                thanksText: 'თქვენი მოსაზრება ჩვენთვის მნიშვნელოვანია.',
-                address: 'აკაკი წერეთლის 142',
-                city: 'თბილისი'
-            },
-            en: {
-                tagline: 'Music Instrument Store',
-                question: 'How would you rate Acoustic?',
-                subtitle: 'Your feedback is important to us',
-                btnPositive: 'Positive',
-                btnNegative: 'Negative',
-                redirectTitle: 'Thank you!',
-                redirectText: 'Redirecting to Google Maps review page...',
-                thanksTitle: 'Thank you for your feedback!',
-                thanksText: 'Your opinion is important to us.',
-                address: '142 Akaki Tsereteli Ave',
-                city: 'Tbilisi'
-            },
-            ru: {
-                tagline: 'Магазин музыкальных инструментов',
-                question: 'Как вы оцениваете Acoustic?',
-                subtitle: 'Ваш отзыв важен для нас',
-                btnPositive: 'Положительно',
-                btnNegative: 'Отрицательно',
-                redirectTitle: 'Спасибо!',
-                redirectText: 'Перенаправляем на страницу отзывов Google Maps...',
-                thanksTitle: 'Спасибо за ваш отзыв!',
-                thanksText: 'Ваше мнение важно для нас.',
-                address: 'пр. Акакия Церетели 142',
-                city: 'Тбилиси'
-            }
-        };
+    <!-- STEP 2b -->
+    <div class="step" id="step-thanks">
+      <div class="result-icon soft">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0d6666" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/>
+        </svg>
+      </div>
+      <h2 id="t-thanks-title">გმადლობთ შეფასებისთვის!</h2>
+      <p class="result-text" id="t-thanks-text">თქვენი მოსაზრება ჩვენთვის მნიშვნელოვანია.</p>
+    </div>
 
-        var currentLang = 'ka';
+  </section>
 
-        function switchLang(lang) {
-            currentLang = lang;
-            var t = translations[lang];
-            document.getElementById('tagline').textContent = t.tagline;
-            document.getElementById('question').textContent = t.question;
-            document.getElementById('subtitle').textContent = t.subtitle;
-            document.getElementById('btn-positive').textContent = t.btnPositive;
-            document.getElementById('btn-negative').textContent = t.btnNegative;
-            document.getElementById('redirect-title').textContent = t.redirectTitle;
-            document.getElementById('redirect-text').textContent = t.redirectText;
-            document.getElementById('thanks-title').textContent = t.thanksTitle;
-            document.getElementById('thanks-text').textContent = t.thanksText;
-            document.getElementById('address').textContent = t.address;
-            document.getElementById('city').textContent = t.city;
+  <footer class="foot">
+    <a href="https://acoustic.ge">acoustic.ge</a>
+    <span class="dot"></span>
+    <span id="t-address">აკაკი წერეთლის 142</span>
+    <span class="dot"></span>
+    <span id="t-city">თბილისი</span>
+  </footer>
+</main>
 
-            document.querySelectorAll('.lang-btn').forEach(function(b) {
-                b.classList.remove('active');
-            });
-            event.currentTarget.classList.add('active');
-        }
+<script>
+/* ---------------- analytics (identical to production) ---------------- */
+function getCookie(name){
+  var ca=document.cookie.split(';');
+  for(var i=0;i<ca.length;i++){var c=ca[i].trim(); if(c.indexOf(name+'=')===0) return c.substring(name.length+1);}
+  return '';
+}
+function setCookie(name,value,days){
+  var d=new Date(); d.setTime(d.getTime()+(days*24*60*60*1000));
+  document.cookie=name+'='+value+';expires='+d.toUTCString()+';path=/;SameSite=Lax';
+}
+function getUserId(){
+  var uid=getCookie('acoustic_uid');
+  if(uid) return uid;
+  uid='u_'+Date.now().toString(36)+'_'+Math.random().toString(36).substr(2,8);
+  setCookie('acoustic_uid',uid,365);
+  return uid;
+}
+function trackVisit(){
+  var uid=getUserId();
+  fetch('/api/track/visit',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({user_id:uid})
+  }).catch(function(){});
+}
+function trackClick(action){
+  var uid=getUserId();
+  fetch('/api/track/click',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({user_id:uid,action:action})
+  }).catch(function(){});
+}
+trackVisit();
 
-        function goPositive() {
-            document.getElementById('step-question').style.display = 'none';
-            var r = document.getElementById('step-redirect');
-            r.style.display = 'block';
-            r.classList.add('fade-in');
-            setTimeout(function() {
-                window.location.href = GOOGLE_REVIEW_URL;
-            }, 1500);
-        }
+/* ---------------- config ---------------- */
+var GOOGLE_REVIEW_URL = "https://www.google.com/maps/place/acoustic.ge/@41.750564,44.7736264,841m/data=!3m1!1e3!4m8!3m7!1s0x4044735287d07e21:0x83d79660ac099e03!8m2!3d41.75056!4d44.7762013!9m1!1b1!16s%2Fg%2F11ry2s60l9";
 
-        function goNegative() {
-            document.getElementById('step-question').style.display = 'none';
-            var t = document.getElementById('step-thanks');
-            t.style.display = 'block';
-            t.classList.add('fade-in');
-        }
-    </script>
+/* ---------------- i18n (same texts as production) ---------------- */
+var translations = {
+  ka:{
+    tagline:'მუსიკალური ინსტრუმენტების მაღაზია',
+    question:'როგორ შეაფასებდით აკუსტიკას?',
+    subtitle:'თქვენი შეფასება ჩვენთვის მნიშვნელოვანია',
+    btnPositive:'დადებითად',
+    btnNegative:'უარყოფითად',
+    redirectTitle:'გმადლობთ!',
+    redirectText:'გადაყვანთ Google Maps-ის შეფასების გვერდზე...',
+    thanksTitle:'გმადლობთ შეფასებისთვის!',
+    thanksText:'თქვენი მოსაზრება ჩვენთვის მნიშვნელოვანია.',
+    address:'აკაკი წერეთლის 142',
+    city:'თბილისი'
+  },
+  en:{
+    tagline:'Music Instrument Store',
+    question:'How would you rate Acoustic?',
+    subtitle:'Your feedback is important to us',
+    btnPositive:'Positive',
+    btnNegative:'Negative',
+    redirectTitle:'Thank you!',
+    redirectText:'Redirecting to Google Maps review page...',
+    thanksTitle:'Thank you for your feedback!',
+    thanksText:'Your opinion is important to us.',
+    address:'142 Akaki Tsereteli Ave',
+    city:'Tbilisi'
+  },
+  ru:{
+    tagline:'Магазин музыкальных инструментов',
+    question:'Как вы оцениваете Acoustic?',
+    subtitle:'Ваш отзыв важен для нас',
+    btnPositive:'Положительно',
+    btnNegative:'Отрицательно',
+    redirectTitle:'Спасибо!',
+    redirectText:'Перенаправляем на страницу отзывов Google Maps...',
+    thanksTitle:'Спасибо за ваш отзыв!',
+    thanksText:'Ваше мнение важно для нас.',
+    address:'пр. Акакия Церетели 142',
+    city:'Тбилиси'
+  }
+};
+
+function setLang(lang){
+  var t=translations[lang];
+  document.documentElement.lang=lang;
+  var map={
+    't-tagline':t.tagline,
+    't-question':t.question,
+    't-sub':t.subtitle,
+    't-positive':t.btnPositive,
+    't-negative':t.btnNegative,
+    't-redirect-title':t.redirectTitle,
+    't-redirect-text':t.redirectText,
+    't-thanks-title':t.thanksTitle,
+    't-thanks-text':t.thanksText,
+    't-address':t.address,
+    't-city':t.city
+  };
+  for(var k in map){ var el=document.getElementById(k); if(el) el.textContent=map[k]; }
+  var btns=document.querySelectorAll('.lang button');
+  for(var i=0;i<btns.length;i++){
+    if(btns[i].getAttribute('data-lang')===lang) btns[i].classList.add('on');
+    else btns[i].classList.remove('on');
+  }
+}
+
+/* ---------------- flow (same logic as production) ---------------- */
+function showStep(id){
+  var steps=document.querySelectorAll('.step');
+  for(var i=0;i<steps.length;i++) steps[i].classList.remove('on');
+  document.getElementById(id).classList.add('on');
+}
+function goPositive(){
+  trackClick('positive');
+  showStep('step-redirect');
+  setTimeout(function(){ window.location.href=GOOGLE_REVIEW_URL; },1500);
+}
+function goNegative(){
+  trackClick('negative');
+  showStep('step-thanks');
+}
+</script>
 </body>
 </html>

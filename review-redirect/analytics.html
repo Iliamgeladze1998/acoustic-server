@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acoustic — ანალიტიკა</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f1117;
+            color: #e2e2e8;
+            min-height: 100vh;
+        }
+        /* Login */
+        .login {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .login-card {
+            background: #1a1d27;
+            border: 1px solid #2a2d3a;
+            border-radius: 16px;
+            padding: 36px;
+            width: 100%;
+            max-width: 380px;
+        }
+        .login-card h1 {
+            font-size: 22px;
+            margin-bottom: 6px;
+            color: #008080;
+        }
+        .login-card p {
+            font-size: 14px;
+            color: #6a6a7a;
+            margin-bottom: 24px;
+        }
+        .login-card input {
+            width: 100%;
+            padding: 14px 16px;
+            background: #0f1117;
+            border: 1px solid #2a2d3a;
+            border-radius: 10px;
+            color: #e2e2e8;
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 12px;
+        }
+        .login-card input:focus { border-color: #008080; }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #008080, #006666);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn:hover { opacity: 0.9; }
+        .login-error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Dashboard */
+        .dashboard { display: none; padding: 24px; max-width: 1100px; margin: 0 auto; }
+        .dash-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+        .dash-header h1 { font-size: 24px; color: #008080; }
+        .dash-header .actions { display: flex; gap: 10px; align-items: center; }
+        .refresh-btn {
+            background: #1a1d27;
+            border: 1px solid #2a2d3a;
+            color: #008080;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .refresh-btn:hover { background: #222533; }
+        .live-dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            background: #00b894;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .auto-refresh { font-size: 13px; color: #6a6a7a; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .stat-card {
+            background: #1a1d27;
+            border: 1px solid #2a2d3a;
+            border-radius: 14px;
+            padding: 24px;
+        }
+        .stat-card .label {
+            font-size: 13px;
+            color: #6a6a7a;
+            margin-bottom: 6px;
+        }
+        .stat-card .value {
+            font-size: 36px;
+            font-weight: 800;
+        }
+        .stat-card .sub {
+            font-size: 12px;
+            color: #6a6a7a;
+            margin-top: 4px;
+        }
+        .stat-positive .value { color: #00b894; }
+        .stat-negative .value { color: #e74c3c; }
+        .stat-unique .value { color: #008080; }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        @media (max-width: 700px) {
+            .chart-row { grid-template-columns: 1fr; }
+        }
+        .panel {
+            background: #1a1d27;
+            border: 1px solid #2a2d3a;
+            border-radius: 14px;
+            padding: 24px;
+        }
+        .panel h2 {
+            font-size: 16px;
+            margin-bottom: 16px;
+            color: #a0a0b0;
+        }
+        .bar-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .bar-label {
+            font-size: 14px;
+            width: 100px;
+            text-align: right;
+        }
+        .bar-track {
+            flex: 1;
+            height: 28px;
+            background: #0f1117;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.6s ease;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+        }
+        .bar-positive { background: linear-gradient(90deg, #00b894, #00cec9); }
+        .bar-negative { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+        .bar-neutral { background: #2a2d3a; color: #6a6a7a; }
+
+        .conversion {
+            text-align: center;
+            padding: 10px 0;
+        }
+        .conversion .pct {
+            font-size: 48px;
+            font-weight: 800;
+            color: #008080;
+        }
+        .conversion .desc {
+            font-size: 14px;
+            color: #6a6a7a;
+            margin-top: 4px;
+        }
+
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #222533;
+            font-size: 14px;
+        }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-item .time { color: #6a6a7a; font-size: 12px; }
+        .activity-item .action-positive { color: #00b894; font-weight: 600; }
+        .activity-item .action-negative { color: #e74c3c; font-weight: 600; }
+        .activity-item .action-visit { color: #6a6a7a; }
+
+        .activity-list::-webkit-scrollbar { width: 5px; }
+        .activity-list::-webkit-scrollbar-thumb { background: #2a2d3a; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<!-- Login -->
+<div class="login" id="loginScreen">
+    <div class="login-card">
+        <h1>🔐 ანალიტიკა</h1>
+        <p>შედით პაროლით სტატისტიკის სანახავად</p>
+        <input type="password" id="passwordInput" placeholder="პაროლი" autocomplete="off">
+        <button class="btn" id="loginBtn">შესვლა</button>
+        <div class="login-error" id="loginError">არასწორი პაროლი</div>
+    </div>
+</div>
+
+<!-- Dashboard -->
+<div class="dashboard" id="dashboard">
+    <div class="dash-header">
+        <h1>📊 Acoustic — ანალიტიკა</h1>
+        <div class="actions">
+            <span class="live-dot"></span>
+            <span class="auto-refresh" id="autoRefreshLabel">Auto 5s</span>
+            <button class="refresh-btn" onclick="loadStats()">განახლება</button>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card stat-unique">
+            <div class="label">უნიკალური მომხმარებლები</div>
+            <div class="value" id="statUnique">0</div>
+            <div class="sub" id="statUniqueSub">0 ვიზიტი სულ</div>
+        </div>
+        <div class="stat-card stat-positive">
+            <div class="label">დადებითი შეფასება</div>
+            <div class="value" id="statPositive">0</div>
+            <div class="sub" id="statPositiveSub">0% კონვერსია</div>
+        </div>
+        <div class="stat-card stat-negative">
+            <div class="label">უარყოფითი შეფასება</div>
+            <div class="value" id="statNegative">0</div>
+            <div class="sub" id="statNegativeSub">0% კონვერსია</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">ბოლო 24 საათში</div>
+            <div class="value" id="stat24h" style="color:#a29bfe">0</div>
+            <div class="sub">ახალი ვიზიტები</div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="panel">
+            <h2>შეფასებების განაწილება</h2>
+            <div class="bar-container">
+                <div class="bar-label">დადებითი</div>
+                <div class="bar-track"><div class="bar-fill bar-positive" id="barPositive" style="width:0%">0</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label">უარყოფითი</div>
+                <div class="bar-track"><div class="bar-fill bar-negative" id="barNegative" style="width:0%">0</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label">უპასუხო</div>
+                <div class="bar-track"><div class="bar-fill bar-neutral" id="barNeutral" style="width:0%">0</div></div>
+            </div>
+        </div>
+        <div class="panel">
+            <h2>კონვერსია</h2>
+            <div class="conversion">
+                <div class="pct" id="conversionPct">0%</div>
+                <div class="desc" id="conversionDesc">მომხმარებლებმა დააკლიკეს ღილაკს</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>უკანასკნელი აქტივობა</h2>
+        <div class="activity-list" id="activityList">
+            <div style="color:#6a6a7a;text-align:center;padding:20px">აქტივობა არ არის</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const ADMIN_PASSWORD = "acoustic_analytics_2026";
+let refreshTimer = null;
+
+document.getElementById('loginBtn').addEventListener('click', checkLogin);
+document.getElementById('passwordInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') checkLogin();
+});
+
+function checkLogin() {
+    const pass = document.getElementById('passwordInput').value;
+    if (pass === ADMIN_PASSWORD) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        loadStats();
+        refreshTimer = setInterval(loadStats, 5000);
+    } else {
+        document.getElementById('loginError').style.display = 'block';
+    }
+}
+
+async function loadStats() {
+    try {
+        const res = await fetch('/api/stats');
+        const d = await res.json();
+
+        // Stats
+        document.getElementById('statUnique').textContent = d.total_unique;
+        document.getElementById('statUniqueSub').textContent = d.total_visits + ' ვიზიტი სულ';
+        document.getElementById('statPositive').textContent = d.positive;
+        document.getElementById('statNegative').textContent = d.negative;
+        document.getElementById('stat24h').textContent = d.recent_24h;
+
+        const totalClicks = d.positive + d.negative;
+        const totalUnique = d.total_unique || 1;
+
+        const posPct = totalClicks > 0 ? Math.round(d.positive / totalClicks * 100) : 0;
+        const negPct = totalClicks > 0 ? Math.round(d.negative / totalClicks * 100) : 0;
+        document.getElementById('statPositiveSub').textContent = posPct + '% დადებითი';
+        document.getElementById('statNegativeSub').textContent = negPct + '% უარყოფითი';
+
+        // Bars
+        const maxVal = Math.max(d.positive, d.negative, d.users_no_click, 1);
+        document.getElementById('barPositive').style.width = (d.positive / maxVal * 100) + '%';
+        document.getElementById('barPositive').textContent = d.positive;
+        document.getElementById('barNegative').style.width = (d.negative / maxVal * 100) + '%';
+        document.getElementById('barNegative').textContent = d.negative;
+        document.getElementById('barNeutral').style.width = (d.users_no_click / maxVal * 100) + '%';
+        document.getElementById('barNeutral').textContent = d.users_no_click;
+
+        // Conversion
+        const convPct = totalUnique > 0 ? Math.round(d.users_clicked / totalUnique * 100) : 0;
+        document.getElementById('conversionPct').textContent = convPct + '%';
+        document.getElementById('conversionDesc').textContent = 
+            d.users_clicked + ' / ' + d.total_unique + ' მომხმარებელმა დააკლიკა ღილაკს';
+
+        // Activity list
+        const list = document.getElementById('activityList');
+        const items = [];
+
+        // Combine clicks and recent visits
+        d.clicks.forEach(c => {
+            items.push({
+                time: c.time,
+                action: c.action,
+                user: c.user_id.substring(0, 8)
+            });
+        });
+        d.recent_visits.forEach(v => {
+            items.push({
+                time: v.time,
+                action: 'visit',
+                user: v.user_id.substring(0, 8),
+                isNew: v.is_new
+            });
+        });
+
+        // Sort by time desc
+        items.sort((a, b) => b.time.localeCompare(a.time));
+
+        if (items.length === 0) {
+            list.innerHTML = '<div style="color:#6a6a7a;text-align:center;padding:20px">აქტივობა არ არის</div>';
+        } else {
+            list.innerHTML = items.slice(0, 30).map(i => {
+                const t = new Date(i.time).toLocaleString('ka-GE');
+                let actionHtml;
+                if (i.action === 'positive') actionHtml = '<span class="action-positive">👍 დადებითი</span>';
+                else if (i.action === 'negative') actionHtml = '<span class="action-negative">👎 უარყოფითი</span>';
+                else actionHtml = '<span class="action-visit">' + (i.isNew ? '🟢 ახალი ვიზიტი' : '👁 ვიზიტი') + '</span>';
+                return `<div class="activity-item"><div>${actionHtml} <span style="color:#4a4a5a;font-size:12px">#${i.user}</span></div><div class="time">${t}</div></div>`;
+            }).join('');
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+</script>
+</body>
+</html>
