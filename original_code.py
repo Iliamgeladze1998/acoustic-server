@@ -70,8 +70,8 @@ TAB_PENDING = "გამოსაწერი პროდუქცია"
 TAB_INVENTORY = "მარაგები"
 
 # MyMarket login credentials
-MYMARKET_EMAIL = "REDACTED"
-MYMARKET_PASSWORD = "REDACTED"
+MYMARKET_EMAIL = os.environ.get("MYMARKET_EMAIL", "")
+MYMARKET_PASSWORD = os.environ.get("MYMARKET_PASSWORD", "")
 
 # MyMarket კატეგორიები (ქართულად)
 MYMARKET_CATEGORIES = [
