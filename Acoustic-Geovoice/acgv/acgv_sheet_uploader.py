@@ -17,7 +17,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, timedelta
 
 # --- Telegram Configuration ---
-TELEGRAM_BOT_TOKEN = "REDACTED"
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID = "-1003712689651"
 
 # Store names for price change alerts

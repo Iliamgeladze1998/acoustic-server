@@ -11,7 +11,7 @@ import urllib.parse
 from gspread_formatting import CellFormat, Color, TextFormat, format_cell_range, conditionalFormatRule, BooleanRule, BooleanCondition, get_conditional_format_rules, GridRange, Border, Borders
 
 # Telegram Configuration
-TELEGRAM_TOKEN = "REDACTED"
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID = "-1003712689651"
 PRICE_COLUMNS = ['Price_AC', 'Price_JM']
 STORE_NAMES = {

@@ -21,7 +21,7 @@ from gspread_formatting import set_data_validation_for_cell_range, DataValidatio
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # Telegram Configuration
-TELEGRAM_TOKEN = "REDACTED"
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID = "-1003712689651"
 PRICE_COLUMNS = ['Price_AC', 'Price_MS']
 STORE_NAMES = {

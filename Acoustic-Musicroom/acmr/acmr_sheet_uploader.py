@@ -24,7 +24,7 @@ TAB_NAME = "Musicroom"
 FEEDBACK_OPTIONS = ['Correct', 'Needs Review', 'Wrong']
 
 # Telegram Configuration
-TELEGRAM_TOKEN = "REDACTED"
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID = "-1003712689651"
 PRICE_COLUMNS = ['price_ac', 'price_mr']
 STORE_NAMES = {
