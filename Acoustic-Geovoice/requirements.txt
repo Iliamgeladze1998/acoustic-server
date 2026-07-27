@@ -14,4 +14,4 @@ requests>=2.31.0
 pysocks>=1.7.0
 cloudscraper>=1.2.71
 camoufox[geoip]>=0.4.0
-pillow>=10.0.0
+pillow>=12.3.0
