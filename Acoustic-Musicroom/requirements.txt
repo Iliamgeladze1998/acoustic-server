@@ -12,7 +12,7 @@ camoufox[geoip]>=0.4.0
 pillow>=10.0.0
 
 # Google Sheets Integration
-gspread>=6.0.0
+gspread>=6.2.1
 gspread-formatting>=1.0.0
 google-auth>=2.22.0
 google-auth-oauthlib>=1.0.0
