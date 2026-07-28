@@ -13,7 +13,6 @@ import requests
 import pandas as pd
 import numpy as np
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, timedelta
 
 # --- Telegram Configuration ---
@@ -287,7 +286,15 @@ def _parse_alert_price(value):
     text = str(value).strip()
     if text.lower() in ('', 'nan', 'none', 'n/a', '-'):
         return None
-    cleaned = text.replace('₾', '').replace(',', '').strip()
+    cleaned = text.replace('\xa0', '').replace(' ', '').replace('₾', '')
+    # The sheet renders numbers with a ru_RU locale, where ',' is the DECIMAL
+    # separator ("460,00" == 460.00). Dropping it blindly turned 460.00 into
+    # 46000 and produced bogus "price dropped" alerts.
+    if ',' in cleaned and '.' not in cleaned:
+        tail = cleaned.rsplit(',', 1)[1]
+        cleaned = cleaned.replace(',', '.') if len(tail) in (1, 2) else cleaned.replace(',', '')
+    else:
+        cleaned = cleaned.replace(',', '')
     cleaned = ''.join(cleaned.split())
     if not re.fullmatch(r'-?\d+(?:\.\d+)?', cleaned):
         return None
@@ -306,7 +313,7 @@ def _format_alert_price(value):
 def fetch_sheet_as_dataframe(worksheet):
     """Fetch current Google Sheet data into a pandas DataFrame. Returns None if empty."""
     try:
-        all_values = worksheet.get_all_values()
+        all_values = worksheet.get_all_values(value_render_option="UNFORMATTED_VALUE")
         if len(all_values) < 2:
             return None
         headers = all_values[0]

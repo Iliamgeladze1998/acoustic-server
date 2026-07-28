@@ -107,3 +107,4 @@ Mymarket/mymarket_cookies.json
 Mymarket/listings.json
 Mymarket/temu_cookies.json
 .env
+.scraper_env

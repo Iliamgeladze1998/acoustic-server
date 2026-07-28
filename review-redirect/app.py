@@ -1,11 +1,17 @@
 import json
 import uuid
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from flask import Flask, send_file, send_from_directory, request, jsonify, Response
 
 app = Flask(__name__)
+
+GEORGIA_TZ = timezone(timedelta(hours=4))
+
+def now_ge():
+    """Return current time in Georgian timezone (UTC+4)."""
+    return datetime.now(GEORGIA_TZ)
 
 DATA_DIR = Path(__file__).parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -64,20 +70,20 @@ def track_visit():
     
     if is_new:
         analytics["unique_users"][user_id] = {
-            "first_visit": datetime.now().isoformat(),
-            "last_visit": datetime.now().isoformat(),
+            "first_visit": now_ge().isoformat(),
+            "last_visit": now_ge().isoformat(),
             "visit_count": 1,
             "clicked": None,
             "ip": request.headers.get('X-Forwarded-For', request.remote_addr or '').split(',')[0].strip(),
             "user_agent": request.headers.get('User-Agent', '')[:200],
         }
     else:
-        analytics["unique_users"][user_id]["last_visit"] = datetime.now().isoformat()
+        analytics["unique_users"][user_id]["last_visit"] = now_ge().isoformat()
         analytics["unique_users"][user_id]["visit_count"] += 1
     
     analytics["visits"].append({
         "user_id": user_id,
-        "time": datetime.now().isoformat(),
+        "time": now_ge().isoformat(),
         "ip": request.headers.get('X-Forwarded-For', request.remote_addr or '').split(',')[0].strip(),
         "is_new": is_new,
     })
@@ -112,8 +118,8 @@ def track_click():
     else:
         # Unknown user — register them with their click
         analytics["unique_users"][user_id] = {
-            "first_visit": datetime.now().isoformat(),
-            "last_visit": datetime.now().isoformat(),
+            "first_visit": now_ge().isoformat(),
+            "last_visit": now_ge().isoformat(),
             "visit_count": 1,
             "clicked": action,
             "ip": request.headers.get('X-Forwarded-For', request.remote_addr or '').split(',')[0].strip(),
@@ -123,7 +129,7 @@ def track_click():
     analytics["clicks"].append({
         "user_id": user_id,
         "action": action,
-        "time": datetime.now().isoformat(),
+        "time": now_ge().isoformat(),
     })
     
     # Keep only last 1000 clicks
@@ -151,11 +157,14 @@ def get_stats():
     users_no_click = total_unique - users_clicked
     
     # Recent activity (last 24h)
-    now = datetime.now()
+    now = now_ge()
     recent_24h = 0
     for v in analytics["visits"]:
         try:
             vt = datetime.fromisoformat(v["time"])
+            # Handle both old UTC timestamps (no tz) and new GE timestamps (with tz)
+            if vt.tzinfo is None:
+                vt = vt.replace(tzinfo=GEORGIA_TZ)
             if (now - vt).total_seconds() < 86400:
                 recent_24h += 1
         except:

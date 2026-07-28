@@ -1,0 +1,4 @@
+admin_credentials.txt
+*.backup_*
+*.log
+__pycache__/

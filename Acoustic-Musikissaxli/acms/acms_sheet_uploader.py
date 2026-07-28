@@ -14,7 +14,7 @@ import json
 import time
 import requests
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials as ServiceAccountCreds
 from gspread_formatting import set_data_validation_for_cell_range, DataValidationRule, BooleanCondition, CellFormat, Color, TextFormat, format_cell_range, conditionalFormatRule, BooleanRule, get_conditional_format_rules, GridRange, Border, Borders
 
 # Force UTF-8 output to handle Georgian text
@@ -184,7 +184,7 @@ def extract_blacklisted_pairs_from_sheet():
         
         # Authenticate with Google Sheets
         scope = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
-        creds = ServiceAccountCredentials.from_json_keyfile_name(credentials_path, scope)
+        creds = ServiceAccountCreds.from_service_account_file(credentials_path, scopes=scope)
         client = gspread.authorize(creds)
         
         # Open the spreadsheet
@@ -201,7 +201,7 @@ def extract_blacklisted_pairs_from_sheet():
             return False
         
         # Read existing data
-        existing_data = worksheet.get_all_values()
+        existing_data = worksheet.get_all_values(value_render_option="UNFORMATTED_VALUE")
         if len(existing_data) > 1:  # Has header + data
             extract_blacklisted_pairs(existing_data)
             return True
@@ -371,7 +371,7 @@ def send_telegram_message(token, chat_id, message):
 def fetch_sheet_as_dataframe(worksheet):
     """Fetch current Google Sheet data into a pandas DataFrame. Returns None if empty."""
     try:
-        all_values = worksheet.get_all_values()
+        all_values = worksheet.get_all_values(value_render_option="UNFORMATTED_VALUE")
         if len(all_values) < 2:
             return None
         headers = all_values[0]
@@ -453,7 +453,15 @@ def _parse_alert_price(value):
     text = str(value).strip()
     if text.lower() in ('', 'nan', 'none', 'n/a', '-'):
         return None
-    cleaned = text.replace('₾', '').replace(',', '').strip()
+    cleaned = text.replace('\xa0', '').replace(' ', '').replace('₾', '')
+    # The sheet renders numbers with a ru_RU locale, where ',' is the DECIMAL
+    # separator ("460,00" == 460.00). Dropping it blindly turned 460.00 into
+    # 46000 and produced bogus "price dropped" alerts.
+    if ',' in cleaned and '.' not in cleaned:
+        tail = cleaned.rsplit(',', 1)[1]
+        cleaned = cleaned.replace(',', '.') if len(tail) in (1, 2) else cleaned.replace(',', '')
+    else:
+        cleaned = cleaned.replace(',', '')
     cleaned = ''.join(cleaned.split())
     if not re.fullmatch(r'-?\d+(?:\.\d+)?', cleaned):
         return None
@@ -653,7 +661,7 @@ def upload_to_google_sheets():
             'https://www.googleapis.com/auth/drive'
         ]
         
-        creds = ServiceAccountCredentials.from_json_keyfile_name(credentials_path, scope)
+        creds = ServiceAccountCreds.from_service_account_file(credentials_path, scopes=scope)
         client = gspread.authorize(creds)
         
         # Open the spreadsheet
@@ -668,7 +676,7 @@ def upload_to_google_sheets():
             
             # CRITICAL: Read existing data before clearing for blacklist extraction
             print("Reading existing data for blacklist extraction...")
-            existing_data = worksheet.get_all_values()
+            existing_data = worksheet.get_all_values(value_render_option="UNFORMATTED_VALUE")
             if len(existing_data) > 1:  # Has header + data
                 extract_blacklisted_pairs(existing_data)
 
@@ -731,8 +739,12 @@ def upload_to_google_sheets():
             # Add columns in client-facing order
             for col in client_columns:
                 value = column_mapping.get(col, '')
+                # Price columns stay numeric so the sheet can format them
+                # (number pattern + colour scale) like every other store tab.
+                if col in ('Price_AC', 'Price_MS', 'Price_Diff'):
+                    row_data.append('' if (value == '' or pd.isna(value)) else parse_price(value))
                 # Specifically protect numeric 0 from being treated as falsy and converted to ""
-                if value == 0 or value == 0.0:
+                elif value == 0 or value == 0.0:
                     row_data.append("0")
                 elif pd.isna(value) or not value:
                     row_data.append("")
@@ -800,7 +812,7 @@ def upload_to_google_sheets():
             
             # Add update info to O (Last_Updated) and P (Feedback) columns with dropdowns
             print(f"Adding update info and visual feedback to columns...")
-            all_values = worksheet.get_all_values()
+            all_values = worksheet.get_all_values(value_render_option="UNFORMATTED_VALUE")
             
             # Find the O (Last_Updated) and P (Feedback) columns
             o_col_index = None

@@ -566,6 +566,10 @@ function showDelta(id, diff){
 function relTime(iso){
   var d = new Date(iso);
   if(isNaN(d)) return '';
+  // Handle old timestamps without timezone info — treat them as UTC
+  if(iso && iso.indexOf('+') === -1 && iso.indexOf('Z') === -1 && iso.indexOf('T') !== -1){
+    d = new Date(iso + '+00:00');
+  }
   var s = Math.max(0, (Date.now() - d.getTime()) / 1000);
   if(s < 45) return 'ახლახან';
   if(s < 3600) return Math.round(s / 60) + ' წთ წინ';
@@ -575,7 +579,12 @@ function relTime(iso){
 }
 function fullTime(iso){
   var d = new Date(iso);
-  return isNaN(d) ? iso : d.toLocaleString('ka-GE');
+  if(isNaN(d)) return iso;
+  // Handle old timestamps without timezone info
+  if(iso && iso.indexOf('+') === -1 && iso.indexOf('Z') === -1 && iso.indexOf('T') !== -1){
+    d = new Date(iso + '+00:00');
+  }
+  return d.toLocaleString('ka-GE');
 }
 function hashHue(str){
   var h = 0;

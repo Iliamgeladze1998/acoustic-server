@@ -18,6 +18,15 @@ if [ -z "$SCRAPER_NAME" ]; then
     exit 1
 fi
 
+# Load shared secrets (TELEGRAM_BOT_TOKEN, etc.)
+if [ -f /root/.scraper_env ]; then
+    # shellcheck disable=SC1091
+    source /root/.scraper_env
+fi
+
+# Shared sitecustomize.py adds retry/backoff to all gspread API calls
+export PYTHONPATH="/root/scraper_common${PYTHONPATH:+:$PYTHONPATH}"
+
 LOG_DIR="/root/scraper_logs"
 mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/${SCRAPER_NAME}.log"
@@ -105,6 +114,15 @@ fi
 while true; do
     log "--- New run started ---"
 
+    # Reload secrets each run so credential updates apply without restarting the loop
+    if [ -f /root/.scraper_env ]; then
+        # shellcheck disable=SC1091
+        source /root/.scraper_env
+    fi
+    if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+        log "WARNING: TELEGRAM_BOT_TOKEN is not set - Telegram alerts will fail"
+    fi
+
     # Cleanup stale browser processes for this project
     pkill -f "camoufox.*${PROJECT_DIR}" 2>/dev/null || true
     pkill -f "chromium.*${PROJECT_DIR}" 2>/dev/null || true
@@ -160,6 +178,10 @@ while true; do
         log "WARNING: Scraper failed with exit code $EXIT_CODE"
     else
         log "Scraper completed successfully"
+        # The uploaders write their own formatting, so re-apply the shared look
+        # (cosmetic only - it never touches cell values).
+        log "Applying unified sheet styling..."
+        python3 /root/scraper_common/sheet_style.py "$SCRAPER_NAME" 2>&1 | tee -a "$LOG_FILE"
     fi
 
     log "--- Run finished. Sleeping ${SLEEP_SECONDS}s (8h) before next run ---"
