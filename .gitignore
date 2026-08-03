@@ -102,7 +102,6 @@ Acoustic-JinoMusic/scrapers/jinomusic/category_links.txt
 .netrc
 *.json
 !.gitignore
-!description-translation-tracker/tracker.json
 .windsurf/
 Mymarket/avid-keel*
 Mymarket/mymarket_cookies.json
@@ -113,6 +112,9 @@ Mymarket/temu_cookies.json
 
 # Large/non-scraper projects
 saas-projects/
+Translation/
+description-translation-tracker/
+storage-evidence/
 
 # Nested git repos
 description-translation-tracker/.git/
