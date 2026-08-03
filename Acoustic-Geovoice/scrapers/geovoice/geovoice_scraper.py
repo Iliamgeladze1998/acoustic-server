@@ -174,12 +174,12 @@ async def scrape_geovoice_full():
             print(f"\nProduct {idx}/{len(product_links)}: {product_url}", flush=True)
             
             if idx > 1 and not no_delay:
-                delay = random.uniform(2, 4)
+                delay = random.uniform(10, 15)
                 print(f"  Waiting {delay:.1f}s before visiting...", flush=True)
                 await asyncio.sleep(delay)
             
-            if idx > 1 and idx % 100 == 0 and not no_delay:
-                cooldown = random.uniform(20, 40)
+            if idx > 1 and idx % 50 == 0 and not no_delay:
+                cooldown = random.uniform(120, 180)
                 print(f"  Taking a {cooldown:.0f}s cooldown break after {idx} products...", flush=True)
                 await asyncio.sleep(cooldown)
             
@@ -261,15 +261,15 @@ async def scrape_geovoice_full():
         for idx, product_url in enumerate(product_links, 1):
             print(f"\nProduct {idx}/{len(product_links)}: {product_url}", flush=True)
             
-            # Random delay before each product page (3-6 seconds) to avoid blocking
+            # Random delay before each product page (10-15 seconds) to avoid blocking
             if idx > 1 and not no_delay:  # Skip delay for first product
-                delay = random.uniform(3, 6)
+                delay = random.uniform(10, 15)
                 print(f"  Waiting {delay:.1f}s before visiting...", flush=True)
                 await asyncio.sleep(delay)
             
-            # Longer cooldown break every 100 products to stay under rate limits
-            if idx > 1 and idx % 100 == 0 and not no_delay:
-                cooldown = random.uniform(30, 60)
+            # Longer cooldown break every 50 products to stay under rate limits
+            if idx > 1 and idx % 50 == 0 and not no_delay:
+                cooldown = random.uniform(120, 180)
                 print(f"  Taking a {cooldown:.0f}s cooldown break after {idx} products...", flush=True)
                 await asyncio.sleep(cooldown)
             

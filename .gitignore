@@ -101,6 +101,8 @@ Acoustic-JinoMusic/scrapers/jinomusic/all_product_links.txt
 Acoustic-JinoMusic/scrapers/jinomusic/category_links.txt
 .netrc
 *.json
+!.gitignore
+!description-translation-tracker/tracker.json
 .windsurf/
 Mymarket/avid-keel*
 Mymarket/mymarket_cookies.json
@@ -108,3 +110,13 @@ Mymarket/listings.json
 Mymarket/temu_cookies.json
 .env
 .scraper_env
+
+# Large/non-scraper projects
+saas-projects/
+
+# Nested git repos
+description-translation-tracker/.git/
+
+# Generated data files
+Acoustic-Orders/data/
+Acoustic-Orders/reports/*.csv

@@ -100,6 +100,8 @@ def scrape_acoustic_full():
     
     # Process each product from JSON
     for item in products_list:
+        if item.get("status", "A") == "D":
+            continue  # Skip disabled products
         try:
             # Map JSON fields to output structure using correct API keys
             unique_id = str(item.get('sku', 'N/A')).strip()
