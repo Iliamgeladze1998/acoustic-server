@@ -257,7 +257,10 @@ async def scrape_geovoice_full():
             extra_http_headers={'Referer': 'https://geovoice.ge/'}
         )
         page = await context.new_page()
-        
+
+        consecutive_failures = 0
+        MAX_CONSECUTIVE_FAILURES = 5
+
         for idx, product_url in enumerate(product_links, 1):
             print(f"\nProduct {idx}/{len(product_links)}: {product_url}", flush=True)
             
@@ -296,6 +299,11 @@ async def scrape_geovoice_full():
                             continue
                         else:
                             print(f"  ERROR: Cloudflare block persists after retry, skipping product", flush=True)
+                            consecutive_failures += 1
+                            if consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
+                                print(f"\n⛔ CIRCUIT BREAKER: {consecutive_failures} consecutive failures (Cloudflare/block). Aborting run to avoid prolonging the block.", flush=True)
+                                await browser.close()
+                                return
                             break
                     
                     try:
@@ -362,6 +370,8 @@ async def scrape_geovoice_full():
                         })
                     
                         print(f"  ✓ Extracted: {name[:40]} | ID: {unique_id} | Price: {price}", flush=True)
+
+                        consecutive_failures = 0  # Success - reset circuit breaker
                     
                         # Save progress every 20 products
                         if idx % 20 == 0:
@@ -381,6 +391,11 @@ async def scrape_geovoice_full():
                         continue
                     else:
                         print(f"  ERROR: Failed to scrape {product_url}: {str(e)[:50]}", flush=True)
+                        consecutive_failures += 1
+                        if consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
+                            print(f"\n⛔ CIRCUIT BREAKER: {consecutive_failures} consecutive network failures (site down or IP blocked). Aborting run.", flush=True)
+                            await browser.close()
+                            return
                         break
         
         await browser.close()
