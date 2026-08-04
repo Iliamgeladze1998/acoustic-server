@@ -211,7 +211,7 @@ class GeovoiceLinkCollector:
 
                     # Be respectful to the server (randomized delay to avoid blocking)
 
-                    time.sleep(random.uniform(2, 4))
+                    time.sleep(random.uniform(5, 8))
 
                     
 
