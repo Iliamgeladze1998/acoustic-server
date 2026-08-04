@@ -23,7 +23,7 @@ from pathlib import Path
 CACHE_FILE = Path("/root/scraper_common/products_cache.json")
 CACHE_MAX_AGE = 1800  # 30 minutes – the cron refresher runs at the same interval
 REMOTE_URL = "https://acoustic.ge/data/products.json"
-_FETCH_TIMEOUT = 30
+_FETCH_TIMEOUT = 120  # generous: file may grow several MB after acoustic.ge raises the LIMIT
 
 
 def _is_fresh() -> bool:
