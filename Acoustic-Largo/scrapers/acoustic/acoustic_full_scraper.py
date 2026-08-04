@@ -26,13 +26,38 @@ def extract_price_with_regex(price_text):
     return float(match.group()) if match else 0.0
 
 def fetch_products():
-    """Fetch products from API using hostname-based proxy detection."""
+    """Fetch products from the shared local cache (refreshed by cron every 30min).
+
+    Falls back to a direct fetch only if the cache file is missing entirely.
+    This prevents IP bans from acoustic.ge while keeping data fresh.
+    """
+    try:
+        from products_cache import load_products, cache_age_seconds
+    except ImportError:
+        # scraper_common not on PYTHONPATH – fall back to direct fetch
+        print("[acoustic] scraper_common not on PYTHONPATH, falling back to direct fetch", flush=True)
+        return _fetch_products_direct()
+
+    age = cache_age_seconds()
+    if age is not None:
+        print(f"[acoustic] using local cache (age: {age:.0f}s)", flush=True)
+    else:
+        print("[acoustic] no cache found, fetching directly (this should only happen once)", flush=True)
+
+    data = load_products(allow_fetch=True)
+    if data is None:
+        print("[acoustic] cache unavailable, falling back to direct fetch", flush=True)
+        return _fetch_products_direct()
+    return data
+
+
+def _fetch_products_direct():
+    """Direct fetch from acoustic.ge – only used as a fallback."""
     url = 'https://acoustic.ge/data/products.json'
     hostname = socket.gethostname()
-    
+
     print(f"Hostname: {hostname}", flush=True)
-    
-    # On server: fetch directly. Locally: use SOCKS5 proxy via SSH tunnel (port 1080)
+
     if 'root' in hostname or 'ubuntu' in hostname or 'server' in hostname.lower():
         print("Server environment detected - fetching directly.", flush=True)
         response = requests.get(url, timeout=30)
@@ -43,11 +68,11 @@ def fetch_products():
             'https': 'socks5://127.0.0.1:1080'
         }
         response = requests.get(url, proxies=proxies, timeout=30)
-    
+
     if response.status_code != 200:
         print(f"Error: API returned status code {response.status_code}", flush=True)
         return None
-    
+
     return response.json()
 
 def scrape_acoustic_full():

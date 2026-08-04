@@ -102,6 +102,7 @@ Acoustic-JinoMusic/scrapers/jinomusic/category_links.txt
 .netrc
 *.json
 !.gitignore
+!scraper_common/products_cache.py
 .windsurf/
 Mymarket/avid-keel*
 Mymarket/mymarket_cookies.json
@@ -122,3 +123,4 @@ description-translation-tracker/.git/
 # Generated data files
 Acoustic-Orders/data/
 Acoustic-Orders/reports/*.csv
+scraper_common/products_cache.json

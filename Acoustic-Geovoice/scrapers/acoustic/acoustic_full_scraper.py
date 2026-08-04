@@ -27,19 +27,42 @@ def extract_price_with_regex(price_text):
     return float(match.group()) if match else 0.0
 
 def fetch_products():
-    """Fetch products from API using hostname-based proxy detection."""
+    """Fetch products from the shared local cache (refreshed by cron every 30min).
+
+    Falls back to a direct fetch only if the cache file is missing entirely.
+    This prevents IP bans from acoustic.ge while keeping data fresh.
+    """
+    try:
+        from products_cache import load_products, cache_age_seconds
+    except ImportError:
+        print("[acoustic] scraper_common not on PYTHONPATH, falling back to direct fetch", flush=True)
+        return _fetch_products_direct()
+
+    age = cache_age_seconds()
+    if age is not None:
+        print(f"[acoustic] using local cache (age: {age:.0f}s)", flush=True)
+    else:
+        print("[acoustic] no cache found, fetching directly (this should only happen once)", flush=True)
+
+    data = load_products(allow_fetch=True)
+    if data is None:
+        print("[acoustic] cache unavailable, falling back to direct fetch", flush=True)
+        return _fetch_products_direct()
+    return data
+
+
+def _fetch_products_direct():
+    """Direct fetch from acoustic.ge – only used as a fallback."""
     url = 'https://acoustic.ge/data/products.json'
     hostname = socket.gethostname()
-    
+
     print(f"Hostname: {hostname}", flush=True)
-    
-    # On server: fetch directly. On Windows: SSH to server and fetch there. On Linux local: use SOCKS5 proxy
+
     if 'root' in hostname or 'ubuntu' in hostname or 'server' in hostname.lower():
         print("Server environment detected - fetching directly.", flush=True)
         response = requests.get(url, timeout=30)
     elif os.name == 'nt':
         print("Windows environment detected - fetching via SSH to server.", flush=True)
-        # SSH to server and fetch data there using Windows OpenSSH
         ssh_command = [
             'ssh', '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
@@ -47,12 +70,9 @@ def fetch_products():
             f'curl -s {url}'
         ]
         try:
-            # Set password as environment variable for SSH
             env = os.environ.copy()
-            # Note: This requires SSH key setup or will prompt for password
             result = subprocess.run(ssh_command, capture_output=True, text=True, timeout=30, env=env, encoding='utf-8', errors='replace')
             if result.returncode == 0:
-                # Create a mock response object
                 class MockResponse:
                     def __init__(self, text):
                         self.text = text
@@ -60,13 +80,12 @@ def fetch_products():
                 response = MockResponse(result.stdout)
             else:
                 print(f"SSH command failed: {result.stderr}", flush=True)
-                print("Note: SSH key setup required for passwordless SSH.", flush=True)
                 return None
         except subprocess.TimeoutExpired:
             print("SSH command timed out", flush=True)
             return None
         except FileNotFoundError:
-            print("SSH not found. Please install OpenSSH client.", flush=True)
+            print("SSH not found.", flush=True)
             return None
     else:
         print("Linux local environment detected - using SOCKS5 proxy on port 1080.", flush=True)
@@ -75,17 +94,18 @@ def fetch_products():
             'https': 'socks5://127.0.0.1:1080'
         }
         response = requests.get(url, proxies=proxies, timeout=30)
-    
+
     if response.status_code != 200:
         print(f"Error: API returned status code {response.status_code}", flush=True)
         return None
-    
+
     # Handle both requests.Response and MockResponse
     if hasattr(response, 'json'):
         return response.json()
     else:
         import json
         return json.loads(response.text)
+
 
 def scrape_acoustic_full():
     """Full scraper using JSON API instead of Playwright"""
